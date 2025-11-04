@@ -1,0 +1,9 @@
+# Ignorar todos os vídeos
+*.mp4
+*.MP4
+*.m4v
+
+# (se tiver outros formatos de vídeo, pode adicionar aqui)
+# *.avi
+# *.mkv
+
