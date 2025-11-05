@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Portal do Aluno</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0f0f10;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #c9a2ff;
+    }
+
+    .login-box {
+      background: #1b1b1f;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(140, 82, 255, 0.3);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: #2a2a2f;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #7a41ff, #a56bff);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #a56bff, #c9a2ff);
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .success {
+      color: #74ffb2;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Bem-vindo(a) 👋</h1>
+
+  <div class="login-box">
+    <input type="email" id="email" placeholder="Seu e-mail" required />
+    <input type="password" id="senha" placeholder="Senha (6 primeiros do CPF)" required />
+    <button onclick="login()">Entrar</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    // Configurações Supabase
+    const SUPABASE_URL = "https://mhqsnafcbuyclzkezvvy.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ocXNuYWZjYnV5Y2x6a2V6dnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzNTU2MDEsImV4cCI6MjA3NzkzMTYwMX0.R73pP6GaxxP7Y3n_E7v1rl5JZgwhh3w_3osjCeIegMo";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const msg = document.getElementById("msg");
+
+      msg.textContent = "";
+      msg.className = "";
+
+      if (!email || !senha) {
+        msg.textContent = "Preencha todos os campos!";
+        msg.className = "error";
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha,
+      });
+
+      if (error) {
+        msg.textContent = "❌ E-mail ou senha incorretos.";
+        msg.className = "error";
+      } else {
+        msg.textContent = "✅ Login realizado com sucesso!";
+        msg.className = "success";
+
+        // Salva sessão local (se quiser)
+        localStorage.setItem("session", JSON.stringify(data.session));
+
+        // Redireciona para o painel principal
+        setTimeout(() => {
+          window.location.href = "/index.html"; // ou outra página principal
+        }, 800);
+      }
+    }
+  </script>
+</body>
+</html>
