@@ -15,15 +15,15 @@ export default async function handler(req, res) {
     const evento = req.body;
 
     const email = evento?.customer?.email;
-    const cpf = evento?.customer?.document;
+    const cpf = evento?.customer?.document; // se quiser ainda guardar depois
     const produtos = evento?.items || [];
 
-    if (!email || !cpf) {
-      return res.status(400).json({ error: 'Email ou CPF não encontrados' });
+    if (!email) {
+      return res.status(400).json({ error: 'Email não encontrado' });
     }
 
-    const cpfLimpo = cpf.replace(/\D/g, '');
-    const senhaTemporaria = cpfLimpo.slice(0, 6);
+    // 🔐 SENHA PADRÃO FIXA PARA TODOS
+    const senhaTemporaria = '123456';
 
     // 1️⃣ Cria usuário no Supabase (ou ignora se já existir)
     const { data: user, error: userError } = await supabase.auth.admin.createUser({
@@ -55,6 +55,7 @@ export default async function handler(req, res) {
       categorias.forEach(c => categoriasLiberadas.add(c));
     });
 
+    // pega o id do usuário (da tabela profiles ou do auth)
     const { data: foundUser } = await supabase
       .from('profiles')
       .select('id')
@@ -78,3 +79,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erro ao processar webhook' });
   }
 }
+
+
