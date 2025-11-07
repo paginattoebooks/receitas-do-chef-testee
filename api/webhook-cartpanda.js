@@ -7,7 +7,7 @@ const pool = new Pool({
   user: 'postgres',          // seu usuário do PostgreSQL
   host: 'localhost',         // endereço do banco
   database: 'top_receitas',  // nome do banco que criamos
-  password: 'sua_senha_aqui', // coloque a senha do PostgreSQL
+  password: '123456', // coloque a senha do PostgreSQL
   port: 5432,                // porta padrão do PostgreSQL
 });
 
@@ -85,3 +85,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erro ao processar webhook' });
   }
 }
+
