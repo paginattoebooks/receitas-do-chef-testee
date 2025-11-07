@@ -1,10 +1,11 @@
 {
-  "name": "receitas-de-chef",
+  "name": "receitas-do-chef-testee",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@supabase/supabase-js": "^2.31.0"
+    "pg": "^8.12.0"
   }
 }
+
 
