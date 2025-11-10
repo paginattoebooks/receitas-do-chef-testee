@@ -1,88 +1,130 @@
-// api/webhook-cartpanda.js
-import pkg from 'pg';
-const { Pool } = pkg;
+import pool from '../lib/db.js';
 
-// 🔗 Conexão com seu banco PostgreSQL local
-const pool = new Pool({
-  user: 'postgres',          // seu usuário do PostgreSQL
-  host: 'localhost',         // endereço do banco
-  database: 'top_receitas',  // nome do banco que criamos
-  password: '123456', // coloque a senha do PostgreSQL
-  port: 5432,                // porta padrão do PostgreSQL
-});
-
-// Função handler padrão do Vercel
 export default async function handler(req, res) {
-  if (req.method !== 'POST')
+  // Só aceita POST (webhook)
+  if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
+  }
+
+  const evento = req.body || {};
 
   try {
-    const evento = req.body;
+    const emailRaw = evento?.customer?.email;
+    const items = Array.isArray(evento?.items) ? evento.items : [];
 
-    const email = evento?.customer?.email;
-    const produtos = evento?.items || [];
-
-    if (!email) {
-      return res.status(400).json({ error: 'Email não encontrado' });
+    if (!emailRaw) {
+      return res.status(400).json({ error: 'Email do cliente não encontrado no webhook.' });
     }
 
-    const senhaPadrao = '123456';
+    const email = emailRaw.toLowerCase().trim();
 
-    // 🔹 1. Verifica se o usuário já existe
-    const { rows: users } = await pool.query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
-    );
+    if (items.length === 0) {
+      // Nada pra processar, mas não é erro "fatal"
+      return res.status(200).json({ success: true, message: 'Nenhum item no webhook.' });
+    }
 
-    let userId;
-    if (users.length > 0) {
-      userId = users[0].id;
-    } else {
-      // 🔹 2. Cria novo usuário
-      const result = await pool.query(
-        'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
-        [email, senhaPadrao]
+    // Extrair possíveis SKUs dos items
+    const skus = items
+      .map((item) => {
+        return (
+          item.sku ||
+          item.SKU ||
+          item.product_sku ||
+          item.variant_sku ||
+          item.code ||    // se o Cartpanda usar outro nome
+          null
+        );
+      })
+      .filter(Boolean);
+
+    if (skus.length === 0) {
+      return res.status(400).json({ error: 'Nenhum SKU encontrado nos itens do webhook.' });
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      // 1️⃣ Buscar ou criar usuário
+      let userId;
+
+      const existingUser = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
       );
-      userId = result.rows[0].id;
-    }
 
-    // 🔹 3. Mapa dos produtos → categorias (ajuste conforme seu CartPanda)
-    const mapaCategorias = {
-      'SKU_AIRFRYER': 1,
-      'SKU_DOCES': 2,
-      'SKU_BOLOS': 3,
-      'SKU_MOLHOS': 4,
-      'SKU_SUSHI': 5,
-      'SKU_FIT': 6,
-      'SKU_JANTAR': 7,
-      'SKU_DOMINGO': 8,
-    };
+      if (existingUser.rowCount > 0) {
+        userId = existingUser.rows[0].id;
+      } else {
+        const senhaPadrao = '123456'; // mesma senha que você usa no login
+        const newUser = await client.query(
+          'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
+          [email, senhaPadrao]
+        );
+        userId = newUser.rows[0].id;
+      }
 
-    const categoriasLiberadas = new Set();
-    produtos.forEach(p => {
-      const sku = p.sku || p.title || '';
-      const categoriaId = mapaCategorias[sku];
-      if (categoriaId) categoriasLiberadas.add(categoriaId);
-    });
-
-    // 🔹 4. Insere os acessos liberados
-    for (const categoriaId of categoriasLiberadas) {
-      await pool.query(
+      // 2️⃣ Buscar produtos pelo SKU na tabela products
+      const productsResult = await client.query(
         `
-        INSERT INTO access_levels (user_id, category_id, granted_at)
-        VALUES ($1, $2, NOW())
-        ON CONFLICT DO NOTHING;
+        SELECT id, name, cartpanda_sku
+        FROM products
+        WHERE cartpanda_sku = ANY($1)
         `,
-        [userId, categoriaId]
+        [skus]
       );
+
+      if (productsResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        console.warn('Nenhum produto encontrado para os SKUs:', skus);
+        return res.status(400).json({
+          error: 'Nenhum produto encontrado para os SKUs enviados.',
+          skusRecebidos: skus,
+        });
+      }
+
+      // 3️⃣ Inserir em user_products (sem duplicar)
+      let produtosInseridos = 0;
+
+      for (const product of productsResult.rows) {
+        const { id: productId } = product;
+
+        const insert = await client.query(
+          `
+          INSERT INTO user_products (user_id, product_id, purchased_at, source)
+          VALUES ($1, $2, NOW(), 'cartpanda')
+          ON CONFLICT (user_id, product_id) DO NOTHING
+          `,
+          [userId, productId]
+        );
+
+        if (insert.rowCount > 0) {
+          produtosInseridos += 1;
+        }
+      }
+
+      await client.query('COMMIT');
+
+      return res.status(200).json({
+        success: true,
+        userId,
+        email,
+        skusRecebidos: skus,
+        produtosEncontrados: productsResult.rowCount,
+        produtosInseridos,
+      });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('Erro ao processar webhook Cartpanda:', err);
+      return res.status(500).json({ error: 'Erro ao processar webhook.' });
+    } finally {
+      client.release();
     }
-
-    console.log(`✅ Usuário ${email} atualizado com sucesso!`);
-    return res.status(200).json({ success: true });
-
   } catch (err) {
-    console.error('❌ Erro no webhook:', err);
-    return res.status(500).json({ error: 'Erro ao processar webhook' });
+    console.error('Erro inesperado no webhook Cartpanda:', err);
+    return res.status(500).json({ error: 'Erro inesperado ao processar webhook.' });
   }
 }
+
 
