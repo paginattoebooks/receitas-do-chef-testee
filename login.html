@@ -192,7 +192,7 @@
       <div id="msg" class="msg"></div>
     </form>
   </div>
-  <script>
+ <script>
   const form = document.getElementById("loginForm");
   const msg  = document.getElementById("msg");
   const btn  = document.getElementById("btnLogin");
@@ -205,7 +205,13 @@
 
     const email = document.getElementById("email").value.trim();
     const cpf   = document.getElementById("cpf").value.trim();
-    const senha = "123456"; // senha padrão
+    const senha = "123456"; // senha padrão que estamos usando
+
+    if (!email || !cpf) {
+      msg.textContent = "Preencha e-mail e CPF.";
+      msg.classList.add("error");
+      return;
+    }
 
     btn.disabled = true;
     btn.textContent = "Entrando...";
@@ -226,14 +232,16 @@
         msg.textContent = "✅ Login realizado com sucesso!";
         msg.classList.add("success");
 
-        // salva e redireciona
-        localStorage.setItem("chef_user_email", email);
+        // guarda info simples da sessão
+        localStorage.setItem("chef_user_email", email.toLowerCase());
+
+        // redireciona pra área de membros
         setTimeout(() => {
           window.location.href = "/index.html";
         }, 800);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Erro de conexão:", error);
       msg.textContent = "Erro de conexão com o servidor.";
       msg.classList.add("error");
     } finally {
@@ -242,5 +250,3 @@
     }
   });
 </script>
-</body>
-</html>
