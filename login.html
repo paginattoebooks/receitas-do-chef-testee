@@ -10,9 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     * {
       margin: 0;
@@ -162,7 +159,6 @@
   <div class="login-card">
     <div class="login-logo">
       <div class="chef-icon">
-        <!-- Ajuste o nome do arquivo da logo, se for diferente -->
         <img src="Top receitas do chef.png" alt="Top Receitas do Chef">
       </div>
       <div class="logo-text">Top Receitas do Chef</div>
@@ -181,10 +177,10 @@
       </div>
 
       <div class="form-group">
-        <label for="cpf">CPF</label>
-        <input type="text" id="cpf" required placeholder="000.000.000-00" />
+        <label for="cpf">CPF / Senha</label>
+        <input type="text" id="cpf" required placeholder="123456" />
         <div class="hint">
-          Informe o CPF apenas para conferência. A senha de acesso é <strong>123456</strong>.
+          Informe o CPF ou a senha padrão <strong>123456</strong>, de acordo com o que o back-end espera.
         </div>
       </div>
 
@@ -192,61 +188,69 @@
       <div id="msg" class="msg"></div>
     </form>
   </div>
- <script>
-  const form = document.getElementById("loginForm");
-  const msg  = document.getElementById("msg");
-  const btn  = document.getElementById("btnLogin");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg  = document.getElementById("msg");
+    const btn  = document.getElementById("btnLogin");
 
-    msg.textContent = "";
-    msg.className = "msg";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const cpf   = document.getElementById("cpf").value.trim();
-    const senha = "123456"; // senha padrão que estamos usando
+      msg.textContent = "";
+      msg.className = "msg";
 
-    if (!email || !cpf) {
-      msg.textContent = "Preencha e-mail e CPF.";
-      msg.classList.add("error");
-      return;
-    }
+      const email = document.getElementById("email").value.trim();
+      const cpf   = document.getElementById("cpf").value.trim(); // pode ser CPF ou senha
 
-    btn.disabled = true;
-    btn.textContent = "Entrando...";
-
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: senha }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        msg.textContent = data.error || "Falha no login.";
+      if (!email || !cpf) {
+        msg.textContent = "Preencha e-mail e senha/CPF.";
         msg.classList.add("error");
-      } else {
-        msg.textContent = "✅ Login realizado com sucesso!";
-        msg.classList.add("success");
+        return;
+      }
 
-        // guarda info simples da sessão
+      btn.disabled = true;
+      btn.textContent = "Entrando...";
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, cpf })   // <-- tem que bater com o login.js do back-end
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.success) {
+          msg.textContent = data.error || "E-mail ou senha inválidos.";
+          msg.classList.add("error");
+          return;
+        }
+
+        // 🔴 PONTO MAIS IMPORTANTE:
+        // Salva a "sessão" com a MESMA chave que o index.html usa
         localStorage.setItem("chef_user_email", email.toLowerCase());
 
-        // redireciona pra área de membros
+        // (Opcional) salvar também produtos liberados:
+        // localStorage.setItem("chef_products", JSON.stringify(data.products || []));
+
+        msg.textContent = "Login realizado com sucesso!";
+        msg.classList.add("success");
+
+        // Redireciona para a área de membros
         setTimeout(() => {
           window.location.href = "/index.html";
-        }, 800);
+        }, 500);
+
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Erro de conexão com o servidor.";
+        msg.classList.add("error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Entrar";
       }
-    } catch (error) {
-      console.error("Erro de conexão:", error);
-      msg.textContent = "Erro de conexão com o servidor.";
-      msg.classList.add("error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Entrar";
-    }
-  });
-</script>
+    });
+  </script>
+</body>
+</html>
