@@ -5,18 +5,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
-  const { email, password } = req.body || {};
+  const { email, password, cpf } = req.body || {};
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'E-mail e senha são obrigatórios.' });
+  if (!email) {
+    return res.status(400).json({ error: 'E-mail é obrigatório.' });
+  }
+
+  const senha = (cpf || password || '').toString().trim();
+
+  if (!senha) {
+    return res.status(400).json({ error: 'Senha (ou CPF) é obrigatória.' });
   }
 
   const emailNormalizado = email.toLowerCase().trim();
 
   try {
     const result = await pool.query(
-      'SELECT id, email FROM users WHERE email = $1 AND password = $2 LIMIT 1',
-      [emailNormalizado, password]
+      `
+      SELECT id, email
+      FROM users
+      WHERE email = $1
+        AND password = $2
+      LIMIT 1
+      `,
+      [emailNormalizado, senha]
     );
 
     if (result.rowCount === 0) {
@@ -37,4 +49,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erro interno ao tentar fazer login.' });
   }
 }
+
 
