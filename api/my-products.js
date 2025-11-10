@@ -1,47 +1,57 @@
+// /api/my-products.js
 import pool from '../lib/db.js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, message: 'Use POST' });
   }
 
-  const emailRaw = req.query.email;
+  const { email } = req.body || {};
 
-  if (!emailRaw) {
-    return res.status(400).json({ error: 'Parâmetro "email" é obrigatório.' });
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email é obrigatório',
+    });
   }
-
-  const email = emailRaw.toLowerCase().trim();
 
   try {
-    const result = await pool.query(
-      `
-      SELECT 
+    // Busca todos os produtos ativos que esse email possui
+    const query = `
+      SELECT
         p.id,
         p.name,
         p.type,
-        p.description,
         p.slug,
-        p.price,
-        p.checkout_url,
+        p.description,
         p.cover_image_url,
         p.tags
-      FROM user_products up
-      JOIN users u ON u.id = up.user_id
+      FROM users u
+      JOIN user_products up ON up.user_id = u.id
       JOIN products p ON p.id = up.product_id
-      WHERE u.email = $1
-      ORDER BY p.type, p.name
-      `,
-      [email]
-    );
+      WHERE lower(u.email) = lower($1)
+        AND p.is_active = true
+      ORDER BY p.name;
+    `;
+
+    const { rows } = await pool.query(query, [email]);
+
+    // Se quiser separar em "videos" / "ebooks"
+    const videos = rows.filter(r => r.type === 'video');
+    const ebooks = rows.filter(r => r.type === 'ebook');
 
     return res.status(200).json({
       success: true,
-      email,
-      products: result.rows,
+      products: rows, // tudo junto
+      videos,
+      ebooks,
     });
-  } catch (error) {
-    console.error('Erro em /api/my-products:', error);
-    return res.status(500).json({ error: 'Erro ao buscar produtos do usuário.' });
+  } catch (err) {
+    console.error('Erro em /api/my-products', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Erro no servidor ao buscar produtos do usuário.',
+    });
   }
 }
+
