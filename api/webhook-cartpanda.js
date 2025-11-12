@@ -1,7 +1,6 @@
 import pool from '../lib/db.js';
 
 export default async function handler(req, res) {
-  // Só aceita POST (webhook)
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
   }
@@ -9,36 +8,58 @@ export default async function handler(req, res) {
   const evento = req.body || {};
 
   try {
-    const emailRaw = evento?.customer?.email;
-    const items = Array.isArray(evento?.items) ? evento.items : [];
+    // 1) E-mail do cliente
+    const emailRaw =
+      evento?.customer?.email ||
+      evento?.customer_email ||
+      evento?.buyer?.email ||
+      evento?.email ||
+      null;
 
     if (!emailRaw) {
       return res.status(400).json({ error: 'Email do cliente não encontrado no webhook.' });
     }
+    const email = String(emailRaw).toLowerCase().trim();
 
-    const email = emailRaw.toLowerCase().trim();
+    // 2) Colete possíveis checkout_links (nomes variam conforme integração)
+    const items = Array.isArray(evento?.items) ? evento.items : [];
 
-    if (items.length === 0) {
-      // Nada pra processar, mas não é erro "fatal"
-      return res.status(200).json({ success: true, message: 'Nenhum item no webhook.' });
+    const candidates = new Set();
+
+    // nível do evento
+    [
+      evento?.checkout_link,
+      evento?.checkout_url,
+      evento?.order?.checkout_link,
+      evento?.order?.checkout_url,
+      evento?.purchase?.checkout_link,
+      evento?.purchase?.checkout_url,
+      evento?.url,
+      evento?.link
+    ].forEach((v) => {
+      if (typeof v === 'string' && v.includes('/checkout/')) candidates.add(v.trim());
+    });
+
+    // nível dos items
+    for (const it of items) {
+      [
+        it?.checkout_link,
+        it?.checkout_url,
+        it?.url,
+        it?.link,
+        it?.product_url
+      ].forEach((v) => {
+        if (typeof v === 'string' && v.includes('/checkout/')) candidates.add(v.trim());
+      });
     }
 
-    // Extrair possíveis SKUs dos items
-    const skus = items
-      .map((item) => {
-        return (
-          item.sku ||
-          item.SKU ||
-          item.product_sku ||
-          item.variant_sku ||
-          item.code ||    // se o Cartpanda usar outro nome
-          null
-        );
-      })
-      .filter(Boolean);
+    const checkoutLinks = Array.from(candidates);
 
-    if (skus.length === 0) {
-      return res.status(400).json({ error: 'Nenhum SKU encontrado nos itens do webhook.' });
+    if (checkoutLinks.length === 0) {
+      return res.status(400).json({
+        error: 'Nenhum checkout_link encontrado no webhook.',
+        dica: 'Confirme no Cartpanda quais campos do payload trazem a URL de checkout.'
+      });
     }
 
     const client = await pool.connect();
@@ -46,73 +67,86 @@ export default async function handler(req, res) {
     try {
       await client.query('BEGIN');
 
-      // 1️⃣ Buscar ou criar usuário
+      // (opcional) logar payload bruto para debug
+      try {
+        await client.query(
+          `CREATE TABLE IF NOT EXISTS webhook_logs (
+            id BIGSERIAL PRIMARY KEY,
+            payload JSONB NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );`
+        );
+        await client.query(`INSERT INTO webhook_logs (payload) VALUES ($1)`, [evento]);
+      } catch { /* se falhar o log, não quebra o fluxo */ }
+
+      // 3) Buscar usuário (ou criar)
       let userId;
-
-      const existingUser = await client.query(
-        'SELECT id FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (existingUser.rowCount > 0) {
-        userId = existingUser.rows[0].id;
+      const u = await client.query(`SELECT id FROM users WHERE email = $1`, [email]);
+      if (u.rowCount > 0) {
+        userId = u.rows[0].id;
       } else {
-        const senhaPadrao = '123456'; // mesma senha que você usa no login
-        const newUser = await client.query(
-          'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
+        const senhaPadrao = '123456'; // igual ao login que você já usa
+        const ins = await client.query(
+          `INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id`,
           [email, senhaPadrao]
         );
-        userId = newUser.rows[0].id;
+        userId = ins.rows[0].id;
       }
 
-      // 2️⃣ Buscar produtos pelo SKU na tabela products
-      const productsResult = await client.query(
-        `
-        SELECT id, name, cartpanda_sku
-        FROM products
-        WHERE cartpanda_sku = ANY($1)
-        `,
-        [skus]
+      // 4) Encontrar produto(s) pelo checkout_link
+      const prod = await client.query(
+        `SELECT id, name, deliverable_key
+           FROM products
+          WHERE checkout_link = ANY($1)`,
+        [checkoutLinks]
       );
 
-      if (productsResult.rowCount === 0) {
+      if (prod.rowCount === 0) {
         await client.query('ROLLBACK');
-        console.warn('Nenhum produto encontrado para os SKUs:', skus);
         return res.status(400).json({
-          error: 'Nenhum produto encontrado para os SKUs enviados.',
-          skusRecebidos: skus,
+          error: 'Nenhum produto encontrado para os checkout_links recebidos.',
+          checkout_links_recebidos: checkoutLinks
         });
       }
 
-      // 3️⃣ Inserir em user_products (sem duplicar)
+      // 5) Vincular produtos ao usuário (sem duplicar)
       let produtosInseridos = 0;
 
-      for (const product of productsResult.rows) {
-        const { id: productId } = product;
+      // garantir constraint (idempotente)
+      await client.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1
+              FROM pg_constraint
+             WHERE conname = 'user_products_user_id_product_id_key'
+          ) THEN
+            ALTER TABLE user_products
+              ADD CONSTRAINT user_products_user_id_product_id_key
+              UNIQUE (user_id, product_id);
+          END IF;
+        END$$;
+      `);
 
-        const insert = await client.query(
-          `
-          INSERT INTO user_products (user_id, product_id, purchased_at, source)
-          VALUES ($1, $2, NOW(), 'cartpanda')
-          ON CONFLICT (user_id, product_id) DO NOTHING
-          `,
-          [userId, productId]
+      for (const p of prod.rows) {
+        const ins = await client.query(
+          `INSERT INTO user_products (user_id, product_id, purchased_at, source)
+             VALUES ($1, $2, NOW(), 'cartpanda')
+             ON CONFLICT (user_id, product_id) DO NOTHING`,
+          [userId, p.id]
         );
-
-        if (insert.rowCount > 0) {
-          produtosInseridos += 1;
-        }
+        if (ins.rowCount > 0) produtosInseridos += 1;
       }
 
       await client.query('COMMIT');
 
       return res.status(200).json({
         success: true,
-        userId,
         email,
-        skusRecebidos: skus,
-        produtosEncontrados: productsResult.rowCount,
-        produtosInseridos,
+        userId,
+        checkout_links_recebidos: checkoutLinks,
+        produtosEncontrados: prod.rowCount,
+        produtosInseridos
       });
     } catch (err) {
       await client.query('ROLLBACK');
@@ -126,5 +160,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erro inesperado ao processar webhook.' });
   }
 }
+
 
 
