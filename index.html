@@ -1,841 +1,113 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <script>
-  (function () {
-    // verifica se existe "sessão" salva
-    const user = localStorage.getItem('chef_user_email');
-
-    // se NÃO estiver logado, manda pro login
-    if (!user) {
-      window.location.href = '/login.html';
-    }
-  })();
-</script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Top Receitas do Chef</title>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
-
+    /* ====== Base / Theme ====== */
+    * { margin:0; padding:0; box-sizing:border-box; }
     :root{
-      /* paleta premium */
-      --bg:#F9F7F4;
-      --text:#2B2B2B;
-      --muted:#8C8C8C;
-      --gold:#C8A96A;
-      --gold-dark:#B28E4E;
-      --ink:#3F3F3F;
-      --white:#fff;
-      --black:#000;
-      --border:#EAE6DE;
-      --shadow:0 4px 12px rgba(0,0,0,0.08);
+      --bg:#F9F7F4; --text:#2B2B2B; --muted:#8C8C8C;
+      --gold:#C8A96A; --gold-dark:#B28E4E; --ink:#3F3F3F;
+      --white:#fff; --border:#EAE6DE; --shadow:0 4px 12px rgba(0,0,0,.08);
     }
-
-    body{
-      font-family:'Lato',sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      overflow-x:hidden;
-      line-height:1.7;
-    }
-    body.lock{
-      height:100vh;
-      overflow:hidden;
-    }
-
-    /* ===== TELA 1 – LANDING ===== */
-    #landing{
-      position:relative;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:0 20px;
-      color:#fff;
-      background-color:#333;
-      background-image:
-        linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-        url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600');
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-    }
-
-    #landing .brand{
-      position:absolute;
-      top:26px;
-      left:50%;
-      transform:translateX(-50%);
-      display:flex;
-      align-items:center;
-      gap:10px;
-      pointer-events:none;
-    }
-
-    .chef-icon{
-      width:60px;
-      height:60px;
-      border-radius:50%;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#0f0f0f;
-      box-shadow:var(--shadow);
-    }
-    .chef-icon img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .logo-text{
-      font-family:'Great Vibes',cursive;
-      font-size:32px;
-      color:#fff;
-      letter-spacing:0.5px;
-    }
-
-    .landing-title{
-      font-family:'Playfair Display',serif;
-      font-size:56px;
-      line-height:1.1;
-      margin-bottom:14px;
-      text-shadow:2px 2px 4px rgba(0,0,0,.5);
-      letter-spacing:0.5px;
-    }
-
-    .landing-sub{
-      font-size:20px;
-      margin-bottom:36px;
-      text-shadow:1px 1px 3px rgba(0,0,0,.6);
-    }
-
-    .btn-primary{
-      background:var(--gold);
-      color:#111;
-      border:none;
-      border-radius:50px;
-      padding:18px 46px;
-      font-size:18px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 8px 20px rgba(200,169,106,.4);
-      transition:all .3s ease;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-    }
-    .btn-primary:hover{
-      background:var(--gold-dark);
-      color:#111;
-      transform:translateY(-3px);
-      box-shadow:0 12px 26px rgba(0,0,0,.45);
-    }
-    /* ===== Ajustes para mobile ===== */
-@media (max-width: 700px) {
-  header {
-    display: flex;
-    flex-direction: column; /* empilha logo e menu */
-    align-items: center;
-    gap: 6px;
-  }
-
-  header img {
-    width: 55px; /* reduz o tamanho da logo */
-    height: auto;
-  }
-
-  .logo-text {
-    text-align: center; /* centraliza o texto "Top Receitas do Chef" */
-    font-size: 1.1rem;
-    line-height: 1.2;
-  }
-
-  nav {
-    display: flex;
-    justify-content: center;
-    gap: 24px; /* espaçamento entre os links */
-    font-size: 1rem;
-  }
-
-  nav a {
-    display: inline-block;
-    text-align: center;
-  }
-}
-
-
-    /* ===== TELA 2 – APP / ÁREA DE MEMBROS ===== */
+    body{ font-family:'Lato',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; line-height:1.7; }
     .hidden{ display:none !important; }
 
+    /* ====== Header fixo ====== */
     .header-fixed{
-      position:fixed;
-      inset:0 0 auto 0;
-      background:rgba(255,255,255,0.85);
-      backdrop-filter:blur(8px);
-      color:var(--text);
-      padding:14px 20px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      box-shadow:var(--shadow);
-      z-index:1000;
+      position:fixed; inset:0 0 auto 0; background:rgba(255,255,255,.85);
+      backdrop-filter:blur(8px); padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
+      box-shadow:var(--shadow); z-index:1000;
     }
+    .header-logo{ display:flex; align-items:center; gap:10px; }
+    .chef-icon{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#0f0f0f; display:flex; align-items:center; justify-content:center; }
+    .chef-icon img{ width:100%; height:100%; object-fit:cover; }
+    .logo-text{ font-family:'Great Vibes',cursive; font-size:22px; color:var(--text); }
+    .main-nav{ display:flex; gap:18px; font-size:14px; letter-spacing:.12em; text-transform:uppercase; }
+    .main-nav button{ background:none; border:none; cursor:pointer; color:var(--ink); }
+    .main-nav button:hover{ color:var(--gold-dark); }
 
-    .header-logo{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    /* ====== Landing ====== */
+    body.lock{ height:100vh; overflow:hidden; }
+    #landing{
+      position:relative; height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; color:#fff;
+      background-image:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600');
+      background-size:cover; background-position:center;
+      padding:0 20px;
     }
-    .header-logo .chef-icon{
-      width:40px;
-      height:40px;
+    #landing .brand{ position:absolute; top:26px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:10px; }
+    #landing .logo-text{ color:#fff; font-size:32px; }
+    .landing-title{ font-family:'Playfair Display',serif; font-size:56px; margin-bottom:14px; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
+    .landing-sub{ font-size:20px; margin-bottom:36px; text-shadow:1px 1px 3px rgba(0,0,0,.6); }
+    .btn-primary{
+      background:var(--gold); color:#111; border:none; border-radius:50px; padding:18px 46px;
+      font-size:18px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px rgba(200,169,106,.4); letter-spacing:.08em; text-transform:uppercase;
     }
-    .header-logo .logo-text{
-      font-size:22px;
-      color:var(--text);
-    }
+    .btn-primary:hover{ background:var(--gold-dark); transform:translateY(-2px); }
 
-    /* menu minimalista */
-    .main-nav{
-      display:flex;
-      align-items:center;
-      gap:24px;
-      font-size:14px;
-      letter-spacing:0.12em;
-      text-transform:uppercase;
-    }
-    .main-nav .nav-link{
-      background:none;
-      border:none;
-      cursor:pointer;
-      color:var(--ink);
-      font-weight:400;
-      padding-bottom:4px;
-      position:relative;
-      transition:all 0.3s ease;
-    }
-    .main-nav .nav-link::after{
-      content:"";
-      position:absolute;
-      left:0;
-      bottom:0;
-      width:0;
-      height:2px;
-      background:var(--gold);
-      transition:width 0.3s ease;
-    }
-    .main-nav .nav-link:hover{
-      color:var(--gold-dark);
-    }
-    .main-nav .nav-link:hover::after{
-      width:100%;
-    }
-
-    .btn-inicio{ /* reserva, se quiser usar */
-      background:#e1e7df;
-      color:#111;
-      border:none;
-      border-radius:25px;
-      padding:10px 24px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.25s;
-    }
-    .btn-inicio:hover{
-      background:var(--gold-dark);
-      color:#fff;
-      transform:translateY(-1px);
-    }
-
-    .categorias-section{
-      padding:110px 20px 70px;
-      max-width:1200px;
-      margin:0 auto;
-    }
-
-    .section-title{
-      font-family:'Playfair Display',serif;
-      font-size:42px;
-      text-align:center;
-      margin-bottom:10px;
-      letter-spacing:0.5px;
-    }
-    .section-subtitle{
-      text-align:center;
-      font-size:18px;
-      color:var(--muted);
-      margin-bottom:44px;
-      font-weight:300;
-      max-width:580px;
-      margin-left:auto;
-      margin-right:auto;
-    }
-
-     .categorias-grid {
-       display: grid;
-       grid-template-columns: 1fr; /* 1 coluna padrão */
-       gap: 26px;
-}
-
-    @media (min-width: 700px) {
-     .categorias-grid {
-      grid-template-columns: repeat(2, 1fr); /* 2 colunas em tablets */
-    }
-  }
-
-    @media (min-width: 1024px) {
-     .categorias-grid {
-       grid-template-columns: repeat(3, 1fr); /* 3 colunas em desktop */
-    }
-  }
+    /* ====== Seções ====== */
+    .categorias-section{ padding:110px 20px 70px; max-width:1200px; margin:0 auto; }
+    .section-title{ font-family:'Playfair Display',serif; font-size:42px; text-align:center; margin-bottom:10px; }
+    .section-subtitle{ text-align:center; font-size:18px; color:var(--muted); margin:0 auto 44px; max-width:620px; }
+    .categorias-grid{ display:grid; grid-template-columns:1fr; gap:26px; }
+    @media (min-width:700px){ .categorias-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (min-width:1024px){ .categorias-grid{ grid-template-columns:repeat(3,1fr); } }
 
     .categoria-card{
-      background:linear-gradient(135deg,#FFEFD5 0%,#FFE4B5 100%);
-      border-radius:16px;
-      padding:20px;
-      box-shadow:var(--shadow);
-      transition:all .3s ease;
-      cursor:pointer;
-      text-align:center;
-      position:relative;
-      animation:fadeUp .4s ease both;
+      background:linear-gradient(135deg,#FFEFD5 0%,#FFE4B5 100%); border-radius:16px; padding:20px; box-shadow:var(--shadow);
+      transition:.3s; text-align:center; position:relative;
     }
-    .categoria-card:hover{
-      transform:translateY(-4px);
-      box-shadow:0 10px 25px rgba(0,0,0,.16);
-    }
-
-    .categoria-img{
-      width:100%;
-      height:160px;
-      border-radius:12px;
-      overflow:hidden;
-      margin-bottom:14px;
-    }
-    .categoria-img img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      transition:transform .4s ease;
-    }
-    .categoria-card:hover .categoria-img img{
-      transform:scale(1.03);
-    }
-
-    .categoria-card h3{
-      font-family:'Playfair Display',serif;
-      font-size:24px;
-      margin:8px 0;
-      letter-spacing:0.5px;
-    }
-    .categoria-card p{
-      color:var(--muted);
-      margin-bottom:10px;
-    }
-    .receitas-count{
-      color:var(--gold-dark);
-      font-weight:700;
-      font-size:13px;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-    }
-
-    /* Locked (mantido se quiser usar no futuro) */
-    .categoria-card.locked{
-      cursor:default;
-      opacity:.8;
-    }
-    .categoria-card.locked:hover{
-      transform:none;
-      box-shadow:var(--shadow);
-    }
-    .categoria-card.locked .receitas-count{
-      display:none;
-    }
-    .categoria-lock{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-    }
-    .categoria-lock span.lock-icon{
-      font-size:16px;
-    }
-
-    /* color variations */
-    .categorias-grid .categoria-card:nth-child(2){ background:linear-gradient(135deg,#FFE4E1 0%,#FFC0CB 100%); }
-    .categorias-grid .categoria-card:nth-child(3){ background:linear-gradient(135deg,#F0E68C 0%,#EEE8AA 100%); }
-    .categorias-grid .categoria-card:nth-child(4){ background:linear-gradient(135deg,#E0EEE0 0%,#C1CDC1 100%); }
-    .categorias-grid .categoria-card:nth-child(5){ background:linear-gradient(135deg,#FFE4B5 0%,#FFDAB9 100%); }
-    .categorias-grid .categoria-card:nth-child(6){ background:linear-gradient(135deg,#DDA0DD 0%,#EE82EE 100%); }
-    .categorias-grid .categoria-card:nth-child(7){ background:linear-gradient(135deg,#F0FFFF 0%,#E0FFFF 100%); }
-    .categorias-grid .categoria-card:nth-child(8){ background:linear-gradient(135deg,#98FB98 0%,#90EE90 100%); }
-    .categorias-grid .categoria-card:nth-child(9){ background:linear-gradient(135deg,#FFD700 0%,#FFA500 100%); }
-    .categorias-grid .categoria-card:nth-child(10){ background:linear-gradient(135deg,#FFDEAD 0%,#F5DEB3 100%); }
-
-    .receitas-section{
-      padding:110px 20px 80px;
-      max-width:1200px;
-      margin:0 auto;
-    }
-
-    .btn-voltar{
-      background:var(--text);
-      color:#fff;
-      border:none;
-      border-radius:25px;
-      padding:12px 24px;
-      font-weight:700;
-      cursor:pointer;
-      margin-bottom:26px;
-      transition:.25s;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-    .btn-voltar:hover{
-      background:var(--ink);
-      transform:translateX(-3px);
-    }
-
-    .receitas-grid {
-     display: grid;
-     grid-template-columns: 1fr; /* 1 coluna padrão */
-     gap: 24px;
-   }
-
-    @media (min-width: 700px) {
-     .receitas-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-   }
-
-    @media (min-width: 1024px) {
-     .receitas-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-   }
-    .receita-card{
-      background:#fff;
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      transition:all .3s ease;
-      animation:fadeUp .4s ease both;
-    }
-    .receita-card:hover{
-      transform:translateY(-4px);
-      box-shadow:0 10px 25px rgba(0,0,0,.15);
-    }
-
-    .receita-img{
-      width:100%;
-      height:200px;
-      object-fit:cover;
-      display:block;
-      transition:transform .4s ease;
-    }
-    .receita-card:hover .receita-img{
-      transform:scale(1.03);
-    }
-
-    .receita-content{
-      padding:18px;
-    }
-    .receita-content h4{
-      font-family:'Playfair Display',serif;
-      font-size:20px;
-      margin-bottom:8px;
-      letter-spacing:0.5px;
-    }
-    .receita-content p{
-      color:var(--muted);
-      margin-bottom:16px;
-      line-height:1.6;
-    }
-
-    .receita-buttons{
-      display:flex;
-      gap:10px;
-    }
+    .categoria-card:hover{ transform:translateY(-4px); box-shadow:0 10px 25px rgba(0,0,0,.16); }
+    .categoria-img{ width:100%; height:160px; border-radius:12px; overflow:hidden; margin-bottom:14px; }
+    .categoria-img img{ width:100%; height:100%; object-fit:cover; transition:.4s; }
+    .categoria-card:hover .categoria-img img{ transform:scale(1.03); }
+    .categoria-card h3{ font-family:'Playfair Display',serif; font-size:22px; margin:8px 0; }
+    .categoria-card p{ color:var(--muted); }
+    .receitas-count{ color:var(--gold-dark); font-weight:700; font-size:12px; margin-top:6px; }
     .btn-receita{
-      flex:1;
-      border:none;
-      border-radius:50px;
-      padding:10px 0;
-      font-weight:700;
-      cursor:pointer;
-      font-size:13px;
-      background:var(--gold);
-      color:#000;
-      box-shadow:0 4px 8px rgba(200,169,106,0.4);
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      transition:all .3s ease;
+      border:none; border-radius:50px; padding:10px 18px; font-weight:700; cursor:pointer; font-size:13px;
+      background:var(--gold); color:#000; box-shadow:0 4px 8px rgba(200,169,106,.4); letter-spacing:.08em; text-transform:uppercase;
     }
-    .btn-receita:hover{
-      background:var(--gold-dark);
-      transform:translateY(-1px);
-      box-shadow:0 6px 14px rgba(200,169,106,0.5);
-    }
+    .btn-receita:hover{ background:var(--gold-dark); transform:translateY(-1px); }
+    .footer{ background:#2B2B2B; color:#fff; text-align:center; padding:30px 20px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
 
-    .footer{
-      background:#2B2B2B;
-      color:#fff;
-      text-align:center;
-      padding:30px 20px;
-      font-size:12px;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
+    /* ====== Search ====== */
+    .search-wrap{ margin:90px auto 10px; max-width:720px; padding:0 16px; }
+    .search-bar{ display:flex; gap:10px; justify-content:center; }
+    .search-bar input{
+      width:100%; max-width:560px; padding:12px 16px; border-radius:999px; border:1px solid #ddd; outline:none;
     }
-    .social-links{
-      margin-top:14px;
-      display:flex;
-      gap:18px;
-      justify-content:center;
-      font-size:13px;
-      text-transform:none;
-      letter-spacing:0;
-    }
-    .social-links a{
-      color:var(--gold);
-      text-decoration:none;
-      transition:.2s;
-    }
-    .social-links a:hover{
-      color:#fff;
-      transform:scale(1.05);
-    }
+    .search-section{ padding:20px 20px 0; max-width:1200px; margin:0 auto; }
+    .search-title{ font-size:22px; margin:24px 0 8px; }
+    .hr{ height:1px; background:#eee; margin:24px 0; }
 
-    /* ===== Modal de vídeo ===== */
-    .video-player{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.85);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:2000;
-      animation:fadeIn .25s ease-out;
-    }
-    .video-container{
-      width:min(92vw,900px);
-      position:relative;
-      border-radius:16px;
-      overflow:hidden;
-      background:#000;
-      box-shadow:0 10px 40px rgba(0,0,0,.45);
-    }
-    .video-container video{
-      width:100%;
-      height:auto;
-      display:block;
-    }
-    .video-container iframe{
-      width:100%;
-      height:min(70vh, 520px);
-      border:0;
-      display:block;
-     }
-
-    .video-close{
-      position:absolute;
-      top:12px;
-      left:12px;
-      background:rgba(0,0,0,.65);
-      color:#fff;
-      border:none;
-      border-radius:999px;
-      padding:6px 14px;
-      font-size:14px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      z-index:10;
-    }
-    .video-close:hover{
-      background:rgba(0,0,0,.85);
-    }
-
-    /* ===== Modal de visualização de eBook (imagem) ===== */
-    .ebook-viewer{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.85);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:2050;
-      animation:fadeIn .25s ease-out;
-    }
-    .ebook-viewer-container{
-      width:min(96vw,840px);
-      max-height:90vh;
-      background:#000;
-      border-radius:16px;
-      overflow:auto;
-      position:relative;
-      padding:18px;
-      box-shadow:0 10px 40px rgba(0,0,0,.45);
-    }
-    .ebook-image{
-      width:100%;
-      height:auto;
-      display:block;
-      border-radius:12px;
-    }
-    .ebook-viewer-close{
-      position:absolute;
-      top:12px;
-      left:12px;
-      background:rgba(0,0,0,.7);
-      color:#fff;
-      border:none;
-      border-radius:999px;
-      padding:6px 14px;
-      font-size:14px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      z-index:10;
-    }
-    .ebook-viewer-close:hover{
-      background:rgba(0,0,0,.9);
-    }
-
-    /* ===== Modal Biblioteca de E-books (coleções / quadradinhos) ===== */
-    .ebook-modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.7);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:2100;
-      animation:fadeIn .3s ease-out;
-    }
-    .ebook-modal-container{
-      width:min(96vw,900px);
-      background:var(--bg);
-      border-radius:20px;
-      padding:32px 28px 30px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.35);
-    }
-    .ebook-modal-header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:16px;
-    }
-    .ebook-modal-header h3{
-      font-family:'Playfair Display',serif;
-      font-size:26px;
-      letter-spacing:0.5px;
-      margin-bottom:4px;
-    }
-    .ebook-modal-header p{
-      font-size:14px;
-      color:var(--muted);
-    }
-    .ebook-close{
-      background:none;
-      border:none;
-      font-size:22px;
-      cursor:pointer;
-      color:var(--muted);
-      transition:all .2s ease;
-    }
-    .ebook-close:hover{
-      color:var(--gold-dark);
-      transform:scale(1.1);
-    }
-    .ebook-grid{
-      margin-top:22px;
-      display:grid;
-      grid-template-columns:1fr;
-      gap:16px;
-    }
-    @media(min-width:640px){
-      .ebook-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-    .ebook-card{
-      background:var(--white);
-      border-radius:16px;
-      padding:16px 18px;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      cursor:pointer;
-      transition:all .3s ease;
-    }
-    .ebook-card:hover{
-      transform:translateY(-3px);
-      box-shadow:0 8px 20px rgba(0,0,0,0.12);
-      border-color:var(--gold);
-    }
-    .ebook-card-title{
-      font-size:14px;
-      font-weight:700;
-      text-align:left;
-      color:var(--ink);
-    }
-    .ebook-card-tag{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.12em;
-      color:var(--gold-dark);
-      margin-top:4px;
-    }
-    .ebook-card-icon{
-      width:32px;
-      height:32px;
-      border-radius:12px;
-      border:1px solid var(--gold);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:16px;
-      color:var(--gold-dark);
-    }
-     /* ===== Ajuste do modal de e-books no celular ===== */
-   @media (max-width: 700px) {
-   .ebook-modal {
-       align-items: stretch; /* ocupa a tela toda na altura */
-  }
-
-  .ebook-modal-container {
-    width: 100vw;
-    max-height: calc(100vh - 40px); /* deixa um respiro em cima/baixo */
-    margin: 20px 0;
-    padding: 24px 18px 24px;
-    border-radius: 0;
-    box-sizing: border-box;
-
-    overflow-y: auto;                 /* HABILITA SCROLL DENTRO DO MODAL */
-    -webkit-overflow-scrolling: touch; /* scroll suave no iOS */
-  }
-
-  .ebook-grid {
-    grid-template-columns: 1fr; /* 1 card por linha no celular */
-  }
-}
-
-
-
-    /* ===== Apresentação da Chef ===== */
-    .chef-apresentacao {
-      max-width: 1000px;
-      margin: 120px auto 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      padding: 50px 40px;
-      background: #F3EFEA;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .chef-img {
-      width: 350px;
-      height: auto;
-      border-radius: 24px;
-      box-shadow: 0 12px 18px rgba(0,0,0,0.18);
-      object-fit:cover;
-    }
-
-    .chef-texto {
-      max-width: 650px;
-    }
-
-    .chef-texto h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 32px;
-      color: #252121;
-      margin-bottom: 14px;
-      letter-spacing:0.5px;
-    }
-
-    .chef-texto p {
-      font-size: 17px;
-      color: #000000;
-      line-height: 1.7;
-    }
-
-    /* Responsivo chef & categorias */
-    @media (max-width: 768px) {
-      .chef-apresentacao {
-        flex-direction: column;
-        text-align: center;
-        padding:32px 22px 36px;
-        margin-top:100px;
-      }
-      .chef-img {
-        width: 220px;
-      }
-      .chef-texto h2 {
-        font-size: 26px;
-      }
-      .categorias-section{
-        padding-top:90px;
-      }
-      .categoria-card:first-child {
-        background: linear-gradient(135deg, #fff3e0 0%, #ffd180 100%);
-        border: 2px solid #ffb300;
-      }
-    }
-
-    @keyframes fadeIn{
-      from{ opacity:0; }
-      to{ opacity:1; }
-    }
-    @keyframes fadeUp{
-      from{
-        opacity:0;
-        transform:translateY(10px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
+    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
   </style>
 </head>
 <body class="lock">
-  
+  <!-- ====== Guard de login ====== -->
+  <script>
+    (function () {
+      const user = localStorage.getItem('chef_user_email');
+      if (!user) window.location.href = '/login.html';
+    })();
+  </script>
 
-  <!-- ========= TELA 1: LANDING ========= -->
+  <!-- ====== TELA 1: LANDING ====== -->
   <section id="landing">
     <div class="brand">
-      <div class="chef-icon">
-        <img src="Top receitas do chef.png" alt="Logo Top Receitas do Chef">
-      </div>
+      <div class="chef-icon"><img src="Top receitas do chef.png" alt="Logo"></div>
       <div class="logo-text">Top Receitas do Chef</div>
     </div>
-
     <div>
       <h1 class="landing-title">As Melhores Receitas</h1>
       <p class="landing-sub">Selecionadas pelos Maiores Chefs</p>
@@ -843,547 +115,226 @@
     </div>
   </section>
 
-  <!-- ========= TELA 2: ÁREA DE MEMBROS ========= -->
+  <!-- ====== TELA 2: ÁREA DE MEMBROS ====== -->
   <div id="app" class="hidden">
     <header class="header-fixed">
       <div class="header-logo">
-        <div class="chef-icon">
-          <img src="Top receitas do chef.png" alt="Logo Top Receitas do Chef">
-        </div>
+        <div class="chef-icon"><img src="Top receitas do chef.png" alt="Logo"></div>
         <div class="logo-text">Top Receitas do Chef</div>
       </div>
       <nav class="main-nav">
-        <button class="nav-link" onclick="voltarInicio()">Início</button>
-        <button class="nav-link" onclick="abrirEbooksColecaoModal()">E-book</button>
-        <button class="nav-link" onclick="irParaAulas()">Aulas</button>
+        <button onclick="voltarInicio()">Início</button>
+        <button onclick="scrollToSection('videosSection')">Meus Vídeos</button>
+        <button onclick="scrollToSection('ebooksSection')">Meus E-books</button>
+        <button onclick="scrollToSection('recomendaSection')">Recomendações</button>
+        <button onclick="logout()">Sair</button>
       </nav>
     </header>
 
-    <section class="chef-apresentacao" id="chef">
-      <div class="chef-container">
-        <img src="Generated Image November 03, 2025 - 3_21PM (1).png" alt="Chef Ana Russo" class="chef-img">
-        <div class="chef-texto">
-          <h2>Chef Ana Russo</h2>
-          <p>
-            <strong>Chef Ana Russo</strong> é uma apaixonada pela arte da gastronomia, 
-            formada por renomadas escolas internacionais e com anos de experiência 
-            em cozinhas ao redor do mundo. Após aperfeiçoar suas técnicas fora do país, 
-            Ana decidiu reunir todo o seu conhecimento em um curso exclusivo com 
-            <strong>100 receitas incríveis</strong>, criadas e testadas com muito carinho. 
-            Cada prato foi pensado para inspirar, ensinar e despertar o prazer de cozinhar — 
-            do simples ao sofisticado, com o toque especial da Chef.
-          </p>
-        </div>
+    <!-- Busca -->
+    <div class="search-wrap" style="animation:fadeIn .3s ease">
+      <div class="search-bar">
+        <input id="searchInput" type="text" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)"/>
+        <button class="btn-receita" onclick="searchProducts()">🔍</button>
       </div>
+      <div id="searchResults" class="search-section"></div>
+    </div>
+
+    <!-- Suas Vídeo Aulas -->
+    <section id="videosSection" class="categorias-section" style="animation:fadeIn .3s ease">
+      <h2 class="section-title">Suas Vídeo Aulas</h2>
+      <p class="section-subtitle">Cursos em vídeo liberados para o seu e-mail.</p>
+      <div id="videosGrid" class="categorias-grid"></div>
     </section>
 
-    <main>
-      <section class="categorias-section" id="categorias">
-        <h2 class="section-title">Categorias Exclusivas</h2>
-        <p class="section-subtitle">
-          Explore nosso repertório culinário cuidadosamente selecionado.
-        </p>
+    <!-- Seus E-books -->
+    <section id="ebooksSection" class="categorias-section" style="animation:fadeIn .3s ease">
+      <h2 class="section-title">Seus E-books</h2>
+      <p class="section-subtitle">E-books que você já possui.</p>
+      <div id="ebooksGrid" class="categorias-grid"></div>
+    </section>
 
-         <div class="categoria-card" onclick="window.open('https://drive.google.com/drive/folders/1MXUXv5Kbqu21_aXLGxwI28sMsFUakhlc?usp=sharing', '_blank')">
-            <h3>E-book Exclusivo</h3>
-            <p>Baixe agora e descubra segredos de grandes chefs!</p>
-            <span class="receitas-count">Clique para acessar</span>
-          </div>
-
-        <div class="categorias-grid">
-          <!-- Air Fryer -->
-          <div class="categoria-card" onclick="abrirCategoria('Air Fryer',0)">
-            <div class="categoria-img">
-              <img src="video air fryer/air fryer.jpg" alt="Air Fryer">
-            </div>
-            <h3>Air Fryer</h3>
-            <p>Moderno e prático</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-  
-          <div class="categoria-card" onclick="abrirCategoria('Doces sem Açúcar', 1)">
-            <div class="categoria-img">
-              <img src="doces sem açucar/doces.jpg" alt="Doces sem Açúcar">
-            </div>
-            <h3>Doces sem Açúcar</h3>
-            <p>Saudável e leve</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <div class="categoria-card" onclick="abrirCategoria('Pães e Roscas', 2)">
-            <div class="categoria-img">
-              <img src="paes de roscas/pao.jpg" alt="Pães e Roscas">
-            </div>
-            <h3>Pães e Roscas</h3>
-            <p>Caseiro e artesanal</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <div class="categoria-card" onclick="abrirCategoria('Bolos', 3)">
-            <div class="categoria-img">
-              <img src="bolos/bolos.jpg" alt="Bolos">
-            </div>
-            <h3>Bolos</h3>
-            <p>Gourmet e clássico</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <div class="categoria-card" onclick="abrirCategoria('Massas e Salgados', 4)">
-            <div class="categoria-img">
-             <img src="salgados/salgados.jpg" alt="Massas e Salgados">
-            </div>
-            <h3>Salgados</h3>
-            <p>Tradição e sabor</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <div class="categoria-card" onclick="abrirCategoria('Molhos', 5)">
-            <div class="categoria-img">
-              <img src="molhos/molhos.jpg" alt="Molhos">
-            </div>
-            <h3>Molhos</h3>
-            <p>Refinado e versátil</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <div class="categoria-card" onclick="abrirCategoria('Sushi', 6)">
-            <div class="categoria-img">
-              <img src="sushi/sushi.jpg" alt="Sushi">
-            </div>
-            <h3>Sushi</h3>
-            <p>Oriental e minimalista</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <!-- RECEITAS FIT -->
-          <div class="categoria-card" onclick="abrirCategoria('Receitas Fit', 7)">
-            <div class="categoria-img">
-              <img src="receitas fit/receitas fit.jpg" alt="Receitas Fit">
-            </div>
-            <h3>Receitas Fit</h3>
-            <p>Saudável e energética</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <!-- TOP 10 NOITE DE JANTAR -->
-          <div class="categoria-card" onclick="abrirCategoria('Top 10 Noite de Jantar', 8)">
-            <div class="categoria-img">
-              <img src="top 10 noite de jantar/jantar.jpg" alt="Top 10 Noite de Jantar">
-            </div>
-            <h3>Top 10 Noite de Jantar</h3>
-            <p>Sofisticado e intimista</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-
-          <!-- TOP 10 ALMOÇO DE DOMINGO -->
-          <div class="categoria-card" onclick="abrirCategoria('Top 10 Almoço de Domingo', 9)">
-            <div class="categoria-img">
-              <img src="top 10 almoço de domingo/almoço.jpg" alt="Top 10 Almoço de Domingo">
-            </div>
-            <h3>Top 10 Almoço de Domingo</h3>
-            <p>Tradicional e acolhedor</p>
-            <div class="receitas-count">10 receitas exclusivas</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="receitas-section hidden" id="receitas">
-        <button class="btn-voltar" onclick="voltarCategorias()">← Voltar para categorias</button>
-        <h2 class="section-title" id="receitasTitulo"></h2>
-        <div class="receitas-grid" id="receitasGrid"></div>
-      </section>
-    </main>
+    <!-- Recomendações / Upsell -->
+    <section id="recomendaSection" class="categorias-section" style="animation:fadeIn .3s ease">
+      <h2 class="section-title">Outros produtos pra você</h2>
+      <p class="section-subtitle">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
+      <div id="recomendaGrid" class="categorias-grid"></div>
+    </section>
 
     <footer class="footer">
       <p>© 2025 Top Receitas do Chef – Todos os direitos reservados.</p>
-      <div class="social-links">
-        <a href="#">Instagram</a>
-        <a href="#">YouTube</a>
-        <a href="#">Facebook</a>
-        <a href="#">Pinterest</a>
-      </div>
     </footer>
   </div>
 
-  <!-- ========= SCRIPT ORIGINAL (links intactos) ========= -->
   <script>
-    /* ======= Navegação Landing / App ======= */
+    /* ====== Navegação Landing/App ====== */
     function entrarAreaMembros(){
       document.body.classList.remove('lock');
       document.getElementById('landing').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
       window.scrollTo({top:0,behavior:'instant'});
     }
-
     function voltarInicio(){
-      document.getElementById('receitas').classList.add('hidden');
-      document.getElementById('categorias').classList.remove('hidden');
       document.getElementById('app').classList.add('hidden');
       document.getElementById('landing').classList.remove('hidden');
       document.body.classList.add('lock');
       window.scrollTo({top:0,behavior:'instant'});
     }
+    function logout(){
+      localStorage.removeItem('chef_user_email');
+      window.location.href = '/login.html';
+    }
+    function scrollToSection(id){
+      document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+    }
 
-    /* ======= Banco de dados das receitas (10 por categoria) ======= */
-    const receitasPorCategoria = {
-      0: [
-        { nome:'Bolo de Laranja na Air Fryer', descricao:'Bolo fofinho com calda cítrica, feito inteiro na air fryer.', imagem:'video air fryer/download.jpeg', video:'https://drive.google.com/file/d/1OSxkt3goIm8qYROuzfqKqS2JFza23ONX/view?usp=drive_link', ebook:'video air fryer/2_Bolo-de-Laranja-na-Air-Fryer.png' },
-        { nome:'Batata assada', descricao:'Sabe aquele dia que você chega em casa cansado e quer algo rápido, essa batata vai te surpreender!', imagem:'video air fryer/batata assada.jpeg', video:'https://drive.google.com/file/d/1GIWI1Q_Q7glbU1DSE9QAboqiaE94JuDc/view?usp=drive_link' , ebook:'video air fryer/3_Batata-Assada-Crocante.png' },
-        { nome:'Carnes com batatas', descricao:'Um prato prático para um jantar rápido e delicioso!', imagem:'video air fryer/carne com batatas.jpeg', video:'https://drive.google.com/file/d/1OSxkt3goIm8qYROuzfqKqS2JFza23ONX/view?usp=drive_link', ebook:'video air fryer/4_Carnes-com-Batatas.png' },
-        { nome:'Costelinha', descricao:'Essa costelinha é dos Deuses, vai conquistar sua familia!', imagem:'video air fryer/costelinha.jpeg', video:'https://drive.google.com/file/d/1YthUFzMwf_iazTNNdiDI0tnjwe2Gf3qW/view?usp=drive_link' , ebook:'video air fryer/5_Costelinha-dos-Deuses.png'},
-        { nome:'Lasanha', descricao:'Um prato prático para um jantar rápido e delicioso!', imagem:'video air fryer/lasanha na airfryer.jpeg', video:'https://drive.google.com/file/d/1lOaN6Wt18KJnijNaRpiVPzw9AkMUjHQM/view?usp=drive_link' , ebook:'video air fryer/6_Lasanha-Pratica-e-Cremosa.png'},
-        { nome:'Linguiça', descricao:'Acredito que você nunca comeu uma linguiça tão saborosa como essa!', imagem:'video air fryer/linguiça na airfryer.jpeg', video:'https://drive.google.com/file/d/1AdiSfmtK9gjKjmcOBVvf9XxPuL9f6g_o/view?usp=drive_link', ebook:'video air fryer/7_Linguica-Toscana-Recheada.png' },
-        { nome:'Brownie', descricao:' Um brownie rápido e prático, que vai surpreender sua família!', imagem:'video air fryer/brownie.jpeg', video:'https://drive.google.com/file/d/1N8qA1kA8aMq7RbVYmJQVAgbyGGUtA5Pz/view?usp=drive_link', ebook:'video air fryer/8_Brownie-Rapido-e-Irresistivel.png' },
-        { nome:'Pudim de Leite Condesado', descricao:'Você nunca fez um pudim tão prático e rápido como esse!', imagem:'video air fryer/pudim na airfryer.jpeg', video:'https://drive.google.com/file/d/1VVy5xduHmJKY2aWNEK9lGZjczxANmiPr/view?usp=drive_link' , ebook:'video air fryer/9_Pudim-de-Leite-Condensado-Classico.png'},
-        { nome:'Batata doce frita', descricao:'Perfeitas para lanches e saladas.', imagem:'video air fryer/salgadinho de batata doce.jpeg', video:'https://drive.google.com/file/d/1RipcY4hfK1ujqtbGOEYV5G3K-vUDZCPt/view?usp=drive_link' , ebook:'video air fryer/10_Batata-Doce-Frita-Crocante.png'},
-        { nome:'Sobrecoxa Cremosa', descricao:'Essa sobrecoxa fica sensacional, cremosa por dentro e crocante por fora!', imagem:'video air fryer/sobrecoxa cremosa na airfryer.jpeg', video:'https://drive.google.com/file/d/1xXQqWdlgs1s-WpEx4WoW3-leVQi7Isst/view?usp=drive_link', ebook:'video air fryer/11_Sobrecoxa-Cremosa-e-Crocante.png' }
-      ],
-      1: [
-        { nome:'Cocada Cremosa E Cocada ', descricao:'Sabe aquela cocada que você amaaaa? Ela também agora na versão fit, sem culpa.', imagem:'doces sem açucar/Cocada Cremosa E Cocada Em Pedaço.jpeg', video:'https://drive.google.com/file/d/1g3bGt5KxlUruFFUcnF14l-kw80UyPIwA/view?usp=drive_link', ebook:'doces sem açucar/2_1-Cocada-Cremosa-e-Cocada-em-Pedaco.png' },
-        { nome:'Bolo Cremoso De Mandioca', descricao:'Você nunca comeu um bolo tão delicioso como esse, ele é Divino!', imagem:'doces sem açucar/Bolo Cremoso De Mandioca.jpeg', video:'https://drive.google.com/file/d/1sIgSyrTzQgUw8aST5dDSqjFmdG8Fd0JJ/view?usp=drive_link', ebook:'doces sem açucar/3_2-Bolo-Cremoso-de-Mandioca.png' },
-        { nome:'Bolo de iogurte', descricao:'Pensa na cremosidade deste bolo de bolo de iogurte, hummm… Mais parece um doce!', imagem:'doces sem açucar/Bolo de iogurte.jpeg', video:'https://drive.google.com/file/d/15wHTg8LzQ1jFFD7tAVHChNHIKtCswoww/view?usp=drive_link', ebook:'doces sem açucar/4_3-Bolo-de-Iogurte.png' },
-        { nome:'Brownie De Banana', descricao:'Um brownie sem açúcar, sem farinha e ainda delicioso. Sim ele existe!', imagem:'doces sem açucar/Brownie De Banana.jpeg', video:'https://drive.google.com/file/d/1uJ_ryqVub7PQVQpX_ziRjywPPk9Hg-IM/view?usp=drive_link', ebook:'doces sem açucar/5_4-Brownie-de-Banana.png' },
-        { nome:'Doce De Castanha', descricao:'Esse docinho de castanhas low carb, e zero açúcar é demais!', imagem:'doces sem açucar/Doce De Castanha.jpeg', video:'https://drive.google.com/file/d/1EQieRGxBCD-K3528kEhoRMHSQfItqdNM/view?usp=drive_link', ebook:'doces sem açucar/6_5-Doce-de-Castanha.png' },
-        { nome:'Docinho De Banana Com Chocolate', descricao:'Esse docinho é mais uma das maravilhas da linha low carb, surpreenda-se!', imagem:'doces sem açucar/Docinho De Banana Com Chocolate.jpeg', video:'https://drive.google.com/file/d/1MUUU8a9FG2SSltFEQdm4SCk_KqC8d6Rt/view?usp=drive_link', ebook:'doces sem açucar/7_6-Docinho-de-Banana-com-Chocolate.png' },
-        { nome:'Panqueca De Banana', descricao:'Essa é mais uma das deliciosas opções para seu café da manhã super proteico e saudável! ', imagem:'doces sem açucar/Panqueca De Banana.jpeg', video:'https://drive.google.com/file/d/1cVhgtvmJkkmNVmzdD5iBeH9cP5XjGIVN/view?usp=drive_link', ebook:'doces sem açucar/8_7-Panqueca-de-Banana.png' },
-        { nome:'Pudim Sem Açúcar E Sem Leite Condensado', descricao:'Esse pudim é de comer rezando, pensa em uma receita incrível!', imagem:'doces sem açucar/Pudim Sem Açúcar E Sem Leite Condensado.jpeg', video:'https://drive.google.com/file/d/1moifpKHAjFkJUuwn2X4nGTb036Kexjw7/view?usp=drive_link', ebook:'doces sem açucar/9_8-Pudim-Sem-Acucar-e-Sem-Leite-Condensado.png' },
-        { nome:'Sobremesa De Coco Com Chocolate ', descricao:'Essa sobremesa irá conquistar sua família, coco e chocolate são irresistíveis!', imagem:'doces sem açucar/Sobremesa De Coco Com Chocolate Low Carb.jpeg', video:'https://drive.google.com/file/d/1D72v8Qmo209FXf_MKqHJhfMRzeY0evpU/view?usp=drive_link', ebook:'doces sem açucar/10_9-Sobremesa-de-Coco-com-Chocolate-Low-Carb.png' }
-      ],
-      2: [
-        { nome:'Bolacha de Amendoim', descricao:'Crocrante por fora e macia por dentro, com o sabor marcante do amendoim torrado.', imagem:'paes de roscas/Bolacha de Amendoim.jpeg', video:'https://drive.google.com/file/d/1O3cRFybL6OY6CXFIvFdo3Q3lKniZryYT/view?usp=drive_link', ebook:'paes de roscas/2_1-Bolacha-de-Amendoim.png' },
-        { nome:'Incrível Pão de Água', descricao:'Massa leve, casquinha dourada e textura perfeita, igual aos pães de padaria artesanal.', imagem:'paes de roscas/Incrível Pão de Água.jpeg', video:'https://drive.google.com/file/d/1Gy_pkpsk2ztPS2izthfhCDOodG-cOXaH/view?usp=drive_link', ebook:'paes de roscas/3_2-Incrivel-Pao-de-Agua.png' },
-        { nome:'Pão Caseiro na Air Fryer', descricao:'Fácil de fazer, fofinho e pronto em minutos — ideal para o café da manhã.', imagem:'paes de roscas/Pão Caseiro na Air Fryer.jpeg', video:'https://drive.google.com/file/d/1AXzn67TNT8_99sarTc-7mZPvcpvpeW5s/view?usp=drive_link', ebook:'paes de roscas/4_3-Pao-Caseiro-na-Air-Fryer.png' },
-        { nome:'Pão de Frigideira com Amido de Milho', descricao:'Rápido, sem forno e com textura macia, perfeito para um lanche prático.', imagem:'paes de roscas/Pão de Frigideira com Amido de Milho.jpeg', video:'https://drive.google.com/file/d/1vo4WRufaFcsvD0tuZgdEdoRb9G7oDibm/view?usp=drive_link', ebook:'paes de roscas/5_4-Pao-de-Frigideira-com-Amido-de-Milho.png' },
-        { nome:'Pão Rápido', descricao:' Preparado em poucos minutos, com poucos ingredientes e sabor de pão fresco.', imagem:'paes de roscas/Pão Rápido.jpeg', video:'https://drive.google.com/file/d/1_c8oCXDOksLixP_BrAyVqjj3LEJISxxS/view?usp=drive_link', ebook:'paes de roscas/6_5-Pao-Rapido.png' },
-        { nome:'Pão Rápido de Aveia', descricao:'Versão nutritiva e leve, feita sem farinha branca e pronta em instantes.', imagem:'paes de roscas/Pão Rápido de Aveia.jpeg', video:'https://drive.google.com/file/d/1DvTnsRf8Dhi7fyyO2nErXdiVshqk2ANd/view?usp=drive_link', ebook:'paes de roscas/7_6-Pao-Rapido-de-Aveia.png' },
-        { nome:'Rosca Caseira', descricao:'Tradicional, fofa e com aquele aroma irresistível que lembra pão de vó.', imagem:'paes de roscas/Rosca Caseira.jpeg', video:'https://drive.google.com/file/d/14YZRBuvC_ErA6RrxB23REA3i3czSqhv9/view?usp=drive_link', ebook:'paes de roscas/8_7-Rosca-Caseira.png' },
-        { nome:'Rosca de Coco Deliciosa', descricao:'Recheada com coco fresco e calda suave, perfeita para acompanhar o café.', imagem:'paes de roscas/Rosca de Coco Deliciosa.jpeg', video:'https://drive.google.com/file/d/10rFjJBYXvmxKQpXKFfOqoXkCF3p6A8m6/view?usp=drive_link', ebook:'paes de roscas/9_8-Rosca-de-Coco-Deliciosa.png' },
-        { nome:'Rosca Manteiguinha', descricao:'Sabor amanteigado e textura leve que derrete na boca.', imagem:'paes de roscas/Rosca Manteiguinha.jpeg', video:'https://drive.google.com/file/d/16XHJQfB9QjMNm3P5eTxOXvu2jrbv_YIH/view?usp=drive_link', ebook:'paes de roscas/10_9-Rosca-Manteiguinha.png' },
-        { nome:'Rosquinha de Nata', descricao:'Aromática, macia e com sabor suave de nata — simples e irresistível', imagem:'paes de roscas/Rosquinha de Nata.jpeg', video:'https://drive.google.com/file/d/1x1hIAZGJm53ChmrQtLnralbvA6KOhVkw/view?usp=drive_link', ebook:'paes de roscas/11_10-Rosquinha-de-Nata.png' }
-      ],
-      3: [
-        { nome:'Bolo Amanteigado de Morango', descricao:'Massa leve, sabor delicado e pedaços de morango que deixam cada fatia irresistível.', imagem:'bolos/Bolo Amanteigado de Morango.jpeg', video:'https://drive.google.com/file/d/1A0BpvsTsVqCjxZMKjBiIE77c7zHceoOp/view?usp=drive_link', ebook:'bolos/2_1-Bolo-Amanteigado-de-Morango.png' },
-        { nome:'Bolo de Amendoim com Chocolate', descricao:'Combinação perfeita entre o sabor intenso do amendoim e a cremosidade do chocolate.', imagem:'bolos/Bolo de Amendoim com Chocolate.jpeg', video:'https://drive.google.com/file/d/1is0O5Y9PRZfv-ieY2HCO9xyysxm7CWVV/view?usp=drive_link', ebook:'bolos/3_2-Bolo-de-Amendoim-com-Chocolate.png' },
-        { nome:'Bolo de Cenoura com Chocolate', descricao:'Clássico caseiro com textura macia e cobertura de chocolate brilhante e encorpado', imagem:'bolos/Bolo de Cenoura com Chocolate.jpeg', video:'https://drive.google.com/file/d/1PsmXrPv7Uwi2qlk2KA3--zMVXS4RuDY1/view?usp=drive_link', ebook:'bolos/4_3-Bolo-de-Cenoura-com-Chocolate.png' },
-        { nome:'Bolo de Chocolate Maravilhoso', descricao:' Rico em sabor, úmido e com o equilíbrio ideal entre doçura e intensidade.', imagem:'bolos/Bolo de Chocolate Maravilhoso.jpeg', video:'https://drive.google.com/file/d/1pXqfr1HVILItjMyb7iet2L_-zDws5eMM/view?usp=drive_link', ebook:'bolos/5_4-Bolo-de-Chocolate-Maravilhoso.png' },
-        { nome:'Bolo de Limão Siciliano', descricao:' Refrescante, leve e com aquele toque azedinho que combina com qualquer hora do dia.', imagem:'bolos/Bolo de Limão Fofinho.jpeg', video:'https://drive.google.com/file/d/1VRQOjHT-ypl_7Hq5jGGE6G0Yo6pGfgOS/view?usp=drive_link', ebook:'bolos/7_6-Bolo-de-Limao-Fofinho.png' },
-        { nome:'Bolo de Laranja Fofinho', descricao:'Feito com suco natural, aroma cítrico e uma maciez que derrete na boca.', imagem:'bolos/Bolo de Laranja Fofinho.jpeg', video:'https://drive.google.com/file/d/1BOEjb14xQ2zkbjwbgnQjPG9uloriG3D9/view?usp=drive_link', ebook:'bolos/6_5-Bolo-de-Laranja-Fofinho.png' },
-        { nome:'Bolo de Milho', descricao:'Sabor tradicional, textura cremosa e o perfume inconfundível do milho fresco.', imagem:'bolos/Bolo de Milho.jpeg', video:'https://drive.google.com/file/d/1WnB8XMTz1kcRas-ZSiSqJoZRXPxiyvxc/view?usp=drive_link', ebook:'bolos/8_7-Bolo-de-Milho.png' },
-        { nome:'Bolo de Paçoca', descricao:'Explosão de sabor e nostalgia com a doçura única da paçoca em cada mordida.', imagem:'bolos/Bolo de Paçoca.jpeg', video:'https://drive.google.com/file/d/1QPa_j92eXwd_I7_yMYSeH0YyScGA55HX/view?usp=drive_link', ebook:'bolos/9_8-Bolo-de-Pacoca.png' },
-        { nome:'Bolo de Reis Delicioso', descricao:'Inspirado na receita clássica europeia, com frutas cristalizadas e aroma marcante.', imagem:'bolos/Bolo de Reis Delicioso.jpeg', video:'https://drive.google.com/file/d/1qDcKLXx_jth7fvFSjYWwbFDh0q6uatBK/view?usp=drive_link', ebook:'bolos/10_9-Bolo-de-Reis-Delicioso.png' },
-        { nome:'Cuca de Uva', descricao:'Cobertura crocante, recheio suculento e o contraste perfeito entre massa e frutas.', imagem:'bolos/Cuca de Uva.jpeg', video:'https://drive.google.com/file/d/158qA_703cHRCZCHCQGADLGCJzE1fUrH9/view?usp=drive_link', ebook:'bolos/10-Cuca-de-Uva.png' }
-      ],
-      4: [
-        { nome:'Coxinha Recheada', descricao:'Crosta crocante, recheio cremoso e sabor irresistível em cada mordida.', imagem:'salgados/Coxinha Recheada.jpg', video:'https://drive.google.com/file/d/1AY9YB4kx6DfPiZ7eBPDKwjnugZ8ENg7H/view?usp=drive_link', ebook:'salgados/2_1-Coxinha-Recheada.png' },
-        { nome:'Pão com Creme', descricao:'Pão caseiro fofinho com recheio cremoso e dourado, perfeito para qualquer lanche.', imagem:'salgados/Pão com Creme.jpg', video:'https://drive.google.com/file/d/1V4T2AHs-aCKiB20EwPC8C424uFluvWvm/view?usp=drive_link', ebook:'salgados/3_2-Pao-com-Creme.png' },
-        { nome:'Pão de Alho Diferente', descricao:'Versão especial com tempero marcante e textura perfeita — crocante por fora e macio por dentro.', imagem:'salgados/Pão de Alho Diferente.jpg', video:'https://drive.google.com/file/d/1a14AosP02qAfScHH5MadWXPsFFUgrqg-/view?usp=drive_link', ebook:'salgados/4_3-Pao-de-Alho-Diferente.png' },
-        { nome:'Pão Recheado com Carne de Porco', descricao:'Massa leve e recheio suculento, uma combinação rústica e irresistível.', imagem:'salgados/Pão Recheado com Carne de Porco.jpg', video:'https://drive.google.com/file/d/1QDBJwVp25puF9ZPn_o3s060H4oRnjWFm/view?usp=drive_link', ebook:'salgados/5_4-Pao-Recheado-com-Carne-de-Porco.png' },
-        { nome:'Receita de Kafta Deliciosa', descricao:'Tempero oriental equilibrado e carne macia no ponto certo, feita em minutos.', imagem:'salgados/Receita de Kafta Deliciosa.jpg', video:'https://drive.google.com/file/d/1qf2__3eMLli32Y60OqaW1SrQ4JrPwWhR/view?usp=drive_link', ebook:'salgados/6_5-Receita-de-Kafta-Deliciosa.png' },
-        { nome:'Rocambole de Batata com Carne', descricao:'Camada cremosa de batata enrolando um recheio rico e saboroso.', imagem:'salgados/Rocambole de Batata com Carne.jpg', video:'https://drive.google.com/file/d/1uU_z_FnXfgngOv0UXq7sPyqq6DDNHWkD/view?usp=drive_link', ebook:'salgados/7_6-Rocambole-de-Batata-com-Carne.png' },
-        { nome:'Torta de Camarão', descricao:'Recheio cremoso, aroma marcante e massa leve — um clássico que impressiona.', imagem:'salgados/Torta de Camarão.jpg', video:'https://drive.google.com/file/d/13wqcs60kbWuVUJKI_ISCii6TfVHIYqEJ/view?usp=drive_link', ebook:'salgados/8_7-Torta-de-Camarao.png' },
-        { nome:'Torta de Esfirra', descricao:'Todo o sabor da esfirra tradicional em uma versão prática e cheia de recheio.', imagem:'salgados/Torta de Esfirra (versão 2).jpg', video:'https://drive.google.com/file/d/11v5KptHvpV--wb62DBEvYze1hTvB3GRz/view?usp=drive_link', ebook:'salgados/9_8-Torta-de-Esfirra-versao-1.png' },
-        { nome:'Torta de Linguiça', descricao:'Massa fofa, recheio bem temperado e sabor intenso que conquista em cada fatia.', imagem:'salgados/Torta de Linguiça.jpg', video:'https://drive.google.com/file/d/1Io-v3J3s_-WLIjpjbrpALD07gbXrZvy4/view?usp=drive_link', ebook:'salgados/11_10-Torta-de-Linguica.png' }
-      ],
-      5: [
-        { nome:'Bife ao Molho de Queijo', descricao:'Carne suculenta coberta por um molho cremoso e irresistível de queijo derretido.', imagem:'molhos/Bife ao Molho de Queijo.jpg', video:'https://drive.google.com/file/d/1w-SQiQZCSMZxS8z0vhwWXNCsb2KX-luj/view?usp=drive_link', ebook:'molhos/1_Molho-Cremoso-de-Queijo-Paginatto.png' },
-        { nome:'Caldo de Azeitona', descricao:'Sabor intenso e textura aveludada, perfeito para acompanhar massas e carnes.', imagem:'molhos/Caldo de Azeitona.jpg', video:'https://drive.google.com/file/d/11FsnExHGFBHrSa02DIKbTMxT6juHkgac/view?usp=drive_link', ebook:'molhos/2_Caldo-de-Azeitona.png' },
-        { nome:'Creme de Milho', descricao:'Leve, cremoso e com sabor caseiro que combina com qualquer prato.', imagem:'molhos/Creme de Milho.jpg', video:'https://drive.google.com/file/d/1Xjv82jzbbCFqMLkUcSsIBJimyTeEFaTw/view?usp=drive_link', ebook:'molhos/3_Creme-de-Milho.png' },
-        { nome:'Molho Barbecue', descricao:'Equilíbrio entre o doce e o defumado, ideal para carnes, hambúrgueres e grelhados.', imagem:'molhos/Molho Barbecue.jpg', video:'https://drive.google.com/file/d/1mwI0232ZYbP3P55xFKvwViD52E7zfBnt/view?usp=drive_link', ebook:'molhos/4_Molho-Barbecue.png' },
-        { nome:'Molho de Mostarda e Mel', descricao:'Combinação agridoce clássica que realça o sabor de saladas, frangos e sanduíches.', imagem:'molhos/Molho de Mostarda e Mel.jpg', video:'https://drive.google.com/file/d/1rfQnD6YO54eAKXGncgj0rkYOm1yP2Cg7/view?usp=drive_link', ebook:'molhos/5_Molho-de-Mostarda-e-Mel.png' },
-        { nome:'Molho de Pimenta Saboroso', descricao:'Feito de forma rápida, com sabor encorpado e aroma irresistível de temperos frescos.', imagem:'molhos/Molho de Pimenta Saboroso.jpg', video:'https://drive.google.com/file/d/1a8IMbVL84opHiFVAcUEehnNcow4dhFSH/view?usp=drive_link', ebook:'molhos/6_Molho-de-Pimenta-Saboroso.png' },
-        { nome:'Molho de Tomate na Panela de Pressão', descricao:'Feito de forma rápida, com sabor encorpado e aroma irresistível de temperos frescos.', imagem:'molhos/Molho de Tomate na Panela de Pressão.jpg', video:'https://drive.google.com/file/d/1_MRUBcEHxY-2IJGic8ZDJqljPi9x5Kyk/view?usp=drive_link', ebook:'molhos/7_Molho-de-Tomate-na-Panela-de-Pressao.png' },
-        { nome:'Molho Secreto do Big Mac', descricao:'Versão caseira do clássico mais famoso do mundo, cremosa e cheia de sabor.', imagem:'molhos/Molho Secreto do Big Mac.jpg', video:'https://drive.google.com/file/d/1G_zAjQXNymR8O59yZcYTEHIVeE7mL0NF/view?usp=drive_link', ebook:'molhos/8_Molho-Secreto-do-Big-Mac.png' },
-        { nome:'Molho Verde para Frutos do Mar', descricao:'Refrescante e levemente ácido, perfeito para acompanhar peixes e camarões.', imagem:'molhos/Molho Verde para Frutos do Mar.jpg', video:'https://drive.google.com/file/d/1oMAqD5ydlaLHs_vuJnarDbfDYH7Je_i6/view?usp=drive_link', ebook:'molhos/9_Molho-Verde-para-Frutos-do-Mar.png' },
-        { nome:'Molho Verde para Saladas', descricao:'Textura leve e sabor equilibrado, ideal para dar vida a qualquer salada.', imagem:'molhos/Molho Verde para Saladas.jpg', video:'https://drive.google.com/file/d/1yK2wi15f2_5RWmAgfnAgFaMuNbtQHHut/view?usp=drive_link', ebook:'molhos/10_Molho-Verde-para-Saladas.png' }
-      ],
-      6: [
-        { nome:'Arroz do Sushi', descricao:'Base essencial da culinária japonesa, com textura e tempero perfeitos para moldar sushis e temakis.', imagem:'sushi/Arroz do Sushi.jpg', video:'https://drive.google.com/file/d/1owYkTM4BOHK14SxTF5foZDv3nWHYvotP/view?usp=drive_link', ebook:'sushi/2_1-Aprenda-a-Fazer-o-Shari-Arroz-do-Sushi.png' },
-        { nome:'Cortar um Sashimi de Salmão', descricao:'Técnica profissional explicada passo a passo para obter cortes delicados e uniformes.', imagem:'sushi/Cortar um Sashimi de Salmão.jpg', video:'https://drive.google.com/file/d/1eZlu-aLfjLJQOjTNuvfeiMLSq_EWYQTy/view?usp=drive_link', ebook:'sushi/3_2-Como-Cortar-um-Sashimi-de-Salmao.png' },
-        { nome:'Hot Roll Crispy', descricao:'Empanado crocante.', imagem:'sushi\\hot toll.jpg', video:'https://drive.google.com/file/d/1ePefgV5OJZ_s80cxQvS_R3UCt9noOuqF/view?usp=drive_link', ebook:'sushi/4_3-Hot-Roll-Filadelfia.png' },
-        { nome:'Missoshiro', descricao:'Sopa tradicional japonesa feita com missô, tofu e cebolinha, leve e reconfortante.', imagem:'sushi/Missoshiro.jpg', video:'https://drive.google.com/file/d/1Xd-YYwhTK4_THl9qx8JKt0fh5Fqhx1sR/view?usp=drive_link', ebook:'sushi/5_4-Missoshiro.png' },
-        { nome:'Receita de Guioza', descricao:'Pastéis japoneses recheados e selados com crocância por fora e suculência por dentro.', imagem:'sushi/Receita de Guioza.jpg', video:'https://drive.google.com/file/d/1-iWtN4aJVQHz4hMJqRy7U0n9ZUYpP4qS/view?usp=drive_link', ebook:'sushi/6_5-Receita-de-Guioza.png' },
-        { nome:'Hossomaki Tradicional', descricao:'Enrolado fino e elegante com arroz, alga nori e recheio clássico de peixe fresco.', imagem:'sushi/Hossomaki.jpg', video:'https://drive.google.com/file/d/1bgfVGZboaGRm3sdurK0AUjQHSr3hxr8a/view?usp=drive_link', ebook:'sushi/7_6-Sushi-Hossomaki-Tradicional.png' },
-        { nome:'Temaki de Cream Cheese e Salmão', descricao:'Cone de alga crocante recheado com arroz e salmão fresco, finalizado com cream cheese.', imagem:'sushi/temaki.jpg', video:'https://drive.google.com/file/d/1OOb68ItIG0CReaax_diC_ZFA806_TIsE/view?usp=drive_link', ebook:'sushi/8_7-Temaki-de-Cream-Cheese-e-Salmao.png' },
-        { nome:'Tempurá de Camarão com Legumes', descricao:'Massa leve e crocante envolvendo camarões e legumes frescos, fritos à perfeição.', imagem:'sushi/Tempurá de Camarão.jpg', video:'https://drive.google.com/file/d/1a4ok4Sn3xbNK6ckOtE-bbl37tZl4WCF0/view?usp=drive_link', ebook:'sushi/9_8-Tempura-de-Camarao-com-Legumes.png' },
-        { nome:'Yakisoba de Carne', descricao:'Macarrão oriental salteado com legumes e tiras de carne ao molho agridoce equilibrado.', imagem:'sushi/Yakisoba de Carne.jpg', video:'https://drive.google.com/file/d/1WZb2Ve1jJZLEcXvtwBjFmTN2DCYLwy7B/view?usp=drive_link', ebook:'sushi/10_9-Yakisoba-de-Carne.png' },
-        { nome:'Yakitori – Espetinho Japonês', descricao:'Espetinhos grelhados e caramelizados com molho tare, típicos dos bares japoneses.', imagem:'sushi/Yakitori – Espetinho Japonês.jpg', video:'https://drive.google.com/file/d/1mKOWX--7M2p37ihQuTkrzivyzkXTiUXp/view?usp=drive_link', ebook:'sushi/11_10-Yakitori-Espetinho-Japones.png' }
-      ],
-      7: [
-        { nome:'Arroz de Couve-Flor', descricao:'Leve, nutritivo e com baixo teor de carboidratos — perfeito para substituições saudáveis.', imagem:'receitas fit/Arroz de Couve-Flor.jpg', video:'https://drive.google.com/file/d/1wKH4qNiA-bUtfvEicnAuNJHMjhEAaVwE/view?usp=drive_link', ebook:'receitas fit/Arroz de Couve-Flor.png' },
-        { nome:'Bolinho Chocolatudo Saudável', descricao:' Textura macia e sabor intenso de chocolate, feito com ingredientes leves e funcionais.', imagem:'receitas fit/Bolinho Chocolatudo Saudável.jpg', video:'https://drive.google.com/file/d/1IwfgLJ5bni2vGnqDxcIXDseDgNluhWen/view?usp=drive_link', ebook:'receitas fit/3_2-Bolinho-Chocolatudo-Saudavel.png' },
-        { nome:'Enroladinho de Rap 10', descricao:'Rápido, prático e versátil — ideal para um lanche leve ou refeição expressa.', imagem:'receitas fit/Enroladinho de Rap 10.jpg', video:'https://drive.google.com/file/d/1B4FPKbT9kxIoPQ4emwkHK03QDJK1A5OM/view?usp=drive_link', ebook:'receitas fit/4_3-Enroladinho-de-Rap-10.png' },
-        { nome:'Lasanha de Abobrinha', descricao:'Camadas leves, saborosas e sem massa, com muito recheio e molho cremoso.', imagem:'receitas fit/Lasanha de Abobrinha.jpg', video:'https://drive.google.com/file/d/16IP7Q0yFKZ7cFEWv_Ql4UdB0VYd2drSR/view?usp=drive_link', ebook:'receitas fit/5_4-Lasanha-de-Abobrinha.png' },
-        { nome:'Muffin de Legumes', descricao:'Colorido, nutritivo e fácil de preparar — ótimo para lanches e marmitas.', imagem:'receitas fit/Muffin de Legumes.jpg', video:'https://drive.google.com/file/d/1S-Z3xI2p9dksVCC6epo64aPHBKoDrcf-/view?usp=drive_link', ebook:'receitas fit/6_5-Muffin-de-Legumes.png' },
-        { nome:'Pão de Queijo de Frigideira', descricao:'Versão rápida do clássico mineiro, pronta em minutos e com casquinha crocante.', imagem:'receitas fit/Pão de Queijo de Frigideira.jpg', video:'https://drive.google.com/file/d/1m1NvTOeePRvwMTCOuLO8pe8VvVO7PqqH/view?usp=drive_link', ebook:'receitas fit/7_6-Pao-de-Queijo-de-Frigideira.png' },
-        { nome:'Pão Rápido de Banana e Aveia', descricao:'Doce natural, sem farinha e cheio de fibras — ideal para o café da manhã.', imagem:'receitas fit/Pão Rápido de Banana e Aveia.jpg', video:'https://drive.google.com/file/d/1lamHvWutBfYkkd9FwJaVMUVxQQTjdDpK/view?usp=drive_link', ebook:'receitas fit/8_7-Pao-Rapido-de-Banana-e-Aveia.png' },
-        { nome:'Patê de Frango', descricao:'Cremoso e bem temperado, combina com torradas, pães e sanduíches naturais.', imagem:'receitas fit/Patê de Frango.jpg', video:'https://drive.google.com/file/d/1YS-qLafsx58qlLkRRLwuLjU-3e4wyILS/view?usp=drive_link', ebook:'receitas fit/9_8-Pate-de-Frango.png' },
-        { nome:'Salada de Grão-de-Bico', descricao:' Refrescante, proteica e colorida, perfeita para acompanhar qualquer prato.', imagem:'receitas fit/Salada de Grão-de-Bico.jpg', video:'https://drive.google.com/file/d/1vXUkdk3HNcW4RwyL7Vi90JrHADR7Lb2L/view?usp=drive_link', ebook:'receitas fit/10_9-Salada-de-Grao-de-Bico.png' },
-        { nome:'Suco Verde', descricao:'Bebida detox e revitalizante, com combinação equilibrada de frutas e folhas.', imagem:'receitas fit/Suco Verde.jpg', video:'https://drive.google.com/file/d/1LJntVUvGthxXX_dw6O7UhR7my5h2NPAC/view?usp=drive_link', ebook:'receitas fit/11_10-Suco-Verde.png' }
-      ],
-      8: [
-        { nome:'Arroz com Lentilha', descricao:'Clássico simples e nutritivo, com sabor caseiro e textura soltinha perfeita.', imagem:'top 10 noite de jantar/Arroz com Lentilha.jpg', video:'https://drive.google.com/file/d/1DDNE3szM_szjKasdZTWJ9RhGGYxgOylf/view?usp=drive_link', ebook:'top 10 noite de jantar/1_1-Arroz-com-Lentilha.png' },
-        { nome:'Bacalhau à Lagareiro', descricao:'Receita tradicional portuguesa, com bacalhau dourado, batatas e muito azeite.', imagem:'top 10 noite de jantar/Bacalhau à Lagareiro.jpg', video:'https://drive.google.com/file/d/1AuRBwvUqFzLsVIe2DSO8hK990l0OJ-rc/view?usp=drive_link', ebook:'top 10 noite de jantar/2_2-Bacalhau-a-Lagareiro.png' },
-        { nome:'Caldo de Mandioca com Linguiça', descricao:'Cremoso, encorpado e cheio de sabor — ideal para dias frios ou jantares reconfortantes.', imagem:'top 10 noite de jantar/Caldo de Mandioca com Linguiça.jpg', video:'https://drive.google.com/file/d/1ahcsTD8nFTDIQ3ux5HQAokXM1TbEwVT4/view?usp=drive_link', ebook:'top 10 noite de jantar/3_3-Caldo-de-Mandioca-com-Linguica.png' },
-        { nome:'Feijão Branco com Linguiça', descricao:'Combinação rústica e saborosa, com caldinho espesso e tempero caseiro irresistível.', imagem:'top 10 noite de jantar/Feijão Branco com Linguiça.jpeg', video:'https://drive.google.com/file/d/1ixIyNQ5RtkxOrJjaspqFbQXnSqezIWWq/view?usp=drive_link', ebook:'top 10 noite de jantar/4_4-Feijao-Branco-com-Linguica.png' },
-        { nome:'Feijoada Saborosa', descricao:' Clássico brasileiro completo, com carnes suculentas e tempero na medida certa.', imagem:'top 10 noite de jantar/Feijoada Saborosa.jpg', video:'https://drive.google.com/file/d/1sssSaZfmZy7SSlKno4Li8YsD5L4HoUNw/view?usp=drive_link', ebook:'top 10 noite de jantar/5_5-Feijoada-Saborosa.png' },
-        { nome:'Filé de Tilápia com Molho de Limão Siciliano', descricao:' Leve e sofisticado, com molho cítrico que realça o sabor do peixe.', imagem:'top 10 noite de jantar/Filé de Tilápia.jpg', video:'https://drive.google.com/file/d/1yCOBiC-S7lD8YDxwFC0YAwBvbeOMzunn/view?usp=drive_link', ebook:'top 10 noite de jantar/6_6-File-de-Tilapia-com-Molho-de-Limao-Siciliano.png' },
-        { nome:'Macarrão com Molho de Gorgonzola e Cação Gratinado', descricao:'Textura cremosa e sabor marcante, uma fusão perfeita entre massa e frutos do mar.', imagem:'top 10 noite de jantar/Macarrão.jpg', video:'https://drive.google.com/file/d/1czl_r-2pdlBDlSQ9OmCBgVglDOXxXIAq/view?usp=drive_link', ebook:'top 10 noite de jantar/7_7-Macarrao-com-Molho-de-Gorgonzola-e-Cacao-Gratinado.png' },
-        { nome:'Mocotó com Feijão Branco', descricao:'Receita encorpada, nutritiva e cheia de tradição, ideal para quem gosta de sabor intenso.', imagem:'top 10 noite de jantar/Mocotó.jpeg', video:'https://drive.google.com/file/d/1o1a_41KgMlTJLaBNueY66V1EEKdeuiGq/view?usp=drive_link', ebook:'top 10 noite de jantar/8_8-Mocoto-com-Feijao-Branco.png' },
-        { nome:'Ossobuco com Mandioca', descricao:'Carne macia cozida lentamente, servida com mandioca cremosa e caldo rico.', imagem:'top 10 noite de jantar/Ossobuco com Mandioca.jpg', video:'https://drive.google.com/file/d/1dYglPkiKUQnEObZQ4ederCcMYWchGAsZ/view?usp=drive_link', ebook:'top 10 noite de jantar/9_9-Ossobuco-com-Mandioca.png' },
-        { nome:'Peixe Empanado e Recheado', descricao:'Camada crocante por fora e recheio suculento por dentro, perfeito para surpreender à mesa.', imagem:'top 10 noite de jantar/Peixe Empanado.jpg', video:'https://drive.google.com/file/d/1aQZJ3YRMNc3tiGxiCU01nR_9H6Ucpy5C/view?usp=drive_link', ebook:'top 10 noite de jantar/10_10-Peixe-Empanado-e-Recheado.png' }
-      ],
-      9: [
-        { nome:'Cação com Molho de Camarão e Purê de Batata', descricao:'Peixe macio, molho cremoso e purê suave em uma combinação sofisticada e irresistível.', imagem:'top 10 almoço de domingo/Cação.jpg', video:'https://drive.google.com/file/d/1w3fWSB0V2DuG6Y025drRaodjIg7E1AoW/view?usp=drive_link', ebook:'top 10 almoço de domingo/1_1-Cacao-com-Molho-de-Camarao-e-Pure-de-Batata.png' },
-        { nome:'Carne Louca', descricao:'Desfiada, bem temperada e suculenta — perfeita para sanduíches ou acompanhamentos.', imagem:'top 10 almoço de domingo/Carne Louca.jpg', video:'https://drive.google.com/file/d/1-jwc-5hf4hcVaRPvv7ylYdSAu7EpWouQ/view?usp=drive_link', ebook:'top 10 almoço de domingo/2_2-Carne-Louca.png' },
-        { nome:'Coroa de Carré de Cordeiro', descricao:'Apresentação elegante, carne macia e sabor marcante para impressionar em qualquer ocasião.', imagem:'top 10 almoço de domingo/coroa.jpg', video:'https://drive.google.com/file/d/1gRRjYiVR3ZZ7MMjRvSq0F2YLUwjqh4ZX/view?usp=drive_link', ebook:'top 10 almoço de domingo/3_3-Coroa-de-Carre-de-Cordeiro.png' },
-        { nome:'Cupim com Batata Suculento', descricao:'Corte nobre, cozido lentamente até desmanchar, com batatas douradas e tempero intenso.', imagem:'top 10 almoço de domingo/cupim.jpg', video:'https://drive.google.com/file/d/1OTIso0tz5nJIzspMSEaZ_AJRpt_ZMJJp/view?usp=drive_link', ebook:'top 10 almoço de domingo/4_4-Cupim-com-Batata-Suculento.png' },
-        { nome:'Galeto Frito com Chimichurri', descricao:'Frango dourado e crocante servido com o toque refrescante e picante do chimichurri.', imagem:'top 10 almoço de domingo/galeto.jpg', video:'https://drive.google.com/file/d/1wWaJa0AWVpcPDgP8ThXRe28oDPWUsQ1o/view?usp=drive_link', ebook:'top 10 almoço de domingo/5_5-Galeto-Frito-com-Chimichurri.png' },
-        { nome:'Mazegohan (Arroz Bege)', descricao:'Receita japonesa tradicional, leve e saborosa, com arroz temperado e ingredientes equilibrados.', imagem:'top 10 almoço de domingo/mazegohan.jpg', video:'https://drive.google.com/file/d/1amwtLsAyINwby5k9NdmeSwVevxWqwSan/view?usp=drive_link', ebook:'top 10 almoço de domingo/6_6-Mazegohan-Arroz-Bege.png' },
-        { nome:'Merluza à Portuguesa', descricao:'Peixe delicado com legumes coloridos, azeite e temperos que lembram a culinária lusitana.', imagem:'top 10 almoço de domingo/merluza.jpg', video:'https://drive.google.com/file/d/1E2qelPs1S2xdq4Qrus3VOvxDxF8Ktv-J/view?usp=drive_link', ebook:'top 10 almoço de domingo/7_7-Merluza-a-Portuguesa.png' },
-        { nome:'Nhoque de Mandioca com Carne Seca', descricao:'Massa leve e saborosa combinada com recheio cremoso e carne seca desfiada no ponto.', imagem:'top 10 almoço de domingo/nhoque.jpg', video:'https://drive.google.com/file/d/1CU9DQZvjpyHeCX6dmCTb_6ayMhVB5aF7/view?usp=drive_link', ebook:'top 10 almoço de domingo/8_8-Nhoque-de-Mandioca-com-Carne-Seca.png' },
-        { nome:'Pimenta Cambuci Recheada', descricao:'Sabor suave e toque artesanal, com recheio cremoso que valoriza o aroma da pimenta.', imagem:'top 10 almoço de domingo/pimenta.jpg', video:'https://drive.google.com/file/d/1XmbuQ0u0_l-QPeZ4znXAFM9r6iyr9QMX/view?usp=drive_link', ebook:'top 10 almoço de domingo/9_9-Pimenta-Cambuci-Recheada.png' },
-        { nome:'Yakimeshi de Camarão', descricao:'Arroz oriental salteado com legumes e camarões, leve, colorido e cheio de sabor.', imagem:'top 10 almoço de domingo/Yakimeshi.jpg', video:'https://drive.google.com/file/d/1RJmBi894J89MeAm8vKDNe41bOoXks0LO/view?usp=drive_link', ebook:'top 10 almoço de domingo/10_10-Yakimeshi-de-Camarao.png' }
-      ]
-    };
+    /* ====== Helpers ====== */
+    function acessarEntregavel(linkEnc){
+      window.location.href = `/entregavel.html?link=${linkEnc}`;
+    }
+    function renderOwnedCard(p){
+      const img  = p.cover_image_url || 'https://via.placeholder.com/640x360?text=Produto';
+      const desc = p.description || '';
+      const tags = Array.isArray(p.tags) && p.tags.length ? `<div class="receitas-count">${p.tags.join(' • ')}</div>` : '';
+      const link = p.drive_link ? encodeURIComponent(p.drive_link) : '';
 
-    /* ======= Renderização de receitas ======= */
-    function abrirCategoria(titulo,index){
-      const receitasSection = document.getElementById('receitas');
-      const categoriasSection = document.getElementById('categorias');
-      const receitasTitulo = document.getElementById('receitasTitulo');
-      const receitasGrid = document.getElementById('receitasGrid');
-
-      receitasTitulo.textContent = titulo;
-      receitasGrid.innerHTML = '';
-
-      const lista = receitasPorCategoria[index] || [];
-      lista.forEach(rec => {
-        const card = document.createElement('div');
-        card.className = 'receita-card';
-        card.innerHTML = `
-          <img class="receita-img" src="${rec.imagem}" alt="${rec.nome}">
-          <div class="receita-content">
-            <h4>${rec.nome}</h4>
-            <p>${rec.descricao}</p>
-            <div class="receita-buttons">
-              <button class="btn-receita btn-video" onclick="abrirVideo('${rec.video}')">Assistir vídeo</button>
-              <button class="btn-receita btn-ebook" onclick="baixarEbook('${rec.ebook}')">Baixar eBook</button>
-            </div>
+      return `
+        <div class="categoria-card">
+          <div class="categoria-img"><img src="${img}" alt="${p.name}"></div>
+          <h3>${p.name}</h3>
+          <p>${desc}</p>
+          ${tags}
+          <div style="margin-top:12px;display:flex;justify-content:center;">
+            ${
+              link
+                ? `<button class="btn-receita" onclick="acessarEntregavel('${link}')">Acessar</button>`
+                : `<button class="btn-receita" disabled>Sem entregável</button>`
+            }
           </div>
-        `;
-        receitasGrid.appendChild(card);
-      });
-
-      categoriasSection.classList.add('hidden');
-      receitasSection.classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
+        </div>`;
+    }
+    function renderBuyCard(p){
+      const img  = p.cover_image_url || 'https://via.placeholder.com/640x360?text=Produto';
+      const desc = p.description || '';
+      return `
+        <div class="categoria-card">
+          <div class="categoria-img"><img src="${img}" alt="${p.name}"></div>
+          <h3>${p.name}</h3>
+          <p>${desc}</p>
+          <div style="margin-top:12px;display:flex;justify-content:center;">
+            <button class="btn-receita" onclick="window.open('${p.checkout_link}','_blank')">Comprar</button>
+          </div>
+        </div>`;
     }
 
-    function voltarCategorias(){
-      document.getElementById('receitas').classList.add('hidden');
-      document.getElementById('categorias').classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
+    /* ====== Carga dos meus produtos ====== */
+    async function loadMyProducts(){
+      const videosGrid = document.getElementById('videosGrid');
+      const ebooksGrid = document.getElementById('ebooksGrid');
+      videosGrid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
+      ebooksGrid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
 
-    /* ======= Player de vídeo (modal com seta Voltar) ======= */
-function abrirVideo(src){
-  if (!src) return;
+      try{
+        const email = localStorage.getItem('chef_user_email');
+        const resp  = await fetch('/api/my-products', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await resp.json();
 
-  const wrap = document.createElement('div');
-  wrap.className = 'video-player';
-
-  // Detecta se é link do Google Drive
-  const driveMatch = src.match(/https?:\/\/drive\.google\.com\/file\/d\/([^/]+)/);
-
-  if (driveMatch) {
-    // Usa o player de preview do Drive
-    const id = driveMatch[1];
-    const embedSrc = `https://drive.google.com/file/d/${id}/preview`;
-
-    wrap.innerHTML = `
-      <div class="video-container">
-        <button class="video-close" onclick="fecharVideo()">← Voltar</button>
-        <iframe
-          src="${embedSrc}"
-          allow="autoplay; encrypted-media"
-          allowfullscreen
-        ></iframe>
-      </div>
-    `;
-  } else {
-    // Continua usando vídeo HTML5 normal para arquivos locais .mp4
-    wrap.innerHTML = `
-      <div class="video-container">
-        <button class="video-close" onclick="fecharVideo()">← Voltar</button>
-        <video src="${src}" controls autoplay playsinline>
-          Seu navegador não suporta vídeo HTML5.
-        </video>
-      </div>
-    `;
-  }
-
-  document.body.appendChild(wrap);
-}
-
-
-
-    function fecharVideo(){
-      const modal = document.querySelector('.video-player');
-      if(modal){
-        const video = modal.querySelector('video');
-        if(video){
-          video.pause();
-          video.currentTime = 0;
+        if(!resp.ok || !data?.success){
+          videosGrid.innerHTML = '<p style="text-align:center;color:#a00;">Erro ao carregar seus vídeos.</p>';
+          ebooksGrid.innerHTML = '<p style="text-align:center;color:#a00;">Erro ao carregar seus e-books.</p>';
+          return;
         }
-        modal.remove();
+
+        const prods  = Array.isArray(data.products) ? data.products : [];
+        const videos = prods.filter(p => p.type === 'video' || (Array.isArray(p.tags) && p.tags.includes('video')));
+        const ebooks = prods.filter(p => p.type === 'ebook' || (Array.isArray(p.tags) && p.tags.includes('ebook')));
+
+        if (videos.length === 0) {
+          videosGrid.innerHTML = '<p style="text-align:center;">Você ainda não tem vídeo aulas liberadas. Veja nossas opções abaixo 👇</p>';
+        } else {
+          videosGrid.innerHTML = videos.map(renderOwnedCard).join('');
+        }
+
+        if (ebooks.length === 0) {
+          ebooksGrid.innerHTML = '<p style="text-align:center;">Você ainda não tem e-books liberados. Veja nossas opções abaixo 👇</p>';
+        } else {
+          ebooksGrid.innerHTML = ebooks.map(renderOwnedCard).join('');
+        }
+      }catch(err){
+        console.error(err);
+        videosGrid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao conectar.</p>';
+        ebooksGrid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao conectar.</p>';
       }
     }
 
-    /* ======= Novo: visualizar eBook em modal ======= */
-    function baixarEbook(src){
-      if(!src) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'ebook-viewer';
-      wrap.innerHTML = `
-        <div class="ebook-viewer-container">
-          <button class="ebook-viewer-close" onclick="fecharEbookViewer()">← Voltar</button>
-          <img src="${src}" alt="eBook" class="ebook-image">
-        </div>
-      `;
-      document.body.appendChild(wrap);
-    }
+    /* ====== Busca (Etapa 6) ====== */
+    async function searchProducts(){
+      const q = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('searchResults');
+      if(!q){ resultsDiv.innerHTML=''; return; }
 
-    function fecharEbookViewer(){
-      const modal = document.querySelector('.ebook-viewer');
-      if(modal){
-        modal.remove();
-      }
-    }
-  </script>
+      try{
+        const email = localStorage.getItem('chef_user_email');
+        const res = await fetch('/api/search', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ q, email })
+        });
+        const data = await res.json();
+        if(!data?.results){ resultsDiv.innerHTML = '<p class="section-subtitle">Nada encontrado.</p>'; return; }
 
-  <!-- ========= SCRIPT EXTRA: navegação + biblioteca de e-books ========= -->
-  <script>
-    const chefSection = document.getElementById('chef');
-    const categoriasSectionEl = document.getElementById('categorias');
-    const receitasSectionEl = document.getElementById('receitas');
-    const receitasTituloEl = document.getElementById('receitasTitulo');
-    const receitasGridEl = document.getElementById('receitasGrid');
+        const owned = data.results.filter(p=>p.owned);
+        const others= data.results.filter(p=>!p.owned);
 
-    // sobrescreve abrirCategoria para esconder a Chef nas páginas de receita
-    function abrirCategoria(titulo, index){
-      const lista = receitasPorCategoria[index] || [];
-      receitasTituloEl.textContent = titulo;
-      receitasGridEl.innerHTML = '';
-
-      lista.forEach(rec => {
-        const card = document.createElement('div');
-        card.className = 'receita-card';
-        card.innerHTML = `
-          <img class="receita-img" src="${rec.imagem}" alt="${rec.nome}">
-          <div class="receita-content">
-            <h4>${rec.nome}</h4>
-            <p>${rec.descricao}</p>
-            <div class="receita-buttons">
-              <button class="btn-receita btn-video" onclick="abrirVideo('${rec.video}')">Assistir vídeo</button>
-              <button class="btn-receita btn-ebook" onclick="baixarEbook('${rec.ebook}')">Baixar eBook</button>
-            </div>
-          </div>
+        resultsDiv.innerHTML = `
+          <div class="hr"></div>
+          <h3 class="search-title">Você já tem:</h3>
+          <div class="categorias-grid">${owned.map(renderOwnedCard).join('') || '<p>Nenhum.</p>'}</div>
+          <h3 class="search-title">Você ainda não tem:</h3>
+          <div class="categorias-grid">${others.map(renderBuyCard).join('') || '<p>Nenhum produto sugerido.</p>'}</div>
         `;
-        receitasGridEl.appendChild(card);
-      });
-
-      categoriasSectionEl.classList.add('hidden');
-      receitasSectionEl.classList.remove('hidden');
-      if (chefSection) chefSection.classList.add('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    function voltarCategorias(){
-      receitasSectionEl.classList.add('hidden');
-      categoriasSectionEl.classList.remove('hidden');
-      if (chefSection) chefSection.classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    // Lista de coleções (quadradinhos). Troque "LINK_AQUI" pelos links reais de cada pasta do Drive.
-    const colecoesEbook = [
-      { titulo:'AIR FRYER DO CHEF BÁSICO', link:'https://drive.google.com/drive/folders/1CyCeGzMfrZQxghvMfTAvEEC5E3acdXr4?usp=drive_link' },
-      { titulo:'AIR FRYER DO CHEF PREMIUM', link:'https://drive.google.com/drive/folders/1zT55c8XwKg1IurR8K688dF6_qcygWsk2?usp=drive_link' },
-      { titulo:'AIR FRYER DO CHEF: 100 RECEITAS', link:'https://drive.google.com/drive/folders/1kbnDJpWIuA-UkQ93gYy6r3WzIBa9qL6M?usp=drive_link' },
-      { titulo:'AIR FRYER DO CHEF: AS TOP 10', link:'https://drive.google.com/drive/folders/1HyGZFdxXR6QCy0eXrzwpkjOL2-8Yc9KW?usp=drive_link' },
-      { titulo:'ATUALIZAÇÕES VITALÍCIAS', link:'https://drive.google.com/drive/folders/16zRQKVcEhV0dcvF6EePPzNMeH0MQobJk?usp=drive_link' },
-      { titulo:'DOCES SEM AÇUCAR', link:'https://drive.google.com/drive/folders/1S2w7biQv89Dj3c60gcq3b89rUnxSDKWH?usp=drive_link' },
-      { titulo:'Edição Gourmet – Air Fryer do Chef', link:'https://drive.google.com/drive/folders/1oFN81AvC4B-d_TjiyefiF2Tro5pbNzf0?usp=drive_link' },
-      { titulo:'RECHEIO SEM FOGO', link:'https://drive.google.com/drive/folders/1cQsdpI0JJx0nDjrC6b1kBbP1FVARwPhh?usp=drive_link' }
-    ];
-
-    function abrirLinkEbook(link){
-      if(!link || link === 'LINK_AQUI_1' || link.startsWith('LINK_AQUI')){
-        // placeholder: você ajusta depois os links reais.
-        alert('Configure o link dessa coleção no código.');
-        return;
+        // rola para os resultados
+        resultsDiv.scrollIntoView({behavior:'smooth', block:'start'});
+      }catch(e){
+        console.error(e);
+        resultsDiv.innerHTML = '<p class="section-subtitle" style="color:#a00;">Falha ao buscar. Tente novamente.</p>';
       }
-      window.open(link, '_blank');
     }
 
-    // Modal com os quadradinhos de coleções
-    function abrirEbooksColecaoModal(){
-      // Se já existe, não cria outro
-      const existente = document.querySelector('.ebook-modal');
-      if (existente) return;
-
-      const wrap = document.createElement('div');
-      wrap.className = 'ebook-modal';
-
-      const cardsHTML = colecoesEbook.map(c => `
-        <button class="ebook-card" onclick="abrirLinkEbook('${c.link}')">
-          <div>
-            <div class="ebook-card-title">${c.titulo}</div>
-            <div class="ebook-card-tag">Coleção de e-books</div>
-          </div>
-          <div class="ebook-card-icon">📂</div>
-        </button>
-      `).join('');
-
-      wrap.innerHTML = `
-        <div class="ebook-modal-container">
-          <div class="ebook-modal-header">
-            <div>
-              <h3>Biblioteca de E-books</h3>
-              <p>Escolha uma coleção para acessar o conteúdo diretamente no seu Google Drive.</p>
-            </div>
-            <button class="ebook-close" onclick="fecharEbooksModal()">×</button>
-          </div>
-          <div class="ebook-grid">
-            ${cardsHTML}
-          </div>
-        </div>
-      `;
-      document.body.appendChild(wrap);
+    /* ====== Recomendações (Etapa 6) ====== */
+    async function loadRecommendations(){
+      const grid = document.getElementById('recomendaGrid');
+      grid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
+      try{
+        const email = localStorage.getItem('chef_user_email');
+        const res = await fetch(`/api/recommendations?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if(!data?.products || data.products.length===0){
+          grid.innerHTML = '<p style="text-align:center;">Sem recomendações no momento.</p>';
+          return;
+        }
+        grid.innerHTML = data.products.map(renderBuyCard).join('');
+      }catch(e){
+        console.error(e);
+        grid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao carregar recomendações.</p>';
+      }
     }
 
-    function fecharEbooksModal(){
-      const modal = document.querySelector('.ebook-modal');
-      if(modal) modal.remove();
-    }
-
-    // nav: vai para "Aulas" (chef + categorias)
-    function irParaAulas(){
-      document.getElementById('landing').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.body.classList.remove('lock');
-      voltarCategorias();
-    }
-
-    // expõe funções no escopo global
-    window.abrirCategoria = abrirCategoria;
-    window.voltarCategorias = voltarCategorias;
-    window.abrirEbooksColecaoModal = abrirEbooksColecaoModal;
-    window.irParaAulas = irParaAulas;
-    window.abrirLinkEbook = abrirLinkEbook;
+    /* ====== Boot ====== */
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('chef_user_email');
+      if (user) { entrarAreaMembros(); }
+      loadMyProducts();
+      loadRecommendations();
+    });
   </script>
 </body>
 </html>
+
 
 
 
