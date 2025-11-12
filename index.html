@@ -1,341 +1,404 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Top Receitas do Chef</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paginatto – Área de Membros</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  /* =============== BRAND / MOBILE FIRST =============== */
+  :root{
+    /* cores inspiradas na imagem "tom da página" (turquesa) */
+    --brand-900:#062b34;   /* bem escuro */
+    --brand-800:#0a3a46;
+    --brand-700:#0f4b59;
+    --brand-600:#135d6e;
+    --brand-500:#167485;   /* cor principal */
+    --brand-400:#1b8ea2;
+    --brand-300:#45aebf;
+    --brand-200:#7bc8d6;
+    --brand-100:#b6e5ec;
 
-  <style>
-    /* ====== Base / Theme ====== */
-    * { margin:0; padding:0; box-sizing:border-box; }
-    :root{
-      --bg:#F9F7F4; --text:#2B2B2B; --muted:#8C8C8C;
-      --gold:#C8A96A; --gold-dark:#B28E4E; --ink:#3F3F3F;
-      --white:#fff; --border:#EAE6DE; --shadow:0 4px 12px rgba(0,0,0,.08);
-    }
-    body{ font-family:'Lato',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; line-height:1.7; }
-    .hidden{ display:none !important; }
+    --bg: linear-gradient(135deg, var(--brand-900) 0%, var(--brand-600) 60%, var(--brand-500) 100%);
+    --text:#101417;
+    --muted:#6a7b82;
+    --card:#ffffff;
+    --soft:#f6f9fa;
 
-    /* ====== Header fixo ====== */
-    .header-fixed{
-      position:fixed; inset:0 0 auto 0; background:rgba(255,255,255,.85);
-      backdrop-filter:blur(8px); padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
-      box-shadow:var(--shadow); z-index:1000;
-    }
-    .header-logo{ display:flex; align-items:center; gap:10px; }
-    .chef-icon{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#0f0f0f; display:flex; align-items:center; justify-content:center; }
-    .chef-icon img{ width:100%; height:100%; object-fit:cover; }
-    .logo-text{ font-family:'Great Vibes',cursive; font-size:22px; color:var(--text); }
-    .main-nav{ display:flex; gap:18px; font-size:14px; letter-spacing:.12em; text-transform:uppercase; }
-    .main-nav button{ background:none; border:none; cursor:pointer; color:var(--ink); }
-    .main-nav button:hover{ color:var(--gold-dark); }
+    --radius:16px;
+    --shadow:0 8px 20px rgba(0,0,0,.15);
+  }
 
-    /* ====== Landing ====== */
-    body.lock{ height:100vh; overflow:hidden; }
-    #landing{
-      position:relative; height:100vh; display:flex; align-items:center; justify-content:center;
-      text-align:center; color:#fff;
-      background-image:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600');
-      background-size:cover; background-position:center;
-      padding:0 20px;
-    }
-    #landing .brand{ position:absolute; top:26px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:10px; }
-    #landing .logo-text{ color:#fff; font-size:32px; }
-    .landing-title{ font-family:'Playfair Display',serif; font-size:56px; margin-bottom:14px; text-shadow:2px 2px 4px rgba(0,0,0,.5); }
-    .landing-sub{ font-size:20px; margin-bottom:36px; text-shadow:1px 1px 3px rgba(0,0,0,.6); }
-    .btn-primary{
-      background:var(--gold); color:#111; border:none; border-radius:50px; padding:18px 46px;
-      font-size:18px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px rgba(200,169,106,.4); letter-spacing:.08em; text-transform:uppercase;
-    }
-    .btn-primary:hover{ background:var(--gold-dark); transform:translateY(-2px); }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Inter, Arial, sans-serif;
+    color:var(--text);
+    background:var(--bg) fixed;
+    min-height:100vh;
+  }
 
-    /* ====== Seções ====== */
-    .categorias-section{ padding:110px 20px 70px; max-width:1200px; margin:0 auto; }
-    .section-title{ font-family:'Playfair Display',serif; font-size:42px; text-align:center; margin-bottom:10px; }
-    .section-subtitle{ text-align:center; font-size:18px; color:var(--muted); margin:0 auto 44px; max-width:620px; }
-    .categorias-grid{ display:grid; grid-template-columns:1fr; gap:26px; }
-    @media (min-width:700px){ .categorias-grid{ grid-template-columns:repeat(2,1fr); } }
-    @media (min-width:1024px){ .categorias-grid{ grid-template-columns:repeat(3,1fr); } }
+  /* =============== HEADER =============== */
+  header{
+    position:sticky; top:0; z-index:50;
+    background: rgba(6, 43, 52, .75);
+    backdrop-filter: blur(10px);
+    padding: 10px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .brand{
+    display:flex; gap:10px; align-items:center;
+  }
+  .brand img{
+    width:34px; height:34px; object-fit:contain;
+    /* deixa a logo azul totalmente branca (texto branco) */
+    filter: brightness(0) saturate(0) invert(1);
+  }
+  .brand span{
+    color:#fff; font-weight:700; letter-spacing:.3px; font-size:18px;
+  }
 
-    .categoria-card{
-      background:linear-gradient(135deg,#FFEFD5 0%,#FFE4B5 100%); border-radius:16px; padding:20px; box-shadow:var(--shadow);
-      transition:.3s; text-align:center; position:relative;
-    }
-    .categoria-card:hover{ transform:translateY(-4px); box-shadow:0 10px 25px rgba(0,0,0,.16); }
-    .categoria-img{ width:100%; height:160px; border-radius:12px; overflow:hidden; margin-bottom:14px; }
-    .categoria-img img{ width:100%; height:100%; object-fit:cover; transition:.4s; }
-    .categoria-card:hover .categoria-img img{ transform:scale(1.03); }
-    .categoria-card h3{ font-family:'Playfair Display',serif; font-size:22px; margin:8px 0; }
-    .categoria-card p{ color:var(--muted); }
-    .receitas-count{ color:var(--gold-dark); font-weight:700; font-size:12px; margin-top:6px; }
-    .btn-receita{
-      border:none; border-radius:50px; padding:10px 18px; font-weight:700; cursor:pointer; font-size:13px;
-      background:var(--gold); color:#000; box-shadow:0 4px 8px rgba(200,169,106,.4); letter-spacing:.08em; text-transform:uppercase;
-    }
-    .btn-receita:hover{ background:var(--gold-dark); transform:translateY(-1px); }
-    .footer{ background:#2B2B2B; color:#fff; text-align:center; padding:30px 20px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  .menu{
+    display:flex; gap:14px; align-items:center;
+  }
+  .menu a, .menu button{
+    appearance:none; border:0; background:transparent; color:#e9f7fb;
+    font-size:14px; padding:6px 8px; border-radius:10px; cursor:pointer;
+  }
+  .menu a:hover, .menu button:hover{
+    background:rgba(255,255,255,.08);
+  }
 
-    /* ====== Search ====== */
-    .search-wrap{ margin:90px auto 10px; max-width:720px; padding:0 16px; }
-    .search-bar{ display:flex; gap:10px; justify-content:center; }
-    .search-bar input{
-      width:100%; max-width:560px; padding:12px 16px; border-radius:999px; border:1px solid #ddd; outline:none;
-    }
-    .search-section{ padding:20px 20px 0; max-width:1200px; margin:0 auto; }
-    .search-title{ font-size:22px; margin:24px 0 8px; }
-    .hr{ height:1px; background:#eee; margin:24px 0; }
+  /* =============== SEARCH =============== */
+  .search-wrap{
+    padding:14px 12px 0;
+  }
+  .search{
+    display:grid; grid-template-columns: 1fr auto; gap:8px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:999px; padding:10px 12px;
+  }
+  .search input{
+    background:transparent; border:0; outline:0; color:#e8fbff; font-size:14px;
+  }
+  .search input::placeholder{color:#c9e7ed}
+  .search button{
+    background:var(--brand-300); border:0; color:#08333e;
+    font-weight:700; padding:10px 14px; border-radius:999px; cursor:pointer;
+  }
 
-    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
-  </style>
+  /* =============== CONTAINERS =============== */
+  .section{
+    background:var(--soft);
+    margin:12px 0 24px; border-top-left-radius:24px; border-top-right-radius:24px;
+    padding:20px 14px 30px;
+  }
+  .container{max-width:1040px; margin:0 auto}
+
+  .title{
+    font-size:26px; line-height:1.25; margin:6px 4px 4px;
+    color: var(--brand-700);
+    font-weight:800;
+  }
+  .subtitle{
+    margin:0 4px 14px; color:var(--muted); font-size:14px;
+  }
+
+  /* =============== GRIDS / CARDS =============== */
+  .grid{
+    display:grid; gap:12px;
+    grid-template-columns: 1fr;
+  }
+  @media(min-width:640px){ .grid{grid-template-columns: repeat(2,1fr);} }
+  @media(min-width:960px){ .grid{grid-template-columns: repeat(3,1fr);} }
+
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    overflow:hidden; display:flex; flex-direction:column; min-height:180px;
+  }
+  .thumb{
+    width:100%; aspect-ratio:16/9; object-fit:cover; display:block;
+    background:#eaf2f4;
+  }
+  .content{ padding:12px 14px 14px }
+  .card h4{ margin:0 0 6px; font-size:16px }
+  .meta{ color:var(--muted); font-size:13px; margin-bottom:10px }
+  .btns{ display:flex; gap:8px; margin-top:auto; }
+  .btn{
+    flex:1; text-align:center;
+    background:var(--brand-500); color:#fff; border:0; padding:10px 0;
+    border-radius:12px; font-weight:700; cursor:pointer;
+  }
+  .btn.alt{ background:var(--brand-300); color:#08333e; font-weight:800 }
+  .btn.secondary{ background:#eef5f6; color:var(--brand-700); font-weight:800 }
+
+  .empty, .error{
+    padding:14px; border-radius:12px; background:#fff1f1; color:#b03939; font-size:14px;
+    margin:8px 0;
+  }
+  .empty{ background:#f0fbff; color:#0b5161 }
+
+  /* =============== MODALS (vídeo / ebook / drive) =============== */
+  .modal{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.85); z-index:1000; padding:16px;
+  }
+  .modal-inner{ width:100%; max-width:900px; background:#000; border-radius:16px; overflow:hidden; position:relative }
+  .modal-header{
+    position:absolute; top:8px; left:8px; z-index:2;
+    display:flex; gap:8px;
+  }
+  .modal-header button{
+    background:rgba(0,0,0,.6); color:#fff; border:0; padding:6px 10px; border-radius:999px; cursor:pointer;
+  }
+  .modal iframe, .modal video, .modal img{
+    width:100%; height:min(78vh,640px); display:block; border:0; object-fit:contain; background:#000;
+  }
+
+  /* =============== FOOTER =============== */
+  footer{
+    color:#d9f6fb; text-align:center; padding:24px 12px 36px; font-size:12px;
+  }
+</style>
 </head>
-<body class="lock">
-  <!-- ====== Guard de login ====== -->
-  <script>
-    (function () {
-      const user = localStorage.getItem('chef_user_email');
-      if (!user) window.location.href = '/login.html';
-    })();
-  </script>
+<body>
 
-  <!-- ====== TELA 1: LANDING ====== -->
-  <section id="landing">
+  <!-- HEADER -->
+  <header>
     <div class="brand">
-      <div class="chef-icon"><img src="Top receitas do chef.png" alt="Logo"></div>
-      <div class="logo-text">Top Receitas do Chef</div>
+      <!-- Use o arquivo: logo azul sem sombra.png (será mostrado branco pelo filter) -->
+      <img src="logo azul sem sombra.png" alt="Paginatto">
+      <span>Paginatto</span>
     </div>
-    <div>
-      <h1 class="landing-title">As Melhores Receitas</h1>
-      <p class="landing-sub">Selecionadas pelos Maiores Chefs</p>
-      <button class="btn-primary" onclick="entrarAreaMembros()">Acessar receitas</button>
+    <nav class="menu">
+      <a href="#" id="goHome">Início</a>
+      <a href="#videos">Meus Vídeos</a>
+      <a href="#ebooks">Meus E-books</a>
+      <a href="#recs">Recomendações</a>
+      <button id="logoutBtn">Sair</button>
+    </nav>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-wrap container">
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)" />
+      <button id="btnSearch">🔎</button>
+    </div>
+  </div>
+
+  <!-- VÍDEOS -->
+  <section class="section" id="videos">
+    <div class="container">
+      <h2 class="title">Suas Vídeo Aulas</h2>
+      <p class="subtitle">Cursos em vídeo liberados para o seu e-mail.</p>
+      <div id="videosList" class="grid"></div>
+      <div id="videosMsg"></div>
     </div>
   </section>
 
-  <!-- ====== TELA 2: ÁREA DE MEMBROS ====== -->
-  <div id="app" class="hidden">
-    <header class="header-fixed">
-      <div class="header-logo">
-        <div class="chef-icon"><img src="Top receitas do chef.png" alt="Logo"></div>
-        <div class="logo-text">Top Receitas do Chef</div>
-      </div>
-      <nav class="main-nav">
-        <button onclick="voltarInicio()">Início</button>
-        <button onclick="scrollToSection('videosSection')">Meus Vídeos</button>
-        <button onclick="scrollToSection('ebooksSection')">Meus E-books</button>
-        <button onclick="scrollToSection('recomendaSection')">Recomendações</button>
-        <button onclick="logout()">Sair</button>
-      </nav>
-    </header>
-
-    <!-- Busca -->
-    <div class="search-wrap" style="animation:fadeIn .3s ease">
-      <div class="search-bar">
-        <input id="searchInput" type="text" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)"/>
-        <button class="btn-receita" onclick="searchProducts()">🔍</button>
-      </div>
-      <div id="searchResults" class="search-section"></div>
+  <!-- EBOOKS -->
+  <section class="section" id="ebooks">
+    <div class="container">
+      <h2 class="title">Seus E-books</h2>
+      <p class="subtitle">Materiais digitais liberados para o seu e-mail.</p>
+      <div id="ebooksList" class="grid"></div>
+      <div id="ebooksMsg"></div>
     </div>
+  </section>
 
-    <!-- Suas Vídeo Aulas -->
-    <section id="videosSection" class="categorias-section" style="animation:fadeIn .3s ease">
-      <h2 class="section-title">Suas Vídeo Aulas</h2>
-      <p class="section-subtitle">Cursos em vídeo liberados para o seu e-mail.</p>
-      <div id="videosGrid" class="categorias-grid"></div>
-    </section>
+  <!-- RECOMENDAÇÕES -->
+  <section class="section" id="recs">
+    <div class="container">
+      <h2 class="title">Outros produtos pra você</h2>
+      <p class="subtitle">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
+      <div id="recsList" class="grid"></div>
+      <div id="recsMsg"></div>
+    </div>
+  </section>
 
-    <!-- Seus E-books -->
-    <section id="ebooksSection" class="categorias-section" style="animation:fadeIn .3s ease">
-      <h2 class="section-title">Seus E-books</h2>
-      <p class="section-subtitle">E-books que você já possui.</p>
-      <div id="ebooksGrid" class="categorias-grid"></div>
-    </section>
+  <footer>
+    © 2025 PAGINATTO — O MUNDO DOS EBOOKS
+  </footer>
 
-    <!-- Recomendações / Upsell -->
-    <section id="recomendaSection" class="categorias-section" style="animation:fadeIn .3s ease">
-      <h2 class="section-title">Outros produtos pra você</h2>
-      <p class="section-subtitle">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
-      <div id="recomendaGrid" class="categorias-grid"></div>
-    </section>
+<script>
+  /* ========= helpers ========= */
+  const email = (localStorage.getItem('chef_user_email') || '').trim().toLowerCase();
+  const el = (id)=>document.getElementById(id);
 
-    <footer class="footer">
-      <p>© 2025 Top Receitas do Chef – Todos os direitos reservados.</p>
-    </footer>
-  </div>
-
-  <script>
-    /* ====== Navegação Landing/App ====== */
-    function entrarAreaMembros(){
-      document.body.classList.remove('lock');
-      document.getElementById('landing').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'instant'});
+  function guard(){
+    if(!email){
+      alert('Faça login para acessar sua área de membros.');
+      location.href = '/login.html';
+      return false;
     }
-    function voltarInicio(){
-      document.getElementById('app').classList.add('hidden');
-      document.getElementById('landing').classList.remove('hidden');
-      document.body.classList.add('lock');
-      window.scrollTo({top:0,behavior:'instant'});
+    return true;
+  }
+
+  function msg(target, text, type='error'){
+    const box = el(target);
+    if(!box) return;
+    box.innerHTML = `<div class="${type}">${text}</div>`;
+  }
+
+  function cardHTML(p, type){
+    // type: 'video' ou 'ebook' (apenas usado no rótulo/CTA)
+    const cover = p.cover_image_url || p.cover_image || p.image || '';
+    const label = type === 'video' ? 'Assistir' : 'Abrir';
+    return `
+      <article class="card">
+        <img class="thumb" src="${cover}" alt="">
+        <div class="content">
+          <h4>${p.name || p.title}</h4>
+          <div class="meta">${p.description ? (p.description).slice(0,90) : ''}</div>
+          <div class="btns">
+            <button class="btn" onclick='openDeliverable(${JSON.stringify(p)})'>${label}</button>
+            ${p.checkout_link ? `<a class="btn secondary" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>` : ''}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  /* ========= open deliverable inside the site ========= */
+  function openDeliverable(p){
+    const url = (p.drive_link || p.drive_url || p.file_url || p.video_url || '').trim();
+    const isDriveFile = /https?:\/\/drive\.google\.com\/file\/d\//.test(url);
+    const isDriveFolder = /https?:\/\/drive\.google\.com\/drive\/folders\//.test(url);
+    const isVideo = /\.(mp4|webm|ogg)$/i.test(url);
+    const isImage = /\.(png|jpg|jpeg|webp|gif)$/i.test(url);
+    const isPdf = /\.pdf$/i.test(url);
+
+    const m = document.createElement('div');
+    m.className = 'modal';
+    m.innerHTML = `
+      <div class="modal-inner">
+        <div class="modal-header">
+          <button onclick="this.closest('.modal').remove()">← Voltar</button>
+          ${p.name ? `<button disabled style="opacity:.8">${p.name}</button>`:''}
+        </div>
+        <div id="modalBody"></div>
+      </div>`;
+    document.body.appendChild(m);
+
+    const body = m.querySelector('#modalBody');
+
+    if(isDriveFile){
+      const id = url.match(/\/file\/d\/([^/]+)/)[1];
+      body.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    } else if(isDriveFolder){
+      body.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    } else if(isVideo){
+      body.innerHTML = `<video src="${url}" controls autoplay playsinline></video>`;
+    } else if(isImage){
+      body.innerHTML = `<img src="${url}" alt="">`;
+    } else if(isPdf){
+      body.innerHTML = `<iframe src="${url}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    } else if(url){
+      // fallback
+      body.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    } else {
+      body.innerHTML = `<div style="color:#fff; padding:18px">Não encontrei um link de entrega para este item.</div>`;
     }
-    function logout(){
+  }
+
+  /* ========= load: my products (videos + ebooks) ========= */
+  async function loadMyProducts(){
+    if(!guard()) return;
+    try{
+      const r = await fetch('/api/my-products', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+      const data = await r.json();
+
+      const all = Array.isArray(data) ? data : (data.items || []);
+      const videos = all.filter(x => (x.type || '').toLowerCase().includes('video'));
+      const ebooks = all.filter(x => (x.type || '').toLowerCase().includes('ebook'));
+
+      // vídeos
+      const vList = el('videosList');
+      if(videos.length){
+        vList.innerHTML = videos.map(p => cardHTML(p,'video')).join('');
+      }else{
+        vList.innerHTML = '';
+        msg('videosMsg','Você ainda não tem vídeo aulas liberadas. Veja nossas opções abaixo 👇','empty');
+      }
+
+      // ebooks
+      const eList = el('ebooksList');
+      if(ebooks.length){
+        eList.innerHTML = ebooks.map(p => cardHTML(p,'ebook')).join('');
+      }else{
+        eList.innerHTML = '';
+        msg('ebooksMsg','Você ainda não tem e-books liberados. Veja recomendações abaixo 👇','empty');
+      }
+    }catch(err){
+      console.error(err);
+      msg('videosMsg','Erro ao carregar seus vídeos.'); 
+      msg('ebooksMsg','Erro ao carregar seus e-books.');
+    }
+  }
+
+  /* ========= load: recommendations ========= */
+  async function loadRecs(){
+    if(!guard()) return;
+    try{
+      const r = await fetch(`/api/recommendations?email=${encodeURIComponent(email)}`);
+      const data = await r.json();
+      const list = Array.isArray(data) ? data : (data.items || []);
+      const recs = el('recsList');
+      if(list.length){
+        recs.innerHTML = list.map(p => cardHTML(p,'ebook')).join('');
+      }else{
+        recs.innerHTML = '';
+        msg('recsMsg','Sem recomendações no momento.','empty');
+      }
+    }catch(err){
+      console.error(err);
+      msg('recsMsg','Falha ao carregar recomendações.');
+    }
+  }
+
+  /* ========= search ========= */
+  async function doSearch(){
+    const q = el('q').value.trim();
+    if(!q) return;
+    try{
+      const r = await fetch('/api/search', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ q, email })
+      });
+      const data = await r.json();
+      const list = Array.isArray(data) ? data : (data.items || []);
+      if(!list.length){ alert('Nada encontrado para: ' + q); return; }
+
+      // mostro os resultados substituindo temporariamente a seção de recomendações
+      const recs = el('recsList');
+      el('recsMsg').innerHTML = '';
+      recs.innerHTML = list.map(p => cardHTML(p, (p.type||'').toLowerCase().includes('video')?'video':'ebook')).join('');
+      location.hash = '#recs';
+    }catch(err){
+      console.error(err);
+      alert('Erro na busca.');
+    }
+  }
+
+  /* ========= nav / events ========= */
+  document.addEventListener('DOMContentLoaded', () => {
+    if(!guard()) return;
+    loadMyProducts();
+    loadRecs();
+
+    el('btnSearch').addEventListener('click', doSearch);
+    el('q').addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSearch(); });
+
+    el('logoutBtn').addEventListener('click', ()=>{
       localStorage.removeItem('chef_user_email');
-      window.location.href = '/login.html';
-    }
-    function scrollToSection(id){
-      document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    /* ====== Helpers ====== */
-    function acessarEntregavel(linkEnc){
-      window.location.href = `/entregavel.html?link=${linkEnc}`;
-    }
-    function renderOwnedCard(p){
-      const img  = p.cover_image_url || 'https://via.placeholder.com/640x360?text=Produto';
-      const desc = p.description || '';
-      const tags = Array.isArray(p.tags) && p.tags.length ? `<div class="receitas-count">${p.tags.join(' • ')}</div>` : '';
-      const link = p.drive_link ? encodeURIComponent(p.drive_link) : '';
-
-      return `
-        <div class="categoria-card">
-          <div class="categoria-img"><img src="${img}" alt="${p.name}"></div>
-          <h3>${p.name}</h3>
-          <p>${desc}</p>
-          ${tags}
-          <div style="margin-top:12px;display:flex;justify-content:center;">
-            ${
-              link
-                ? `<button class="btn-receita" onclick="acessarEntregavel('${link}')">Acessar</button>`
-                : `<button class="btn-receita" disabled>Sem entregável</button>`
-            }
-          </div>
-        </div>`;
-    }
-    function renderBuyCard(p){
-      const img  = p.cover_image_url || 'https://via.placeholder.com/640x360?text=Produto';
-      const desc = p.description || '';
-      return `
-        <div class="categoria-card">
-          <div class="categoria-img"><img src="${img}" alt="${p.name}"></div>
-          <h3>${p.name}</h3>
-          <p>${desc}</p>
-          <div style="margin-top:12px;display:flex;justify-content:center;">
-            <button class="btn-receita" onclick="window.open('${p.checkout_link}','_blank')">Comprar</button>
-          </div>
-        </div>`;
-    }
-
-    /* ====== Carga dos meus produtos ====== */
-    async function loadMyProducts(){
-      const videosGrid = document.getElementById('videosGrid');
-      const ebooksGrid = document.getElementById('ebooksGrid');
-      videosGrid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
-      ebooksGrid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
-
-      try{
-        const email = localStorage.getItem('chef_user_email');
-        const resp  = await fetch('/api/my-products', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await resp.json();
-
-        if(!resp.ok || !data?.success){
-          videosGrid.innerHTML = '<p style="text-align:center;color:#a00;">Erro ao carregar seus vídeos.</p>';
-          ebooksGrid.innerHTML = '<p style="text-align:center;color:#a00;">Erro ao carregar seus e-books.</p>';
-          return;
-        }
-
-        const prods  = Array.isArray(data.products) ? data.products : [];
-        const videos = prods.filter(p => p.type === 'video' || (Array.isArray(p.tags) && p.tags.includes('video')));
-        const ebooks = prods.filter(p => p.type === 'ebook' || (Array.isArray(p.tags) && p.tags.includes('ebook')));
-
-        if (videos.length === 0) {
-          videosGrid.innerHTML = '<p style="text-align:center;">Você ainda não tem vídeo aulas liberadas. Veja nossas opções abaixo 👇</p>';
-        } else {
-          videosGrid.innerHTML = videos.map(renderOwnedCard).join('');
-        }
-
-        if (ebooks.length === 0) {
-          ebooksGrid.innerHTML = '<p style="text-align:center;">Você ainda não tem e-books liberados. Veja nossas opções abaixo 👇</p>';
-        } else {
-          ebooksGrid.innerHTML = ebooks.map(renderOwnedCard).join('');
-        }
-      }catch(err){
-        console.error(err);
-        videosGrid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao conectar.</p>';
-        ebooksGrid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao conectar.</p>';
-      }
-    }
-
-    /* ====== Busca (Etapa 6) ====== */
-    async function searchProducts(){
-      const q = document.getElementById('searchInput').value.trim();
-      const resultsDiv = document.getElementById('searchResults');
-      if(!q){ resultsDiv.innerHTML=''; return; }
-
-      try{
-        const email = localStorage.getItem('chef_user_email');
-        const res = await fetch('/api/search', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ q, email })
-        });
-        const data = await res.json();
-        if(!data?.results){ resultsDiv.innerHTML = '<p class="section-subtitle">Nada encontrado.</p>'; return; }
-
-        const owned = data.results.filter(p=>p.owned);
-        const others= data.results.filter(p=>!p.owned);
-
-        resultsDiv.innerHTML = `
-          <div class="hr"></div>
-          <h3 class="search-title">Você já tem:</h3>
-          <div class="categorias-grid">${owned.map(renderOwnedCard).join('') || '<p>Nenhum.</p>'}</div>
-          <h3 class="search-title">Você ainda não tem:</h3>
-          <div class="categorias-grid">${others.map(renderBuyCard).join('') || '<p>Nenhum produto sugerido.</p>'}</div>
-        `;
-        // rola para os resultados
-        resultsDiv.scrollIntoView({behavior:'smooth', block:'start'});
-      }catch(e){
-        console.error(e);
-        resultsDiv.innerHTML = '<p class="section-subtitle" style="color:#a00;">Falha ao buscar. Tente novamente.</p>';
-      }
-    }
-
-    /* ====== Recomendações (Etapa 6) ====== */
-    async function loadRecommendations(){
-      const grid = document.getElementById('recomendaGrid');
-      grid.innerHTML = '<p style="text-align:center;">Carregando…</p>';
-      try{
-        const email = localStorage.getItem('chef_user_email');
-        const res = await fetch(`/api/recommendations?email=${encodeURIComponent(email)}`);
-        const data = await res.json();
-        if(!data?.products || data.products.length===0){
-          grid.innerHTML = '<p style="text-align:center;">Sem recomendações no momento.</p>';
-          return;
-        }
-        grid.innerHTML = data.products.map(renderBuyCard).join('');
-      }catch(e){
-        console.error(e);
-        grid.innerHTML = '<p style="text-align:center;color:#a00;">Falha ao carregar recomendações.</p>';
-      }
-    }
-
-    /* ====== Boot ====== */
-    document.addEventListener('DOMContentLoaded', () => {
-      const user = localStorage.getItem('chef_user_email');
-      if (user) { entrarAreaMembros(); }
-      loadMyProducts();
-      loadRecommendations();
+      location.href = '/login.html';
     });
-  </script>
+    el('goHome').addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
+  });
+</script>
 </body>
 </html>
-
-
-
-
-
