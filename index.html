@@ -1,405 +1,462 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Paginatto – Área de Membros</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Paginatto — Área de Membros</title>
 
 <style>
-  /* =============== BRAND / MOBILE FIRST =============== */
   :root{
-    /* cores inspiradas na imagem "tom da página" (turquesa) */
-    --brand-900:#062b34;   /* bem escuro */
-    --brand-800:#0a3a46;
-    --brand-700:#0f4b59;
-    --brand-600:#135d6e;
-    --brand-500:#167485;   /* cor principal */
-    --brand-400:#1b8ea2;
-    --brand-300:#45aebf;
-    --brand-200:#7bc8d6;
-    --brand-100:#b6e5ec;
-
-    --bg: linear-gradient(135deg, var(--brand-900) 0%, var(--brand-600) 60%, var(--brand-500) 100%);
-    --text:#101417;
-    --muted:#6a7b82;
-    --card:#ffffff;
-    --soft:#f6f9fa;
-
-    --radius:16px;
-    --shadow:0 8px 20px rgba(0,0,0,.15);
+    /* paleta Paginatto (teal/azul) */
+    --bg: #0d5f70;            /* fundo hero/nav */
+    --bg-soft: #0e6f83;       /* variação */
+    --page: #f6fbfc;          /* fundo da página/claro */
+    --card: #ffffff;
+    --ink: #0f2024;
+    --muted:#6a7a80;
+    --brand:#12a4bd;          /* acentos */
+    --brand-2:#0db2c9;
+    --gold:#c8a96a;           /* CTAs secundários se quiser */
+    --shadow: 0 8px 24px rgba(3,41,48,.10);
+    --radius: 16px;
   }
 
-  *{box-sizing:border-box}
-  html,body{margin:0}
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
   body{
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Inter, Arial, sans-serif;
-    color:var(--text);
-    background:var(--bg) fixed;
-    min-height:100vh;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+    line-height: 1.55;
   }
 
-  /* =============== HEADER =============== */
+  /* ====== TELA 1 (LANDING) ====== */
+  #landing{
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 32px 18px 46px;
+    background:
+      radial-gradient(1200px 900px at 80% -20%, #138aa1 0%, transparent 60%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
+    color: #fff;
+  }
+  .hero{
+    max-width: 520px;
+    display: grid;
+    gap: 18px;
+    animation: fadeUp .5s ease both;
+  }
+  .brand-hero{
+    display:flex; align-items:center; gap:12px; justify-content:center;
+  }
+  .brand-hero img{ width:44px; height:44px; object-fit:contain }
+  .brand-hero strong{ font-size:20px; letter-spacing:.4px }
+
+  .hero h1{
+    font-size: clamp(28px, 6vw, 36px);
+    line-height: 1.15;
+    font-weight: 800;
+  }
+  .hero p{ opacity:.95 }
+
+  .btn-primary{
+    appearance:none;
+    border:0;
+    border-radius: 999px;
+    padding: 14px 22px;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
+    color:#00262d;
+    font-weight: 800;
+    letter-spacing:.3px;
+    box-shadow: 0 10px 28px rgba(13,178,201,.35);
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .btn-primary:active{ transform: translateY(1px); filter:brightness(.98) }
+
+  /* ====== HEADER / NAV ====== */
   header{
-    position:sticky; top:0; z-index:50;
-    background: rgba(6, 43, 52, .75);
-    backdrop-filter: blur(10px);
+    position: sticky; top:0; z-index: 50;
+    background: linear-gradient(180deg, rgba(13,95,112,1) 0%, rgba(13,95,112,.92) 100%);
+    color:#fff;
+    box-shadow: var(--shadow);
+  }
+  .nav-wrap{
+    max-width: 980px; margin: 0 auto;
     padding: 10px 14px;
-    display:flex; align-items:center; justify-content:space-between;
-    border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
   }
-  .brand{
-    display:flex; gap:10px; align-items:center;
-  }
-  .brand img{
-    width:34px; height:34px; object-fit:contain;
-    /* deixa a logo azul totalmente branca (texto branco) */
-    filter: brightness(0) saturate(0) invert(1);
-  }
-  .brand span{
-    color:#fff; font-weight:700; letter-spacing:.3px; font-size:18px;
-  }
+  .brand-mini{ display:flex; align-items:center; gap:10px; cursor:pointer }
+  .brand-mini img{ width:30px; height:30px; object-fit:contain }
+  .brand-mini span{ font-weight:800; letter-spacing:.4px }
 
   .menu{
-    display:flex; gap:14px; align-items:center;
+    display:flex; align-items:center; gap:14px;
+    overflow-x:auto; scrollbar-width:none;
   }
   .menu a, .menu button{
-    appearance:none; border:0; background:transparent; color:#e9f7fb;
-    font-size:14px; padding:6px 8px; border-radius:10px; cursor:pointer;
+    color:#e8fdff; text-decoration:none; white-space:nowrap;
+    font-size:14px; font-weight:700; letter-spacing:.2px;
+    background:transparent; border:0; cursor:pointer; padding:8px 10px;
+    border-radius: 10px;
   }
-  .menu a:hover, .menu button:hover{
-    background:rgba(255,255,255,.08);
-  }
+  .menu a:hover, .menu button:hover{ background: rgba(255,255,255,.08) }
 
-  /* =============== SEARCH =============== */
-  .search-wrap{
-    padding:14px 12px 0;
+  /* ====== BUSCA ====== */
+  .search-bar{
+    max-width:980px; margin: 14px auto 0; padding: 0 14px 12px;
   }
   .search{
-    display:grid; grid-template-columns: 1fr auto; gap:8px;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:999px; padding:10px 12px;
+    display:flex; gap:8px; background:var(--card); border-radius:999px; padding:8px 8px 8px 14px;
+    box-shadow: var(--shadow);
   }
   .search input{
-    background:transparent; border:0; outline:0; color:#e8fbff; font-size:14px;
+    border:0; outline:0; flex:1; font-size:14px; background:transparent; color:var(--ink);
   }
-  .search input::placeholder{color:#c9e7ed}
-  .search button{
-    background:var(--brand-300); border:0; color:#08333e;
-    font-weight:700; padding:10px 14px; border-radius:999px; cursor:pointer;
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; border:0; cursor:pointer;
+    background:linear-gradient(120deg, var(--brand) 0%, var(--brand-2) 100%);
+    color:#00313a; font-weight:800;
   }
 
-  /* =============== CONTAINERS =============== */
+  /* ====== CONTEÚDO ====== */
   .section{
-    background:var(--soft);
-    margin:12px 0 24px; border-top-left-radius:24px; border-top-right-radius:24px;
-    padding:20px 14px 30px;
+    max-width: 980px; margin: 12px auto 24px; padding: 0 14px;
   }
-  .container{max-width:1040px; margin:0 auto}
+  .h2{
+    font-size: clamp(22px, 3.8vw, 28px);
+    font-weight: 900; letter-spacing:.2px;
+    margin: 24px 0 8px;
+  }
+  .sub{ color: var(--muted); margin-bottom: 14px }
 
-  .title{
-    font-size:26px; line-height:1.25; margin:6px 4px 4px;
-    color: var(--brand-700);
-    font-weight:800;
-  }
-  .subtitle{
-    margin:0 4px 14px; color:var(--muted); font-size:14px;
-  }
-
-  /* =============== GRIDS / CARDS =============== */
   .grid{
-    display:grid; gap:12px;
-    grid-template-columns: 1fr;
+    display:grid; grid-template-columns: 1fr; gap:14px;
   }
-  @media(min-width:640px){ .grid{grid-template-columns: repeat(2,1fr);} }
-  @media(min-width:960px){ .grid{grid-template-columns: repeat(3,1fr);} }
+  @media (min-width:540px){ .grid{ grid-template-columns: repeat(2,1fr) } }
+  @media (min-width:920px){ .grid{ grid-template-columns: repeat(3,1fr) } }
 
   .card{
-    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
-    overflow:hidden; display:flex; flex-direction:column; min-height:180px;
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow:hidden;
+    box-shadow: var(--shadow);
+    display:flex; flex-direction:column;
   }
-  .thumb{
-    width:100%; aspect-ratio:16/9; object-fit:cover; display:block;
-    background:#eaf2f4;
-  }
-  .content{ padding:12px 14px 14px }
-  .card h4{ margin:0 0 6px; font-size:16px }
-  .meta{ color:var(--muted); font-size:13px; margin-bottom:10px }
-  .btns{ display:flex; gap:8px; margin-top:auto; }
+  .thumb{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:#eaf1f3 }
+  .card-body{ padding:12px }
+  .card h3{ font-size:16px; font-weight:800; margin: 0 0 6px }
+  .card p{ color:var(--muted); font-size:13px; margin-bottom:10px }
+  .row-btns{ display:flex; gap:8px; }
   .btn{
-    flex:1; text-align:center;
-    background:var(--brand-500); color:#fff; border:0; padding:10px 0;
-    border-radius:12px; font-weight:700; cursor:pointer;
+    flex:1; padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:800; letter-spacing:.2px;
+    background: #e9f6f8; color:#054957;
   }
-  .btn.alt{ background:var(--brand-300); color:#08333e; font-weight:800 }
-  .btn.secondary{ background:#eef5f6; color:var(--brand-700); font-weight:800 }
+  .btn:hover{ filter:brightness(.98) }
+  .btn.buy{ background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%); color:#002e36 }
 
-  .empty, .error{
-    padding:14px; border-radius:12px; background:#fff1f1; color:#b03939; font-size:14px;
-    margin:8px 0;
-  }
-  .empty{ background:#f0fbff; color:#0b5161 }
+  .msg{ color:#d12f2f; font-size:14px; }
 
-  /* =============== MODALS (vídeo / ebook / drive) =============== */
-  .modal{
-    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-    background:rgba(0,0,0,.85); z-index:1000; padding:16px;
+  /* ====== MODAIS (video / ebook) ====== */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.85);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1000; padding:18px;
+    animation: fade .15s ease;
   }
-  .modal-inner{ width:100%; max-width:900px; background:#000; border-radius:16px; overflow:hidden; position:relative }
-  .modal-header{
-    position:absolute; top:8px; left:8px; z-index:2;
-    display:flex; gap:8px;
+  .player{
+    width:min(960px, 100%); background:#000; border-radius:16px; overflow:hidden; position:relative;
   }
-  .modal-header button{
-    background:rgba(0,0,0,.6); color:#fff; border:0; padding:6px 10px; border-radius:999px; cursor:pointer;
-  }
-  .modal iframe, .modal video, .modal img{
-    width:100%; height:min(78vh,640px); display:block; border:0; object-fit:contain; background:#000;
+  .player iframe{ width:100%; height:min(70dvh, 520px); border:0; display:block }
+  .close{
+    position:absolute; top:10px; left:10px;
+    background:rgba(0,0,0,.6); border:0; color:#fff; padding:8px 12px; border-radius:999px; cursor:pointer;
   }
 
-  /* =============== FOOTER =============== */
+  /* ====== FOOTER ====== */
   footer{
-    color:#d9f6fb; text-align:center; padding:24px 12px 36px; font-size:12px;
+    text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
+    font-size:12px; letter-spacing:.2px;
   }
+
+  /* animations */
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(8px) }
+    to{ opacity:1; transform:none }
+  }
+  @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
 </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="brand">
-      <!-- Use o arquivo: logo azul sem sombra.png (será mostrado branco pelo filter) -->
-      <img src="logo azul sem sombra.png" alt="Paginatto">
+<!-- ========= TELA 1 (LANDING) ========= -->
+<section id="landing">
+  <div class="hero">
+    <div class="brand-hero">
+      <img src="logo-branca.png" alt="Paginatto">
+      <strong>Paginatto</strong>
+    </div>
+    <h1>As melhores receitas e e-books num só lugar</h1>
+    <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
+    <button class="btn-primary" id="enterBtn">Acessar</button>
+  </div>
+</section>
+
+<!-- ========= TELA 2 (APP) ========= -->
+<header id="appHeader" style="display:none">
+  <div class="nav-wrap">
+    <div class="brand-mini" id="goHome">
+      <img src="logo-branca.png" alt="Paginatto">
       <span>Paginatto</span>
     </div>
     <nav class="menu">
-      <a href="#" id="goHome">Início</a>
+      <a href="#" id="menuInicio">Início</a>
       <a href="#videos">Meus Vídeos</a>
       <a href="#ebooks">Meus E-books</a>
       <a href="#recs">Recomendações</a>
       <button id="logoutBtn">Sair</button>
     </nav>
-  </header>
-
-  <!-- SEARCH -->
-  <div class="search-wrap container">
+  </div>
+  <div class="search-bar">
     <div class="search">
-      <input id="q" type="search" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)" />
-      <button id="btnSearch">🔎</button>
+      <input id="q" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)">
+      <button class="icon-btn" id="btnSearch">🔎</button>
     </div>
   </div>
+</header>
 
-  <!-- VÍDEOS -->
+<main id="appMain" style="display:none">
+  <!-- vídeos -->
   <section class="section" id="videos">
-    <div class="container">
-      <h2 class="title">Suas Vídeo Aulas</h2>
-      <p class="subtitle">Cursos em vídeo liberados para o seu e-mail.</p>
-      <div id="videosList" class="grid"></div>
-      <div id="videosMsg"></div>
-    </div>
+    <h2 class="h2">Suas Vídeo Aulas</h2>
+    <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
+    <div id="gridVideos" class="grid"></div>
+    <p id="msgVideos" class="msg" style="display:none"></p>
   </section>
 
-  <!-- EBOOKS -->
+  <!-- e-books -->
   <section class="section" id="ebooks">
-    <div class="container">
-      <h2 class="title">Seus E-books</h2>
-      <p class="subtitle">Materiais digitais liberados para o seu e-mail.</p>
-      <div id="ebooksList" class="grid"></div>
-      <div id="ebooksMsg"></div>
-    </div>
+    <h2 class="h2">Seus E-books</h2>
+    <p class="sub">E-books liberados para o seu e-mail.</p>
+    <div id="gridEbooks" class="grid"></div>
+    <p id="msgEbooks" class="msg" style="display:none"></p>
   </section>
 
-  <!-- RECOMENDAÇÕES -->
+  <!-- recomendações -->
   <section class="section" id="recs">
-    <div class="container">
-      <h2 class="title">Outros produtos pra você</h2>
-      <p class="subtitle">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
-      <div id="recsList" class="grid"></div>
-      <div id="recsMsg"></div>
-    </div>
+    <h2 class="h2">Outros produtos pra você</h2>
+    <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
+    <div id="gridRecs" class="grid"></div>
+    <p id="msgRecs" class="msg" style="display:none"></p>
   </section>
+</main>
 
-  <footer>
-    © 2025 PAGINATTO — O MUNDO DOS EBOOKS
-  </footer>
+<footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
 <script>
-  /* ========= helpers ========= */
-  const email = (localStorage.getItem('chef_user_email') || '').trim().toLowerCase();
-  const el = (id)=>document.getElementById(id);
+  // ===== helpers
+  const $ = (sel) => document.querySelector(sel);
+  const el = (id) => document.getElementById(id);
 
-  function guard(){
+  function toDrivePreview(url){
+    const m = String(url||'').match(/drive\.google\.com\/file\/d\/([^/]+)/);
+    if(!m) return null;
+    return `https://drive.google.com/file/d/${m[1]}/preview`;
+  }
+
+  function openPlayer(url, title){
+    const embed = toDrivePreview(url) || url;
+    const wrap = document.createElement('div');
+    wrap.className = 'overlay';
+    wrap.innerHTML = `
+      <div class="player">
+        <button class="close" onclick="this.closest('.overlay').remove()">← Voltar</button>
+        <iframe src="${embed}" allow="autoplay; encrypted-media" allowfullscreen title="${title||''}"></iframe>
+      </div>`;
+    document.body.appendChild(wrap);
+  }
+
+  // ===== navegação landing -> app
+  function showApp(){
+    $('#landing').style.display = 'none';
+    $('#appHeader').style.display = '';
+    $('#appMain').style.display = '';
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+
+  // ===== sessão / login
+  function requireLogin(){
+    const email = localStorage.getItem('chef_user_email');
     if(!email){
-      alert('Faça login para acessar sua área de membros.');
-      location.href = '/login.html';
-      return false;
+      // volta pra tela de login se não estiver logado
+      window.location.href = '/login.html';
+      return null;
     }
-    return true;
+    return email.toLowerCase().trim();
   }
 
-  function msg(target, text, type='error'){
-    const box = el(target);
-    if(!box) return;
-    box.innerHTML = `<div class="${type}">${text}</div>`;
+  // ===== carregar conteúdos
+  async function loadMyProducts(){
+    const email = requireLogin(); if(!email) return;
+
+    try{
+      const resp = await fetch('/api/my-products', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await resp.json();
+
+      if(!resp.ok){ throw new Error(data?.error || 'Erro ao carregar.') }
+
+      const items = Array.isArray(data?.items) ? data.items : data;
+
+      // separa por tipo
+      const vids = items.filter(p => (p.type||'').toLowerCase().includes('video'));
+      const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+
+      renderCards(vids, el('gridVideos'), 'Assistir', (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name));
+      renderCards(ebooks, el('gridEbooks'), 'Abrir', (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name));
+
+      if(vids.length===0){ el('msgVideos').style.display=''; el('msgVideos').textContent='Você ainda não tem vídeo aulas liberadas.'; }
+      if(ebooks.length===0){ el('msgEbooks').style.display=''; el('msgEbooks').textContent='Você ainda não tem e-books liberados.'; }
+
+    }catch(e){
+      el('msgVideos').style.display='';
+      el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
+      el('msgEbooks').style.display='';
+      el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
+      console.error(e);
+    }
   }
 
-  function cardHTML(p, type){
-    // type: 'video' ou 'ebook' (apenas usado no rótulo/CTA)
-    const cover = p.cover_image_url || p.cover_image || p.image || '';
-    const label = type === 'video' ? 'Assistir' : 'Abrir';
-    return `
-      <article class="card">
-        <img class="thumb" src="${cover}" alt="">
-        <div class="content">
-          <h4>${p.name || p.title}</h4>
-          <div class="meta">${p.description ? (p.description).slice(0,90) : ''}</div>
-          <div class="btns">
-            <button class="btn" onclick='openDeliverable(${JSON.stringify(p)})'>${label}</button>
-            ${p.checkout_link ? `<a class="btn secondary" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>` : ''}
+  function renderCards(list, container, cta, onOpen){
+    container.innerHTML = '';
+    list.forEach(p=>{
+      const div = document.createElement('div');
+      div.className='card';
+      const cover = p.cover_image_url || '';
+      const desc = p.description || '';
+      div.innerHTML = `
+        <img class="thumb" src="${cover}" alt="${p.name||''}">
+        <div class="card-body">
+          <h3>${p.name||''}</h3>
+          <p>${desc}</p>
+          <div class="row-btns">
+            <button class="btn" onclick="(${onOpen})( ${JSON.stringify(p)} )">${cta}</button>
           </div>
         </div>
-      </article>
-    `;
+      `;
+      container.appendChild(div);
+    });
   }
 
-  /* ========= open deliverable inside the site ========= */
-  function openDeliverable(p){
-    const url = (p.drive_link || p.drive_url || p.file_url || p.video_url || '').trim();
-    const isDriveFile = /https?:\/\/drive\.google\.com\/file\/d\//.test(url);
-    const isDriveFolder = /https?:\/\/drive\.google\.com\/drive\/folders\//.test(url);
-    const isVideo = /\.(mp4|webm|ogg)$/i.test(url);
-    const isImage = /\.(png|jpg|jpeg|webp|gif)$/i.test(url);
-    const isPdf = /\.pdf$/i.test(url);
-
-    const m = document.createElement('div');
-    m.className = 'modal';
-    m.innerHTML = `
-      <div class="modal-inner">
-        <div class="modal-header">
-          <button onclick="this.closest('.modal').remove()">← Voltar</button>
-          ${p.name ? `<button disabled style="opacity:.8">${p.name}</button>`:''}
-        </div>
-        <div id="modalBody"></div>
-      </div>`;
-    document.body.appendChild(m);
-
-    const body = m.querySelector('#modalBody');
-
-    if(isDriveFile){
-      const id = url.match(/\/file\/d\/([^/]+)/)[1];
-      body.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    } else if(isDriveFolder){
-      body.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
-    } else if(isVideo){
-      body.innerHTML = `<video src="${url}" controls autoplay playsinline></video>`;
-    } else if(isImage){
-      body.innerHTML = `<img src="${url}" alt="">`;
-    } else if(isPdf){
-      body.innerHTML = `<iframe src="${url}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    } else if(url){
-      // fallback
-      body.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
-    } else {
-      body.innerHTML = `<div style="color:#fff; padding:18px">Não encontrei um link de entrega para este item.</div>`;
-    }
-  }
-
-  /* ========= load: my products (videos + ebooks) ========= */
-  async function loadMyProducts(){
-    if(!guard()) return;
-    try{
-      const r = await fetch('/api/my-products', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
-      const data = await r.json();
-
-      const all = Array.isArray(data) ? data : (data.items || []);
-      const videos = all.filter(x => (x.type || '').toLowerCase().includes('video'));
-      const ebooks = all.filter(x => (x.type || '').toLowerCase().includes('ebook'));
-
-      // vídeos
-      const vList = el('videosList');
-      if(videos.length){
-        vList.innerHTML = videos.map(p => cardHTML(p,'video')).join('');
-      }else{
-        vList.innerHTML = '';
-        msg('videosMsg','Você ainda não tem vídeo aulas liberadas. Veja nossas opções abaixo 👇','empty');
-      }
-
-      // ebooks
-      const eList = el('ebooksList');
-      if(ebooks.length){
-        eList.innerHTML = ebooks.map(p => cardHTML(p,'ebook')).join('');
-      }else{
-        eList.innerHTML = '';
-        msg('ebooksMsg','Você ainda não tem e-books liberados. Veja recomendações abaixo 👇','empty');
-      }
-    }catch(err){
-      console.error(err);
-      msg('videosMsg','Erro ao carregar seus vídeos.'); 
-      msg('ebooksMsg','Erro ao carregar seus e-books.');
-    }
-  }
-
-  /* ========= load: recommendations ========= */
   async function loadRecs(){
-    if(!guard()) return;
+    const email = requireLogin(); if(!email) return;
     try{
-      const r = await fetch(`/api/recommendations?email=${encodeURIComponent(email)}`);
+      const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
       const data = await r.json();
-      const list = Array.isArray(data) ? data : (data.items || []);
-      const recs = el('recsList');
-      if(list.length){
-        recs.innerHTML = list.map(p => cardHTML(p,'ebook')).join('');
-      }else{
-        recs.innerHTML = '';
-        msg('recsMsg','Sem recomendações no momento.','empty');
-      }
-    }catch(err){
-      console.error(err);
-      msg('recsMsg','Falha ao carregar recomendações.');
+      if(!r.ok) throw new Error(data?.error || 'Erro');
+      const list = Array.isArray(data?.items) ? data.items : data;
+
+      const cont = el('gridRecs');
+      cont.innerHTML='';
+      list.forEach(p=>{
+        const div = document.createElement('div');
+        div.className='card';
+        div.innerHTML = `
+          <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
+          <div class="card-body">
+            <h3>${p.name||''}</h3>
+            <p>${p.description||''}</p>
+            <div class="row-btns">
+              <a class="btn buy" href="${p.checkout_link||'#'}" target="_blank" rel="noopener">Comprar</a>
+            </div>
+          </div>`;
+        cont.appendChild(div);
+      });
+      if(list.length===0){ el('msgRecs').style.display=''; el('msgRecs').textContent='Nada sugerido no momento.'; }
+    }catch(e){
+      el('msgRecs').style.display=''; el('msgRecs').textContent='Falha ao carregar recomendações.';
+      console.error(e);
     }
   }
 
-  /* ========= search ========= */
   async function doSearch(){
     const q = el('q').value.trim();
     if(!q) return;
-    try{
-      const r = await fetch('/api/search', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ q, email })
-      });
-      const data = await r.json();
-      const list = Array.isArray(data) ? data : (data.items || []);
-      if(!list.length){ alert('Nada encontrado para: ' + q); return; }
+    const email = requireLogin(); if(!email) return;
 
-      // mostro os resultados substituindo temporariamente a seção de recomendações
-      const recs = el('recsList');
-      el('recsMsg').innerHTML = '';
-      recs.innerHTML = list.map(p => cardHTML(p, (p.type||'').toLowerCase().includes('video')?'video':'ebook')).join('');
-      location.hash = '#recs';
-    }catch(err){
-      console.error(err);
+    try{
+      const res = await fetch('/api/search?q='+encodeURIComponent(q)+'&email='+encodeURIComponent(email));
+      const data = await res.json();
+      if(!res.ok) throw new Error(data?.error||'Erro');
+
+      const items = Array.isArray(data?.items) ? data.items : data;
+      const owned = items.filter(x=>x.owned);
+      const notOwned = items.filter(x=>!x.owned);
+
+      // mostra resultados sobrescrevendo grids
+      renderCards(
+        owned, el('gridVideos'), 'Abrir',
+        (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name)
+      );
+      // usa grid de e-books para “não possui” com botão comprar
+      const cont = el('gridEbooks'); cont.innerHTML='';
+      notOwned.forEach(p=>{
+        const div = document.createElement('div');
+        div.className='card';
+        div.innerHTML = `
+          <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
+          <div class="card-body">
+            <h3>${p.name||''}</h3>
+            <p>${p.description||''}</p>
+            <div class="row-btns">
+              ${p.checkout_link ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>` : `<button class="btn" disabled>Indisponível</button>`}
+            </div>
+          </div>`;
+        cont.appendChild(div);
+      });
+
+      // sobe até os grids
+      document.location.hash = '#videos';
+    }catch(e){
       alert('Erro na busca.');
+      console.error(e);
     }
   }
 
-  /* ========= nav / events ========= */
-  document.addEventListener('DOMContentLoaded', () => {
-    if(!guard()) return;
+  // ===== eventos UI
+  el('enterBtn').addEventListener('click', ()=>{
+    // exige sessão antes de exibir o app
+    if(!requireLogin()) return;
+    showApp();
     loadMyProducts();
     loadRecs();
-
-    el('btnSearch').addEventListener('click', doSearch);
-    el('q').addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSearch(); });
-
-    el('logoutBtn').addEventListener('click', ()=>{
-      localStorage.removeItem('chef_user_email');
-      location.href = '/login.html';
-    });
-    el('goHome').addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
   });
+
+  el('menuInicio').addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); });
+  el('goHome').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+  el('btnSearch').addEventListener('click', doSearch);
+  el('q').addEventListener('keydown', (e)=> (e.key==='Enter') && doSearch());
+
+  el('logoutBtn').addEventListener('click', ()=>{
+    localStorage.removeItem('chef_user_email');
+    location.href = '/login.html';
+  });
+
+  // Se já está logado e veio direto, mostre o app
+  (function boot(){
+    if(requireLogin()){
+      // mantém a landing (você pediu 2 etapas).  
+      // Se quiser abrir direto a área para logados, troque para:
+      // showApp(); loadMyProducts(); loadRecs();
+    }
+  })();
 </script>
 </body>
 </html>
+
 
