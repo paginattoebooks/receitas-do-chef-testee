@@ -6,23 +6,34 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Use GET' });
   }
 
-  const q = (req.query.q || '').toString().trim();
+  const qRaw = (req.query.q || '').toString().trim();
   const email = (req.query.email || '').toString().toLowerCase().trim();
 
-  if (!q) {
+  if (!qRaw) {
     return res.status(400).json({ success: false, error: 'q é obrigatório' });
   }
+
+  const q = `%${qRaw}%`;
 
   try {
     const client = await pool.connect();
 
     try {
-      const searchTerm = `%${q}%`;
-
       const result = await client.query(
         `
         WITH u AS (
           SELECT id FROM users WHERE lower(email) = lower($2)
+        ),
+        base_owned AS (
+          SELECT p.id, p.deliverable_key
+          FROM user_products up
+          JOIN u ON u.id = up.user_id
+          JOIN products p ON p.id = up.product_id
+        ),
+        owned_keys AS (
+          SELECT DISTINCT deliverable_key
+          FROM base_owned
+          WHERE deliverable_key IS NOT NULL
         )
         SELECT
           p.id,
@@ -32,18 +43,25 @@ export default async function handler(req, res) {
           p.checkout_link,
           p.drive_link,
           p.type,
-          (up.user_id IS NOT NULL) AS owned
+          p.deliverable_key,
+          (
+            EXISTS (SELECT 1 FROM base_owned bo WHERE bo.id = p.id)
+            OR (
+              p.deliverable_key IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM owned_keys ok
+                WHERE ok.deliverable_key = p.deliverable_key
+              )
+            )
+          ) AS owned
         FROM products p
-        LEFT JOIN u ON TRUE
-        LEFT JOIN user_products up
-          ON up.user_id = u.id
-         AND up.product_id = p.id
         WHERE p.is_active = true
           AND (p.name ILIKE $1 OR p.description ILIKE $1)
         ORDER BY p.name
         LIMIT 50;
         `,
-        [searchTerm, email]
+        [q, email]
       );
 
       return res.status(200).json({
@@ -58,3 +76,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: 'erro ao buscar' });
   }
 }
+
