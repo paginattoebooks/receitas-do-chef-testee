@@ -15,10 +15,10 @@ export default async function handler(req, res) {
     const client = await pool.connect();
 
     try {
-      // produtos já comprados
+      // 1) produtos diretamente comprados
       const ownedRes = await client.query(
         `
-        SELECT p.id
+        SELECT p.id, p.deliverable_key
         FROM users u
         JOIN user_products up ON up.user_id = u.id
         JOIN products p ON p.id = up.product_id
@@ -27,21 +27,49 @@ export default async function handler(req, res) {
         [email]
       );
 
-      const ownedIds = ownedRes.rows.map(r => r.id);
+      const ownedIds = new Set();
+      const ownedKeys = new Set();
 
-      let query = `
-        SELECT id, name, description, cover_image_url, checkout_link, drive_link, type
-        FROM products
-        WHERE is_active = true
-      `;
-      const params = [];
-
-      if (ownedIds.length > 0) {
-        query += ' AND id <> ALL($1)';
-        params.push(ownedIds);
+      for (const row of ownedRes.rows) {
+        ownedIds.add(row.id);
+        if (row.deliverable_key) {
+          ownedKeys.add(row.deliverable_key);
+        }
       }
 
-      query += ' ORDER BY created_at DESC LIMIT 20';
+      const ownedIdsArr = [...ownedIds];
+      const ownedKeysArr = [...ownedKeys];
+
+      // 2) recomenda apenas o que NÃO tem mesmo deliverable_key
+      //    nem é o mesmo produto
+      const params = [];
+      let where = 'p.is_active = true';
+
+      if (ownedIdsArr.length > 0) {
+        params.push(ownedIdsArr);
+        where += ` AND p.id <> ALL($${params.length})`;
+      }
+
+      if (ownedKeysArr.length > 0) {
+        params.push(ownedKeysArr);
+        where += ` AND (p.deliverable_key IS NULL OR p.deliverable_key <> ALL($${params.length}))`;
+      }
+
+      const query = `
+        SELECT
+          p.id,
+          p.name,
+          p.description,
+          p.cover_image_url,
+          p.checkout_link,
+          p.drive_link,
+          p.type,
+          p.deliverable_key
+        FROM products p
+        WHERE ${where}
+        ORDER BY p.created_at DESC
+        LIMIT 20;
+      `;
 
       const recRes = await client.query(query, params);
 
