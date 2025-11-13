@@ -297,61 +297,90 @@
     return email.toLowerCase().trim();
   }
 
-  // ===== carregar conteúdos
   async function loadMyProducts(){
-    const email = requireLogin(); if(!email) return;
+  const email = requireLogin(); 
+  if (!email) return;
 
-    try{
-      const resp = await fetch('/api/my-products', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await resp.json();
-
-      if(!resp.ok){ throw new Error(data?.error || 'Erro ao carregar.') }
-
-      const items = Array.isArray(data?.items) ? data.items : data;
-
-      // separa por tipo
-      const vids = items.filter(p => (p.type||'').toLowerCase().includes('video'));
-      const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
-
-      renderCards(vids, el('gridVideos'), 'Assistir', (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name));
-      renderCards(ebooks, el('gridEbooks'), 'Abrir', (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name));
-
-      if(vids.length===0){ el('msgVideos').style.display=''; el('msgVideos').textContent='Você ainda não tem vídeo aulas liberadas.'; }
-      if(ebooks.length===0){ el('msgEbooks').style.display=''; el('msgEbooks').textContent='Você ainda não tem e-books liberados.'; }
-
-    }catch(e){
-      el('msgVideos').style.display='';
-      el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
-      el('msgEbooks').style.display='';
-      el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
-      console.error(e);
-    }
-  }
-
-  function renderCards(list, container, cta, onOpen){
-    container.innerHTML = '';
-    list.forEach(p=>{
-      const div = document.createElement('div');
-      div.className='card';
-      const cover = p.cover_image_url || '';
-      const desc = p.description || '';
-      div.innerHTML = `
-        <img class="thumb" src="${cover}" alt="${p.name||''}">
-        <div class="card-body">
-          <h3>${p.name||''}</h3>
-          <p>${desc}</p>
-          <div class="row-btns">
-            <button class="btn" onclick="(${onOpen})( ${JSON.stringify(p)} )">${cta}</button>
-          </div>
-        </div>
-      `;
-      container.appendChild(div);
+  try{
+    const resp = await fetch('/api/my-products', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ email })
     });
+
+    const data = await resp.json();
+
+    if (!resp.ok || !data.success) {
+      throw new Error(data.error || data.message || 'Erro ao carregar.');
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+
+    const vids = items.filter(p => (p.type || '').toLowerCase().includes('video'));
+    const ebooks = items.filter(p => (p.type || '').toLowerCase().includes('ebook'));
+
+    renderCards(
+      vids,
+      el('gridVideos'),
+      'Assistir',
+      (p) => openPlayer(p.drive_link || p.checkout_link, p.name)
+    );
+
+    renderCards(
+      ebooks,
+      el('gridEbooks'),
+      'Abrir',
+      (p) => openPlayer(p.drive_link || p.checkout_link, p.name)
+    );
+
+    if (vids.length === 0) {
+      el('msgVideos').style.display = '';
+      el('msgVideos').textContent = 'Você ainda não tem vídeo aulas liberadas.';
+    } else {
+      el('msgVideos').style.display = 'none';
+    }
+
+    if (ebooks.length === 0) {
+      el('msgEbooks').style.display = '';
+      el('msgEbooks').textContent = 'Você ainda não tem e-books liberados.';
+    } else {
+      el('msgEbooks').style.display = 'none';
+    }
+  } catch (e){
+    console.error(e);
+    el('msgVideos').style.display = '';
+    el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
+    el('msgEbooks').style.display = '';
+    el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
   }
+}
+  
+  function renderCards(list, container, cta, onOpen){
+  container.innerHTML = '';
+  list.forEach((p) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+
+    const cover = p.cover_image_url || '';
+    const desc  = p.description || '';
+
+    div.innerHTML = `
+      <img class="thumb" src="${cover}" alt="${p.name || ''}">
+      <div class="card-body">
+        <h3>${p.name || ''}</h3>
+        <p>${desc}</p>
+        <div class="row-btns">
+          <button class="btn">${cta}</button>
+        </div>
+      </div>
+    `;
+
+    const btn = div.querySelector('button.btn');
+    btn.addEventListener('click', () => onOpen(p));
+
+    container.appendChild(div);
+  });
+}
 
   async function loadRecs(){
     const email = requireLogin(); if(!email) return;
