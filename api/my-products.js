@@ -16,16 +16,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Busca todos os produtos ativos que esse email possui
     const query = `
       SELECT
         p.id,
         p.name,
         p.type,
-        p.slug,
         p.description,
         p.cover_image_url,
-        p.tags
+        p.drive_link,
+        p.checkout_link,
+        p.deliverable_key
       FROM users u
       JOIN user_products up ON up.user_id = u.id
       JOIN products p ON p.id = up.product_id
@@ -36,15 +36,9 @@ export default async function handler(req, res) {
 
     const { rows } = await pool.query(query, [email]);
 
-    // Se quiser separar em "videos" / "ebooks"
-    const videos = rows.filter(r => r.type === 'video');
-    const ebooks = rows.filter(r => r.type === 'ebook');
-
     return res.status(200).json({
       success: true,
-      products: rows, // tudo junto
-      videos,
-      ebooks,
+      items: rows, // <- front vai usar isso
     });
   } catch (err) {
     console.error('Erro em /api/my-products', err);
@@ -54,4 +48,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
