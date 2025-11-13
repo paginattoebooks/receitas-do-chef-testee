@@ -1,193 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Paginatto — Área de Membros</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Paginatto — Área de Membros</title>
 
-<style>
-  :root{
-    /* paleta Paginatto (teal/azul) */
-    --bg: #0d5f70;            /* fundo hero/nav */
-    --bg-soft: #0e6f83;       /* variação */
-    --page: #f6fbfc;          /* fundo da página/claro */
-    --card: #ffffff;
-    --ink: #0f2024;
-    --muted:#6a7a80;
-    --brand:#12a4bd;          /* acentos */
-    --brand-2:#0db2c9;
-    --gold:#c8a96a;           /* CTAs secundários se quiser */
-    --shadow: 0 8px 24px rgba(3,41,48,.10);
-    --radius: 16px;
-  }
+  <style>
+    :root{
+      /* paleta Paginatto (teal/azul) */
+      --bg: #0d5f70;            /* fundo hero/nav */
+      --bg-soft: #0e6f83;       /* variação */
+      --page: #f6fbfc;          /* fundo da página/claro */
+      --card: #ffffff;
+      --ink: #0f2024;
+      --muted:#6a7a80;
+      --brand:#12a4bd;          /* acentos */
+      --brand-2:#0db2c9;
+      --gold:#c8a96a;           /* CTAs secundários se quiser */
+      --shadow: 0 8px 24px rgba(3,41,48,.10);
+      --radius: 16px;
+    }
 
-  *{ box-sizing:border-box; margin:0; padding:0; }
+    *{ box-sizing:border-box; margin:0; padding:0; }
 
-  body{
-    background: var(--page);
-    color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
-    line-height: 1.55;
-  }
+    body{
+      background: var(--page);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      line-height: 1.55;
+    }
 
-  /* ====== TELA 1 (LANDING) ====== */
-  #landing{
-    min-height: 100dvh;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    padding: 32px 18px 46px;
-    background:
-      radial-gradient(1200px 900px at 80% -20%, #138aa1 0%, transparent 60%),
-      linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
-    color: #fff;
-  }
-  .hero{
-    max-width: 520px;
-    display: grid;
-    gap: 18px;
-    animation: fadeUp .5s ease both;
-  }
-  .brand-hero{
-    display:flex; align-items:center; gap:12px; justify-content:center;
-  }
-  .brand-hero img{ width:44px; height:44px; object-fit:contain }
-  .brand-hero strong{ font-size:20px; letter-spacing:.4px }
+    /* ====== TELA 1 (LANDING) ====== */
+    #landing{
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 32px 18px 46px;
+      background:
+        radial-gradient(1200px 900px at 80% -20%, #138aa1 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
+      color: #fff;
+    }
+    .hero{
+      max-width: 520px;
+      display: grid;
+      gap: 18px;
+      animation: fadeUp .5s ease both;
+    }
+    .brand-hero{
+      display:flex; align-items:center; gap:12px; justify-content:center;
+    }
+    .brand-hero img{ width:44px; height:44px; object-fit:contain }
+    .brand-hero strong{ font-size:20px; letter-spacing:.4px }
 
-  .hero h1{
-    font-size: clamp(28px, 6vw, 36px);
-    line-height: 1.15;
-    font-weight: 800;
-  }
-  .hero p{ opacity:.95 }
+    .hero h1{
+      font-size: clamp(28px, 6vw, 36px);
+      line-height: 1.15;
+      font-weight: 800;
+    }
+    .hero p{ opacity:.95 }
 
-  .btn-primary{
-    appearance:none;
-    border:0;
-    border-radius: 999px;
-    padding: 14px 22px;
-    background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
-    color:#00262d;
-    font-weight: 800;
-    letter-spacing:.3px;
-    box-shadow: 0 10px 28px rgba(13,178,201,.35);
-    cursor:pointer;
-    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-  }
-  .btn-primary:active{ transform: translateY(1px); filter:brightness(.98) }
+    .btn-primary{
+      appearance:none;
+      border:0;
+      border-radius: 999px;
+      padding: 14px 22px;
+      background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
+      color:#00262d;
+      font-weight: 800;
+      letter-spacing:.3px;
+      box-shadow: 0 10px 28px rgba(13,178,201,.35);
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:active{ transform: translateY(1px); filter:brightness(.98) }
 
-  /* ====== HEADER / NAV ====== */
-  header{
-    position: sticky; top:0; z-index: 50;
-    background: linear-gradient(180deg, rgba(13,95,112,1) 0%, rgba(13,95,112,.92) 100%);
-    color:#fff;
-    box-shadow: var(--shadow);
-  }
-  .nav-wrap{
-    max-width: 980px; margin: 0 auto;
-    padding: 10px 14px;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-  }
-  .brand-mini{ display:flex; align-items:center; gap:10px; cursor:pointer }
-  .brand-mini img{ width:30px; height:30px; object-fit:contain }
-  .brand-mini span{ font-weight:800; letter-spacing:.4px }
+    /* ====== HEADER / NAV ====== */
+    header{
+      position: sticky; top:0; z-index: 50;
+      background: linear-gradient(180deg, rgba(13,95,112,1) 0%, rgba(13,95,112,.92) 100%);
+      color:#fff;
+      box-shadow: var(--shadow);
+    }
+    .nav-wrap{
+      max-width: 980px; margin: 0 auto;
+      padding: 10px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand-mini{ display:flex; align-items:center; gap:10px; cursor:pointer }
+    .brand-mini img{ width:30px; height:30px; object-fit:contain }
+    .brand-mini span{ font-weight:800; letter-spacing:.4px }
 
-  .menu{
-    display:flex; align-items:center; gap:14px;
-    overflow-x:auto; scrollbar-width:none;
-  }
-  .menu a, .menu button{
-    color:#e8fdff; text-decoration:none; white-space:nowrap;
-    font-size:14px; font-weight:700; letter-spacing:.2px;
-    background:transparent; border:0; cursor:pointer; padding:8px 10px;
-    border-radius: 10px;
-  }
-  .menu a:hover, .menu button:hover{ background: rgba(255,255,255,.08) }
+    .menu{
+      display:flex; align-items:center; gap:14px;
+      overflow-x:auto; scrollbar-width:none;
+    }
+    .menu a, .menu button{
+      color:#e8fdff; text-decoration:none; white-space:nowrap;
+      font-size:14px; font-weight:700; letter-spacing:.2px;
+      background:transparent; border:0; cursor:pointer; padding:8px 10px;
+      border-radius: 10px;
+    }
+    .menu a:hover, .menu button:hover{ background: rgba(255,255,255,.08) }
 
-  /* ====== BUSCA ====== */
-  .search-bar{
-    max-width:980px; margin: 14px auto 0; padding: 0 14px 12px;
-  }
-  .search{
-    display:flex; gap:8px; background:var(--card); border-radius:999px; padding:8px 8px 8px 14px;
-    box-shadow: var(--shadow);
-  }
-  .search input{
-    border:0; outline:0; flex:1; font-size:14px; background:transparent; color:var(--ink);
-  }
-  .icon-btn{
-    width:38px; height:38px; border-radius:50%; border:0; cursor:pointer;
-    background:linear-gradient(120deg, var(--brand) 0%, var(--brand-2) 100%);
-    color:#00313a; font-weight:800;
-  }
+    /* ====== BUSCA ====== */
+    .search-bar{
+      max-width:980px; margin: 14px auto 0; padding: 0 14px 12px;
+    }
+    .search{
+      display:flex; gap:8px; background:var(--card); border-radius:999px; padding:8px 8px 8px 14px;
+      box-shadow: var(--shadow);
+    }
+    .search input{
+      border:0; outline:0; flex:1; font-size:14px; background:transparent; color:var(--ink);
+    }
+    .icon-btn{
+      width:38px; height:38px; border-radius:50%; border:0; cursor:pointer;
+      background:linear-gradient(120deg, var(--brand) 0%, var(--brand-2) 100%);
+      color:#00313a; font-weight:800;
+    }
 
-  /* ====== CONTEÚDO ====== */
-  .section{
-    max-width: 980px; margin: 12px auto 24px; padding: 0 14px;
-  }
-  .h2{
-    font-size: clamp(22px, 3.8vw, 28px);
-    font-weight: 900; letter-spacing:.2px;
-    margin: 24px 0 8px;
-  }
-  .sub{ color: var(--muted); margin-bottom: 14px }
+    /* ====== CONTEÚDO ====== */
+    .section{
+      max-width: 980px; margin: 12px auto 24px; padding: 0 14px;
+    }
+    .h2{
+      font-size: clamp(22px, 3.8vw, 28px);
+      font-weight: 900; letter-spacing:.2px;
+      margin: 24px 0 8px;
+    }
+    .sub{ color: var(--muted); margin-bottom: 14px }
 
-  .grid{
-    display:grid; grid-template-columns: 1fr; gap:14px;
-  }
-  @media (min-width:540px){ .grid{ grid-template-columns: repeat(2,1fr) } }
-  @media (min-width:920px){ .grid{ grid-template-columns: repeat(3,1fr) } }
+    .grid{
+      display:grid; grid-template-columns: 1fr; gap:14px;
+    }
+    @media (min-width:540px){ .grid{ grid-template-columns: repeat(2,1fr) } }
+    @media (min-width:920px){ .grid{ grid-template-columns: repeat(3,1fr) } }
 
-  .card{
-    background: var(--card);
-    border-radius: var(--radius);
-    overflow:hidden;
-    box-shadow: var(--shadow);
-    display:flex; flex-direction:column;
-  }
-  .thumb{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:#eaf1f3 }
-  .card-body{ padding:12px }
-  .card h3{ font-size:16px; font-weight:800; margin: 0 0 6px }
-  .card p{ color:var(--muted); font-size:13px; margin-bottom:10px }
-  .row-btns{ display:flex; gap:8px; }
-  .btn{
-    flex:1; padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:800; letter-spacing:.2px;
-    background: #e9f6f8; color:#054957;
-  }
-  .btn:hover{ filter:brightness(.98) }
-  .btn.buy{ background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%); color:#002e36 }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      display:flex; flex-direction:column;
+    }
+    .thumb{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:#eaf1f3 }
+    .card-body{ padding:12px }
+    .card h3{ font-size:16px; font-weight:800; margin: 0 0 6px }
+    .card p{ color:var(--muted); font-size:13px; margin-bottom:10px }
+    .row-btns{ display:flex; gap:8px; }
+    .btn{
+      flex:1; padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:800; letter-spacing:.2px;
+      background: #e9f6f8; color:#054957;
+    }
+    .btn:hover{ filter:brightness(.98) }
+    .btn.buy{ background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%); color:#002e36 }
 
-  .msg{ color:#d12f2f; font-size:14px; }
+    .msg{ color:#d12f2f; font-size:14px; }
 
-  /* ====== MODAIS (video / ebook) ====== */
-  .overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,.85);
-    display:flex; align-items:center; justify-content:center;
-    z-index:1000; padding:18px;
-    animation: fade .15s ease;
-  }
-  .player{
-    width:min(960px, 100%); background:#000; border-radius:16px; overflow:hidden; position:relative;
-  }
-  .player iframe{ width:100%; height:min(70dvh, 520px); border:0; display:block }
-  .close{
-    position:absolute; top:10px; left:10px;
-    background:rgba(0,0,0,.6); border:0; color:#fff; padding:8px 12px; border-radius:999px; cursor:pointer;
-  }
+    /* ====== MODAIS (video / ebook) ====== */
+    .overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.85);
+      display:flex; align-items:center; justify-content:center;
+      z-index:1000; padding:18px;
+      animation: fade .15s ease;
+    }
+    .player{
+      width:min(960px, 100%); background:#000; border-radius:16px; overflow:hidden; position:relative;
+    }
+    .player iframe{ width:100%; height:min(70dvh, 520px); border:0; display:block }
+    .close{
+      position:absolute; top:10px; left:10px;
+      background:rgba(0,0,0,.6); border:0; color:#fff; padding:8px 12px; border-radius:999px; cursor:pointer;
+    }
 
-  /* ====== FOOTER ====== */
-  footer{
-    text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
-    font-size:12px; letter-spacing:.2px;
-  }
+    /* ====== FOOTER ====== */
+    footer{
+      text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
+      font-size:12px; letter-spacing:.2px;
+    }
 
-  /* animations */
-  @keyframes fadeUp{
-    from{ opacity:0; transform: translateY(8px) }
-    to{ opacity:1; transform:none }
-  }
-  @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
-</style>
+    /* animations */
+    @keyframes fadeUp{
+      from{ opacity:0; transform: translateY(8px) }
+      to{ opacity:1; transform:none }
+    }
+    @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
+  </style>
 </head>
 <body>
 
@@ -213,9 +213,9 @@
     </div>
     <nav class="menu">
       <a href="#" id="menuInicio">Início</a>
-      <a href="#videos">Meus Vídeos</a>
-      <a href="#ebooks">Meus E-books</a>
-      <a href="#recs">Recomendações</a>
+      <a href="#" id="menuVideos">Meus Vídeos</a>
+      <a href="#" id="menuEbooks">Meus E-books</a>
+      <a href="#" id="menuRecs">Recomendações</a>
       <button id="logoutBtn">Sair</button>
     </nav>
   </div>
@@ -260,14 +260,33 @@
   const $ = (sel) => document.querySelector(sel);
   const el = (id) => document.getElementById(id);
 
+  // transforma link do Drive em link de preview em iframe/aba
   function toDrivePreview(url){
-    const m = String(url||'').match(/drive\.google\.com\/file\/d\/([^/]+)/);
-    if(!m) return null;
-    return `https://drive.google.com/file/d/${m[1]}/preview`;
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      if (!u.hostname.includes('drive.google.com')) return url;
+
+      let id = null;
+
+      // /file/d/ID/
+      const m1 = url.match(/\/file\/d\/([^/]+)/);
+      if (m1) id = m1[1];
+
+      // ?id=ID
+      if (!id && u.searchParams.get('id')) {
+        id = u.searchParams.get('id');
+      }
+
+      if (!id) return url;
+      return `https://drive.google.com/file/d/${id}/preview`;
+    } catch (e){
+      return url;
+    }
   }
 
   function openPlayer(url, title){
-    const embed = toDrivePreview(url) || url;
+    const embed = url;
     const wrap = document.createElement('div');
     wrap.className = 'overlay';
     wrap.innerHTML = `
@@ -278,6 +297,18 @@
     document.body.appendChild(wrap);
   }
 
+  function openVideo(p){
+    const url   = p.drive_link || p.checkout_link;
+    const embed = toDrivePreview(url);
+    openPlayer(embed, p.name);
+  }
+
+  function openEbook(p){
+    const url = p.drive_link || p.checkout_link;
+    const finalUrl = toDrivePreview(url);
+    window.open(finalUrl, '_blank');
+  }
+
   // ===== navegação landing -> app
   function showApp(){
     $('#landing').style.display = 'none';
@@ -286,115 +317,138 @@
     window.scrollTo({top:0, behavior:'instant'});
   }
 
+  // abas (início / vídeos / ebooks / recomendações)
+  function showSection(mode){
+    const secVideos = el('videos');
+    const secEbooks = el('ebooks');
+    const secRecs   = el('recs');
+
+    if (mode === 'all') {
+      secVideos.style.display = '';
+      secEbooks.style.display = '';
+      secRecs.style.display   = '';
+    } else {
+      secVideos.style.display = (mode === 'videos') ? '' : 'none';
+      secEbooks.style.display = (mode === 'ebooks') ? '' : 'none';
+      secRecs.style.display   = (mode === 'recs')   ? '' : 'none';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   // ===== sessão / login
   function requireLogin(){
     const email = localStorage.getItem('chef_user_email');
     if(!email){
-      // volta pra tela de login se não estiver logado
       window.location.href = '/login.html';
       return null;
     }
     return email.toLowerCase().trim();
   }
 
-  async function loadMyProducts(){
-  const email = requireLogin(); 
-  if (!email) return;
-
-  try{
-    const resp = await fetch('/api/my-products', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await resp.json();
-
-    if (!resp.ok || !data.success) {
-      throw new Error(data.error || data.message || 'Erro ao carregar.');
-    }
-
-    const items = Array.isArray(data.items) ? data.items : [];
-
-    const vids = items.filter(p => (p.type || '').toLowerCase().includes('video'));
-    const ebooks = items.filter(p => (p.type || '').toLowerCase().includes('ebook'));
-
-    renderCards(
-      vids,
-      el('gridVideos'),
-      'Assistir',
-      (p) => openPlayer(p.drive_link || p.checkout_link, p.name)
-    );
-
-    renderCards(
-      ebooks,
-      el('gridEbooks'),
-      'Abrir',
-      (p) => openPlayer(p.drive_link || p.checkout_link, p.name)
-    );
-
-    if (vids.length === 0) {
-      el('msgVideos').style.display = '';
-      el('msgVideos').textContent = 'Você ainda não tem vídeo aulas liberadas.';
-    } else {
-      el('msgVideos').style.display = 'none';
-    }
-
-    if (ebooks.length === 0) {
-      el('msgEbooks').style.display = '';
-      el('msgEbooks').textContent = 'Você ainda não tem e-books liberados.';
-    } else {
-      el('msgEbooks').style.display = 'none';
-    }
-  } catch (e){
-    console.error(e);
-    el('msgVideos').style.display = '';
-    el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
-    el('msgEbooks').style.display = '';
-    el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
-  }
-}
-  
+  // ===== cards genéricos
   function renderCards(list, container, cta, onOpen){
-  container.innerHTML = '';
-  list.forEach((p) => {
-    const div = document.createElement('div');
-    div.className = 'card';
+    container.innerHTML = '';
+    list.forEach((p) => {
+      const div = document.createElement('div');
+      div.className = 'card';
 
-    const cover = p.cover_image_url || '';
-    const desc  = p.description || '';
+      const cover = p.cover_image_url || '';
+      const desc  = p.description || '';
 
-    div.innerHTML = `
-      <img class="thumb" src="${cover}" alt="${p.name || ''}">
-      <div class="card-body">
-        <h3>${p.name || ''}</h3>
-        <p>${desc}</p>
-        <div class="row-btns">
-          <button class="btn">${cta}</button>
+      div.innerHTML = `
+        <img class="thumb" src="${cover}" alt="${p.name || ''}">
+        <div class="card-body">
+          <h3>${p.name || ''}</h3>
+          <p>${desc}</p>
+          <div class="row-btns">
+            <button class="btn">${cta}</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    const btn = div.querySelector('button.btn');
-    btn.addEventListener('click', () => onOpen(p));
+      const btn = div.querySelector('button.btn');
+      btn.addEventListener('click', () => onOpen(p));
 
-    container.appendChild(div);
-  });
-}
+      container.appendChild(div);
+    });
+  }
+
+  // ===== carregar conteúdos do usuário
+  async function loadMyProducts(){
+    const email = requireLogin(); 
+    if (!email) return;
+
+    try{
+      const resp = await fetch('/api/my-products', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok || !data.success) {
+        throw new Error(data.error || data.message || 'Erro ao carregar.');
+      }
+
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      const vids = items.filter(p => (p.type || '').toLowerCase().includes('video'));
+      const ebooks = items.filter(p => (p.type || '').toLowerCase().includes('ebook'));
+
+      renderCards(
+        vids,
+        el('gridVideos'),
+        'Assistir',
+        (p) => openVideo(p)
+      );
+
+      renderCards(
+        ebooks,
+        el('gridEbooks'),
+        'Abrir',
+        (p) => openEbook(p)
+      );
+
+      if (vids.length === 0) {
+        el('msgVideos').style.display = '';
+        el('msgVideos').textContent = 'Você ainda não tem vídeo aulas liberadas.';
+      } else {
+        el('msgVideos').style.display = 'none';
+      }
+
+      if (ebooks.length === 0) {
+        el('msgEbooks').style.display = '';
+        el('msgEbooks').textContent = 'Você ainda não tem e-books liberados.';
+      } else {
+        el('msgEbooks').style.display = 'none';
+      }
+    } catch (e){
+      console.error(e);
+      el('msgVideos').style.display = '';
+      el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
+      el('msgEbooks').style.display = '';
+      el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
+    }
+  }
 
   async function loadRecs(){
-    const email = requireLogin(); if(!email) return;
+    const email = requireLogin(); 
+    if (!email) return;
+
     try{
       const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
       const data = await r.json();
-      if(!r.ok) throw new Error(data?.error || 'Erro');
-      const list = Array.isArray(data?.items) ? data.items : data;
+      if(!r.ok || !data.success) throw new Error(data.error || 'Erro');
+
+      const list = Array.isArray(data.items) ? data.items : [];
 
       const cont = el('gridRecs');
-      cont.innerHTML='';
+      cont.innerHTML = '';
       list.forEach(p=>{
         const div = document.createElement('div');
-        div.className='card';
+        div.className = 'card';
         div.innerHTML = `
           <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
           <div class="card-body">
@@ -406,34 +460,56 @@
           </div>`;
         cont.appendChild(div);
       });
-      if(list.length===0){ el('msgRecs').style.display=''; el('msgRecs').textContent='Nada sugerido no momento.'; }
+
+      if(list.length===0){
+        el('msgRecs').style.display='';
+        el('msgRecs').textContent='Nada sugerido no momento.';
+      } else {
+        el('msgRecs').style.display='none';
+      }
     }catch(e){
-      el('msgRecs').style.display=''; el('msgRecs').textContent='Falha ao carregar recomendações.';
       console.error(e);
+      el('msgRecs').style.display=''; 
+      el('msgRecs').textContent='Falha ao carregar recomendações.';
     }
   }
 
+  // ===== busca
   async function doSearch(){
-    const q = el('q').value.trim();
-    if(!q) return;
-    const email = requireLogin(); if(!email) return;
+    const qVal = el('q').value.trim();
+    if(!qVal) return;
+
+    const email = requireLogin(); 
+    if (!email) return;
 
     try{
-      const res = await fetch('/api/search?q='+encodeURIComponent(q)+'&email='+encodeURIComponent(email));
+      const res = await fetch('/api/search?q=' + encodeURIComponent(qVal) + '&email=' + encodeURIComponent(email));
       const data = await res.json();
-      if(!res.ok) throw new Error(data?.error||'Erro');
+      if(!res.ok || !data.success) throw new Error(data.error || 'Erro');
 
-      const items = Array.isArray(data?.items) ? data.items : data;
-      const owned = items.filter(x=>x.owned);
-      const notOwned = items.filter(x=>!x.owned);
+      const items = Array.isArray(data.items) ? data.items : [];
 
-      // mostra resultados sobrescrevendo grids
+      const owned = items.filter(x => x.owned);
+      const notOwned = items.filter(x => !x.owned);
+
+      const ownedVideos = owned.filter(p => (p.type||'').toLowerCase().includes('video'));
+      const ownedEbooks = owned.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+
       renderCards(
-        owned, el('gridVideos'), 'Abrir',
-        (p)=>openPlayer(p.drive_link||p.deliverable_url||p.checkout_link, p.name)
+        ownedVideos,
+        el('gridVideos'),
+        'Assistir',
+        (p)=>openVideo(p)
       );
-      // usa grid de e-books para “não possui” com botão comprar
-      const cont = el('gridEbooks'); cont.innerHTML='';
+      renderCards(
+        ownedEbooks,
+        el('gridEbooks'),
+        'Abrir',
+        (p)=>openEbook(p)
+      );
+
+      const cont = el('gridRecs');
+      cont.innerHTML = '';
       notOwned.forEach(p=>{
         const div = document.createElement('div');
         div.className='card';
@@ -449,25 +525,47 @@
         cont.appendChild(div);
       });
 
-      // sobe até os grids
+      showSection('all');
       document.location.hash = '#videos';
     }catch(e){
-      alert('Erro na busca.');
       console.error(e);
+      alert('Erro na busca.');
     }
   }
 
   // ===== eventos UI
   el('enterBtn').addEventListener('click', ()=>{
-    // exige sessão antes de exibir o app
     if(!requireLogin()) return;
     showApp();
+    showSection('all');
     loadMyProducts();
     loadRecs();
   });
 
-  el('menuInicio').addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); });
-  el('goHome').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+  el('menuInicio').addEventListener('click', (e)=>{
+    e.preventDefault();
+    showSection('all');
+  });
+
+  el('menuVideos').addEventListener('click', (e)=>{
+    e.preventDefault();
+    showSection('videos');
+  });
+
+  el('menuEbooks').addEventListener('click', (e)=>{
+    e.preventDefault();
+    showSection('ebooks');
+  });
+
+  el('menuRecs').addEventListener('click', (e)=>{
+    e.preventDefault();
+    showSection('recs');
+  });
+
+  el('goHome').addEventListener('click', ()=>{
+    showSection('all');
+  });
+
   el('btnSearch').addEventListener('click', doSearch);
   el('q').addEventListener('keydown', (e)=> (e.key==='Enter') && doSearch());
 
@@ -475,17 +573,7 @@
     localStorage.removeItem('chef_user_email');
     location.href = '/login.html';
   });
-
-  // Se já está logado e veio direto, mostre o app
-  (function boot(){
-    if(requireLogin()){
-      // mantém a landing (você pediu 2 etapas).  
-      // Se quiser abrir direto a área para logados, troque para:
-      // showApp(); loadMyProducts(); loadRecs();
-    }
-  })();
 </script>
 </body>
 </html>
-
 
