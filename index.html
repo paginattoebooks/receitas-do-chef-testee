@@ -16,7 +16,7 @@
       --muted:#6a7a80;
       --brand:#12a4bd;          /* acentos */
       --brand-2:#0db2c9;
-      --gold:#c8a96a;           /* CTAs secundários se quiser */
+      --gold:#c8a96a;
       --shadow: 0 8px 24px rgba(3,41,48,.10);
       --radius: 16px;
     }
@@ -87,6 +87,7 @@
       max-width: 980px; margin: 0 auto;
       padding: 10px 14px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
+      position: relative;
     }
     .brand-mini{ display:flex; align-items:center; gap:10px; cursor:pointer }
     .brand-mini img{ width:30px; height:30px; object-fit:contain }
@@ -103,6 +104,20 @@
       border-radius: 10px;
     }
     .menu a:hover, .menu button:hover{ background: rgba(255,255,255,.08) }
+
+    .menu-toggle{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      border:0;
+      background:rgba(255,255,255,0.12);
+      color:#e8fdff;
+      cursor:pointer;
+      font-size:18px;
+    }
 
     /* ====== BUSCA ====== */
     .search-bar{
@@ -181,6 +196,37 @@
       font-size:12px; letter-spacing:.2px;
     }
 
+    /* ====== MOBILE NAV ====== */
+    @media (max-width: 720px){
+      .nav-wrap{
+        justify-content:space-between;
+      }
+      .menu-toggle{
+        display:flex;
+      }
+      .menu{
+        position:absolute;
+        top:100%;
+        right:14px;
+        margin-top:8px;
+        background:rgba(6,44,52,0.98);
+        border-radius:12px;
+        padding:6px;
+        box-shadow:var(--shadow);
+        flex-direction:column;
+        align-items:flex-start;
+        display:none;
+      }
+      .menu.open{
+        display:flex;
+      }
+      .menu a, .menu button{
+        width:100%;
+        text-align:left;
+        padding:8px 12px;
+      }
+    }
+
     /* animations */
     @keyframes fadeUp{
       from{ opacity:0; transform: translateY(8px) }
@@ -211,7 +257,8 @@
       <img src="LOGO BRANCA COM SOMBRA.png" alt="Paginatto">
       <span>Paginatto</span>
     </div>
-    <nav class="menu">
+    <button class="menu-toggle" id="menuToggle">⋮</button>
+    <nav class="menu" id="menuNav">
       <a href="#" id="menuInicio">Início</a>
       <a href="#" id="menuVideos">Meus Vídeos</a>
       <a href="#" id="menuEbooks">Meus E-books</a>
@@ -260,7 +307,6 @@
   const $ = (sel) => document.querySelector(sel);
   const el = (id) => document.getElementById(id);
 
-  // transforma link do Drive em link de preview em iframe/aba
   function toDrivePreview(url){
     if (!url) return null;
     try {
@@ -269,11 +315,9 @@
 
       let id = null;
 
-      // /file/d/ID/
       const m1 = url.match(/\/file\/d\/([^/]+)/);
       if (m1) id = m1[1];
 
-      // ?id=ID
       if (!id && u.searchParams.get('id')) {
         id = u.searchParams.get('id');
       }
@@ -309,7 +353,6 @@
     window.open(finalUrl, '_blank');
   }
 
-  // ===== navegação landing -> app
   function showApp(){
     $('#landing').style.display = 'none';
     $('#appHeader').style.display = '';
@@ -317,7 +360,6 @@
     window.scrollTo({top:0, behavior:'instant'});
   }
 
-  // abas (início / vídeos / ebooks / recomendações)
   function showSection(mode){
     const secVideos = el('videos');
     const secEbooks = el('ebooks');
@@ -336,7 +378,6 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ===== sessão / login
   function requireLogin(){
     const email = localStorage.getItem('chef_user_email');
     if(!email){
@@ -346,7 +387,6 @@
     return email.toLowerCase().trim();
   }
 
-  // ===== cards genéricos
   function renderCards(list, container, cta, onOpen){
     container.innerHTML = '';
     list.forEach((p) => {
@@ -374,7 +414,6 @@
     });
   }
 
-  // ===== carregar conteúdos do usuário
   async function loadMyProducts(){
     const email = requireLogin(); 
     if (!email) return;
@@ -474,7 +513,6 @@
     }
   }
 
-  // ===== busca
   async function doSearch(){
     const qVal = el('q').value.trim();
     if(!qVal) return;
@@ -533,7 +571,24 @@
     }
   }
 
-  // ===== eventos UI
+  const menuToggle = el('menuToggle');
+  const menuNav = el('menuNav');
+
+  function closeMenuMobile(){
+    menuNav.classList.remove('open');
+  }
+
+  menuToggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    menuNav.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e)=>{
+    if (!menuNav.contains(e.target) && e.target !== menuToggle){
+      closeMenuMobile();
+    }
+  });
+
   el('enterBtn').addEventListener('click', ()=>{
     if(!requireLogin()) return;
     showApp();
@@ -545,25 +600,30 @@
   el('menuInicio').addEventListener('click', (e)=>{
     e.preventDefault();
     showSection('all');
+    closeMenuMobile();
   });
 
   el('menuVideos').addEventListener('click', (e)=>{
     e.preventDefault();
     showSection('videos');
+    closeMenuMobile();
   });
 
   el('menuEbooks').addEventListener('click', (e)=>{
     e.preventDefault();
     showSection('ebooks');
+    closeMenuMobile();
   });
 
   el('menuRecs').addEventListener('click', (e)=>{
     e.preventDefault();
     showSection('recs');
+    closeMenuMobile();
   });
 
   el('goHome').addEventListener('click', ()=>{
     showSection('all');
+    closeMenuMobile();
   });
 
   el('btnSearch').addEventListener('click', doSearch);
@@ -571,6 +631,7 @@
 
   el('logoutBtn').addEventListener('click', ()=>{
     localStorage.removeItem('chef_user_email');
+    closeMenuMobile();
     location.href = '/login.html';
   });
 </script>
