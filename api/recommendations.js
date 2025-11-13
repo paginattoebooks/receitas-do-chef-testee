@@ -15,7 +15,6 @@ export default async function handler(req, res) {
     const client = await pool.connect();
 
     try {
-      // 1) produtos diretamente comprados
       const ownedRes = await client.query(
         `
         SELECT p.id, p.deliverable_key
@@ -27,23 +26,19 @@ export default async function handler(req, res) {
         [email]
       );
 
-      const ownedIds = new Set();
+      const ownedIds  = new Set();
       const ownedKeys = new Set();
 
       for (const row of ownedRes.rows) {
         ownedIds.add(row.id);
-        if (row.deliverable_key) {
-          ownedKeys.add(row.deliverable_key);
-        }
+        if (row.deliverable_key) ownedKeys.add(row.deliverable_key);
       }
 
-      const ownedIdsArr = [...ownedIds];
+      const ownedIdsArr  = [...ownedIds];
       const ownedKeysArr = [...ownedKeys];
 
-      // 2) recomenda apenas o que NÃO tem mesmo deliverable_key
-      //    nem é o mesmo produto
-      const params = [];
       let where = 'p.is_active = true';
+      const params = [];
 
       if (ownedIdsArr.length > 0) {
         params.push(ownedIdsArr);
@@ -64,18 +59,30 @@ export default async function handler(req, res) {
           p.checkout_link,
           p.drive_link,
           p.type,
-          p.deliverable_key
+          p.deliverable_key,
+          p.created_at
         FROM products p
         WHERE ${where}
         ORDER BY p.created_at DESC
-        LIMIT 20;
+        LIMIT 100;
       `;
 
       const recRes = await client.query(query, params);
 
+      // DEDUP por deliverable_key ( ver item 7 )
+      const seen = new Set();
+      const dedup = [];
+
+      for (const p of recRes.rows) {
+        const key = p.deliverable_key || `id_${p.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        dedup.push(p);
+      }
+
       return res.status(200).json({
         success: true,
-        items: recRes.rows,
+        items: dedup,
       });
     } finally {
       client.release();
