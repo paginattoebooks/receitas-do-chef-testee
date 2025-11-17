@@ -18,13 +18,13 @@
     }
 
     :root {
-      --bg:#F9F7F4;
-      --text:#2B2B2B;
+      --bg:#054957;
+      --text:#0f0f0f;
       --muted:#8C8C8C;
-      --gold:#C8A96A;
-      --gold-dark:#B28E4E;
-      --white:#fff;
-      --shadow:0 4px 12px rgba(0,0,0,0.08);
+      --gold:#18b0c8;
+      --gold-dark:#1723d3;
+      --white:#e4e7ec;
+      --shadow:0 4px 12px rgba(243, 243, 243, 0.08);
       --error:#D9534F;
       --success:#2E7D32;
     }
@@ -60,7 +60,7 @@
       height:48px;
       border-radius:50%;
       overflow:hidden;
-      background:#000;
+      background:#18b0c8;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -98,13 +98,13 @@
       width:100%;
       padding:10px 12px;
       border-radius:10px;
-      border:1px solid #ddd;
+      border:1px solid #91d2dd;
       font-size:14px;
     }
     input:focus{
       outline:none;
       border-color:var(--gold);
-      box-shadow:0 0 0 2px rgba(200,169,106,0.25);
+      box-shadow:0 0 0 2px rgba(51, 156, 197, 0.25);
     }
 
     .hint{
@@ -118,7 +118,7 @@
       border:none;
       border-radius:999px;
       background:var(--gold);
-      color:#000;
+      color:#054957;
       padding:12px 0;
       font-weight:700;
       font-size:15px;
@@ -126,7 +126,7 @@
       text-transform:uppercase;
       cursor:pointer;
       margin-top:10px;
-      box-shadow:0 8px 18px rgba(200,169,106,0.45);
+      box-shadow:0 8px 18px rgba(54, 143, 194, 0.45);
       transition:all .25s ease;
     }
     .btn-login:hover{
@@ -158,10 +158,8 @@
 
   <div class="login-card">
     <div class="login-logo">
-      <div class="chef-icon">
-        <img src="Top receitas do chef.png" alt="Top Receitas do Chef">
-      </div>
-      <div class="logo-text">Top Receitas do Chef</div>
+      
+      <div class="logo-text">Paginatto</div>
     </div>
 
     <h1 class="login-title">Área de membros</h1>
@@ -180,7 +178,7 @@
         <label for="cpf">CPF / Senha</label>
         <input type="text" id="cpf" required placeholder="123456" />
         <div class="hint">
-          Informe o CPF ou a senha padrão <strong>123456</strong>, de acordo com o que o back-end espera.
+          Informe  a senha padrão <strong>123456</strong>.
         </div>
       </div>
 
