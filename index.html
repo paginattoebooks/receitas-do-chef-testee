@@ -339,6 +339,11 @@
   <section class="section" id="ebooks">
     <h2 class="h2">Seus E-books</h2>
     <p class="sub">E-books liberados para o seu e-mail.</p>
+
+    <!-- AQUI entram os cards tipo "Air Fryer", "Doces sem Açúcar" -->
+    <div id="gridComboCards" class="grid"></div>
+
+    <!-- AQUI ficam os e-books individuais -->
     <div id="gridEbooks" class="grid"></div>
     <p id="msgEbooks" class="msg" style="display:none"></p>
   </section>
@@ -403,7 +408,35 @@
     openPlayer(url, p.name);
   }
 
-  // ******* AGRUPAR POR deliverable_key *******
+  // CONFIG: combos → cards de categoria (preencha aqui)
+  // chave: deliverable_key do combo (tudo minúsculo)
+  const BONUS_CARDS_BY_DELIVERABLE = {
+    // exemplo: ajuste os nomes, imagens e links
+    super_combo_100_videos: [
+      {
+        id: 'air_fryer',
+        name: 'Air Fryer',
+        subtitle: 'Moderno e prático',
+        tagline: '10 RECEITAS EXCLUSIVAS',
+        cover: 'cards/air-fryer.jpg',              // imagem do card
+        link: 'https://seusite.com/airfryer'       // link do mini curso / página
+      },
+      {
+        id: 'doces_sem_acucar',
+        name: 'Doces sem Açúcar',
+        subtitle: 'Saudável e leve',
+        tagline: '10 RECEITAS EXCLUSIVAS',
+        cover: 'cards/doces-sem-acucar.jpg',
+        link: 'https://seusite.com/doces-sem-acucar'
+      }
+      // ...adicione as 10 categorias aqui
+    ],
+
+    // você pode criar outros combos:
+    // outro_combo: [ { ... }, { ... } ]
+  };
+
+  // ******* AGRUPAR PRODUTOS POR deliverable_key *******
   function dedupeByDeliverable(list){
     const map = new Map();
 
@@ -411,11 +444,9 @@
       const dk = (p.deliverable_key || '').toString().trim().toLowerCase();
 
       if (dk) {
-        // se tem deliverable_key, agrupa por ela
         const key = 'dk:' + dk;
         if (!map.has(key)) map.set(key, p);
       } else {
-        // sem deliverable_key, garante unicidade por id
         const key = 'id:' + (p.id ?? Math.random());
         if (!map.has(key)) map.set(key, p);
       }
@@ -423,7 +454,7 @@
 
     return Array.from(map.values());
   }
-  // *******************************************
+  // ****************************************************
 
   function showApp(){
     $('#landing').style.display   = 'none';
@@ -478,6 +509,36 @@
     });
   }
 
+  // renderiza os cards de combo (Air Fryer, Doces, etc.)
+  function renderBonusCards(list){
+    const container = el('gridComboCards');
+    if (!container) return;
+    container.innerHTML = '';
+
+    (list || []).forEach(card => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img class="thumb" src="${card.cover || ''}" alt="${card.name || ''}">
+        <div class="card-body">
+          <h3>${card.name || ''}</h3>
+          ${card.subtitle ? `<p>${card.subtitle}</p>` : ''}
+          ${card.tagline ? `<p><strong>${card.tagline}</strong></p>` : ''}
+          <div class="row-btns">
+            <button class="btn">Acessar</button>
+          </div>
+        </div>
+      `;
+      div.querySelector('button.btn').addEventListener('click', () => {
+        if (card.link) {
+          // abre o mini curso / página dentro do overlay
+          openPlayer(card.link, card.name);
+        }
+      });
+      container.appendChild(div);
+    });
+  }
+
   async function loadMyProducts(){
     const email = requireLogin(); if (!email) return;
     try{
@@ -490,7 +551,24 @@
       if (!resp.ok || !data.success) throw new Error(data.error||data.message||'Erro');
 
       const rawItems = Array.isArray(data.items) ? data.items : [];
-      const items    = dedupeByDeliverable(rawItems);   // <<<<<< AQUI
+      const items    = dedupeByDeliverable(rawItems);
+
+      // monta lista de deliverable_key que o usuário possui
+      const ownedDk = new Set(
+        items
+          .map(p => (p.deliverable_key || '').toString().trim().toLowerCase())
+          .filter(Boolean)
+      );
+
+      // a partir disso, puxa os cards de combo
+      const bonusCards = [];
+      ownedDk.forEach(dk => {
+        const cards = BONUS_CARDS_BY_DELIVERABLE[dk];
+        if (cards && cards.length) {
+          bonusCards.push(...cards);
+        }
+      });
+      renderBonusCards(bonusCards);
 
       const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
       const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
@@ -517,7 +595,7 @@
       if (!r.ok || !data.success) throw new Error(data.error||'Erro');
 
       const rawList = Array.isArray(data.items) ? data.items : [];
-      const list    = dedupeByDeliverable(rawList);     // <<<<<< AQUI
+      const list    = dedupeByDeliverable(rawList);
 
       const cont = el('gridRecs');
       cont.innerHTML='';
@@ -552,7 +630,7 @@
       if (!res.ok || !data.success) throw new Error(data.error||'Erro');
 
       const rawItems = Array.isArray(data.items) ? data.items : [];
-      const items    = dedupeByDeliverable(rawItems);   // <<<<<< AQUI
+      const items    = dedupeByDeliverable(rawItems);
 
       const owned    = items.filter(x=>x.owned);
       const notOwned = items.filter(x=>!x.owned);
@@ -635,3 +713,6 @@
     location.href = '/login.html';
   });
 </script>
+</body>
+</html>
+
