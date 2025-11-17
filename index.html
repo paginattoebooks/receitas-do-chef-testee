@@ -403,6 +403,28 @@
     openPlayer(url, p.name);
   }
 
+  // ******* AGRUPAR POR deliverable_key *******
+  function dedupeByDeliverable(list){
+    const map = new Map();
+
+    (list || []).forEach(p => {
+      const dk = (p.deliverable_key || '').toString().trim().toLowerCase();
+
+      if (dk) {
+        // se tem deliverable_key, agrupa por ela
+        const key = 'dk:' + dk;
+        if (!map.has(key)) map.set(key, p);
+      } else {
+        // sem deliverable_key, garante unicidade por id
+        const key = 'id:' + (p.id ?? Math.random());
+        if (!map.has(key)) map.set(key, p);
+      }
+    });
+
+    return Array.from(map.values());
+  }
+  // *******************************************
+
   function showApp(){
     $('#landing').style.display   = 'none';
     $('#appHeader').style.display = '';
@@ -466,7 +488,10 @@
       });
       const data = await resp.json();
       if (!resp.ok || !data.success) throw new Error(data.error||data.message||'Erro');
-      const items = Array.isArray(data.items) ? data.items : [];
+
+      const rawItems = Array.isArray(data.items) ? data.items : [];
+      const items    = dedupeByDeliverable(rawItems);   // <<<<<< AQUI
+
       const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
       const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
@@ -490,7 +515,10 @@
       const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.error||'Erro');
-      const list = Array.isArray(data.items) ? data.items : [];
+
+      const rawList = Array.isArray(data.items) ? data.items : [];
+      const list    = dedupeByDeliverable(rawList);     // <<<<<< AQUI
+
       const cont = el('gridRecs');
       cont.innerHTML='';
       list.forEach(p=>{
@@ -522,7 +550,10 @@
       const res = await fetch('/api/search?q='+encodeURIComponent(qVal)+'&email='+encodeURIComponent(email));
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error||'Erro');
-      const items = Array.isArray(data.items) ? data.items : [];
+
+      const rawItems = Array.isArray(data.items) ? data.items : [];
+      const items    = dedupeByDeliverable(rawItems);   // <<<<<< AQUI
+
       const owned    = items.filter(x=>x.owned);
       const notOwned = items.filter(x=>!x.owned);
       const ownedVideos = owned.filter(p => (p.type||'').toLowerCase().includes('video'));
@@ -604,8 +635,3 @@
     location.href = '/login.html';
   });
 </script>
-</body>
-</html>
-
-
-
