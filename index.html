@@ -7,14 +7,13 @@
 
   <style>
     :root{
-      /* paleta Paginatto (teal/azul) */
-      --bg: #0d5f70;            /* fundo hero/nav */
-      --bg-soft: #0e6f83;       /* variação */
-      --page: #f6fbfc;          /* fundo da página/claro */
+      --bg: #0d5f70;
+      --bg-soft: #0e6f83;
+      --page: #f6fbfc;
       --card: #ffffff;
       --ink: #0f2024;
       --muted:#6a7a80;
-      --brand:#12a4bd;          /* acentos */
+      --brand:#12a4bd;
       --brand-2:#0db2c9;
       --gold:#c8a96a;
       --shadow: 0 8px 24px rgba(3,41,48,.10);
@@ -32,57 +31,129 @@
 
     /* ====== TELA 1 (LANDING) ====== */
     #landing{
-      min-height: 100dvh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 32px 18px 46px;
-      background:
-        radial-gradient(1200px 900px at 80% -20%, #138aa1 0%, transparent 60%),
-        linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
-      color: #fff;
+      min-height: 100vh;
+      position: relative;
+      color:#ffffff;
+      background-image: url('logo azul sem sombra.png'); /* troque pelo arquivo da sua imagem */
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+    #landing::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.65) 40%,
+        rgba(0,0,0,0.75) 100%
+      );
+      z-index:0;
+    }
+    .landing-inner{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      max-width:1100px;
+      margin:0 auto;
+      padding:20px 18px 40px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .landing-header{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top:6px;
+    }
+    .landing-brand{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .landing-brand-logo{
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      overflow:hidden;
+      box-shadow:0 10px 26px rgba(0,0,0,0.45);
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .landing-brand-logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .landing-brand-name{
+      font-weight:700;
+      letter-spacing:.22em;
+      font-size:15px;
+      text-transform:uppercase;
+      opacity:.9;
     }
     .hero{
-      max-width: 520px;
-      display: grid;
-      gap: 18px;
-      animation: fadeUp .5s ease both;
+      width:100%;
+      max-width:540px;
+      margin:0 auto;
+      text-align:center;
+      display:grid;
+      gap:18px;
+      padding-bottom:60px;
     }
-    .brand-hero{
-      display:flex; align-items:center; gap:12px; justify-content:center;
-    }
-    .brand-hero img{ width:44px; height:44px; object-fit:contain }
-    .brand-hero strong{ font-size:20px; letter-spacing:.4px }
-
     .hero h1{
-      font-size: clamp(28px, 6vw, 36px);
-      line-height: 1.15;
-      font-weight: 800;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height:1.15;
+      font-weight:800;
+      text-shadow:0 10px 30px rgba(0,0,0,.7);
     }
-    .hero p{ opacity:.95 }
-
+    .hero p{
+      opacity:.95;
+      max-width:420px;
+      margin:0 auto;
+      font-size:14px;
+    }
     .btn-primary{
       appearance:none;
       border:0;
       border-radius: 999px;
       padding: 14px 22px;
-      background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
-      color:#00262d;
+      background: linear-gradient(90deg, #18b0c8 0%, #22d1e2 100%);
+      color:#00333d;
       font-weight: 800;
-      letter-spacing:.3px;
-      box-shadow: 0 10px 28px rgba(13,178,201,.35);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      box-shadow: 0 14px 34px rgba(0,0,0,.55);
       cursor:pointer;
-      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
     }
-    .btn-primary:active{ transform: translateY(1px); filter:brightness(.98) }
+    .btn-primary:hover{
+      transform:translateY(-1px);
+      box-shadow:0 18px 40px rgba(0,0,0,.65);
+      filter:brightness(1.02);
+    }
+    .btn-primary:active{
+      transform:translateY(1px);
+      box-shadow:0 10px 22px rgba(0,0,0,.55);
+      filter:brightness(.98);
+    }
 
-    /* ====== HEADER / NAV ====== */
-    header{
-      position: sticky; top:0; z-index: 50;
-      background: linear-gradient(180deg, rgba(13,95,112,1) 0%, rgba(13,95,112,.92) 100%);
-      color:#fff;
+    /* ====== HEADER / NAV APP ====== */
+    #appHeader{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(180deg, rgb(215, 217, 218) 0%, rgba(13,95,112,.92) 50%);
+      color:#141313;
       box-shadow: var(--shadow);
     }
+
     .nav-wrap{
       max-width: 980px; margin: 0 auto;
       padding: 10px 14px;
@@ -174,7 +245,7 @@
 
     .msg{ color:#d12f2f; font-size:14px; }
 
-    /* ====== MODAIS (video / ebook) ====== */
+    /* ====== MODAL VIDEO ====== */
     .overlay{
       position:fixed; inset:0; background:rgba(0,0,0,.85);
       display:flex; align-items:center; justify-content:center;
@@ -190,7 +261,7 @@
       background:rgba(0,0,0,.6); border:0; color:#fff; padding:8px 12px; border-radius:999px; cursor:pointer;
     }
 
-    /* ====== FOOTER ====== */
+    /* FOOTER */
     footer{
       text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
       font-size:12px; letter-spacing:.2px;
@@ -198,18 +269,14 @@
 
     /* ====== MOBILE NAV ====== */
     @media (max-width: 720px){
-      .nav-wrap{
-        justify-content:space-between;
-      }
-      .menu-toggle{
-        display:flex;
-      }
+      .nav-wrap{ justify-content:space-between; }
+      .menu-toggle{ display:flex; }
       .menu{
         position:absolute;
         top:100%;
         right:14px;
         margin-top:8px;
-        background:rgba(6,44,52,0.98);
+        background:rgba(9, 113, 134, 0.98);
         border-radius:12px;
         padding:6px;
         box-shadow:var(--shadow);
@@ -217,9 +284,7 @@
         align-items:flex-start;
         display:none;
       }
-      .menu.open{
-        display:flex;
-      }
+      .menu.open{ display:flex; }
       .menu a, .menu button{
         width:100%;
         text-align:left;
@@ -227,7 +292,6 @@
       }
     }
 
-    /* animations */
     @keyframes fadeUp{
       from{ opacity:0; transform: translateY(8px) }
       to{ opacity:1; transform:none }
@@ -239,14 +303,18 @@
 
 <!-- ========= TELA 1 (LANDING) ========= -->
 <section id="landing">
-  <div class="hero">
-    <div class="brand-hero">
-      <img src="PAGINATTO AZUL.png" alt="Paginatto">
-      <strong>Paginatto</strong>
+  <div class="landing-inner">
+    <header class="landing-header">
+      <div class="landing-brand">
+        <div class="landing-brand-name">PAGINATTO</div>
+      </div>
+    </header>
+
+    <div class="hero">
+      <h1>As melhores receitas e e-books num só lugar</h1>
+      <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
+      <button class="btn-primary" id="enterBtn">Acessar</button>
     </div>
-    <h1>As melhores receitas e e-books num só lugar</h1>
-    <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
-    <button class="btn-primary" id="enterBtn">Acessar</button>
   </div>
 </section>
 
@@ -275,7 +343,6 @@
 </header>
 
 <main id="appMain" style="display:none">
-  <!-- vídeos -->
   <section class="section" id="videos">
     <h2 class="h2">Suas Vídeo Aulas</h2>
     <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
@@ -283,7 +350,6 @@
     <p id="msgVideos" class="msg" style="display:none"></p>
   </section>
 
-  <!-- e-books -->
   <section class="section" id="ebooks">
     <h2 class="h2">Seus E-books</h2>
     <p class="sub">E-books liberados para o seu e-mail.</p>
@@ -291,7 +357,6 @@
     <p id="msgEbooks" class="msg" style="display:none"></p>
   </section>
 
-  <!-- recomendações -->
   <section class="section" id="recs">
     <h2 class="h2">Outros produtos pra você</h2>
     <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
@@ -303,84 +368,70 @@
 <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
 <script>
-  // ===== helpers
-  const $ = (sel) => document.querySelector(sel);
-  const el = (id) => document.getElementById(id);
+  const $  = (sel) => document.querySelector(sel);
+  const el = (id)  => document.getElementById(id);
 
   function toDrivePreview(url){
     if (!url) return null;
     try {
       const u = new URL(url);
       if (!u.hostname.includes('drive.google.com')) return url;
-
       let id = null;
-
       const m1 = url.match(/\/file\/d\/([^/]+)/);
       if (m1) id = m1[1];
-
-      if (!id && u.searchParams.get('id')) {
-        id = u.searchParams.get('id');
-      }
-
+      if (!id && u.searchParams.get('id')) id = u.searchParams.get('id');
       if (!id) return url;
       return `https://drive.google.com/file/d/${id}/preview`;
-    } catch (e){
-      return url;
-    }
+    } catch(e){ return url; }
   }
 
   function openPlayer(url, title){
-    const embed = url;
     const wrap = document.createElement('div');
     wrap.className = 'overlay';
     wrap.innerHTML = `
       <div class="player">
         <button class="close" onclick="this.closest('.overlay').remove()">← Voltar</button>
-        <iframe src="${embed}" allow="autoplay; encrypted-media" allowfullscreen title="${title||''}"></iframe>
+        <iframe src="${url}" allow="autoplay; encrypted-media" allowfullscreen title="${title||''}"></iframe>
       </div>`;
     document.body.appendChild(wrap);
   }
 
   function openVideo(p){
-    const url   = p.drive_link || p.checkout_link;
-    const embed = toDrivePreview(url);
-    openPlayer(embed, p.name);
+    const url = toDrivePreview(p.drive_link || p.checkout_link);
+    openPlayer(url, p.name);
   }
 
   function openEbook(p){
-    const url = p.drive_link || p.checkout_link;
-    const finalUrl = toDrivePreview(url);
-    window.open(finalUrl, '_blank');
+    const url = toDrivePreview(p.drive_link || p.checkout_link);
+    window.open(url, '_blank');
   }
 
   function showApp(){
-    $('#landing').style.display = 'none';
+    $('#landing').style.display   = 'none';
     $('#appHeader').style.display = '';
-    $('#appMain').style.display = '';
-    window.scrollTo({top:0, behavior:'instant'});
+    $('#appMain').style.display   = '';
+    window.scrollTo({ top:0, behavior:'instant' });
   }
 
   function showSection(mode){
     const secVideos = el('videos');
     const secEbooks = el('ebooks');
     const secRecs   = el('recs');
-
-    if (mode === 'all') {
+    if (mode === 'all'){
       secVideos.style.display = '';
       secEbooks.style.display = '';
       secRecs.style.display   = '';
     } else {
-      secVideos.style.display = (mode === 'videos') ? '' : 'none';
-      secEbooks.style.display = (mode === 'ebooks') ? '' : 'none';
-      secRecs.style.display   = (mode === 'recs')   ? '' : 'none';
+      secVideos.style.display = mode === 'videos' ? '' : 'none';
+      secEbooks.style.display = mode === 'ebooks' ? '' : 'none';
+      secRecs.style.display   = mode === 'recs'   ? '' : 'none';
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top:0, behavior:'smooth' });
   }
 
   function requireLogin(){
     const email = localStorage.getItem('chef_user_email');
-    if(!email){
+    if (!email){
       window.location.href = '/login.html';
       return null;
     }
@@ -389,105 +440,65 @@
 
   function renderCards(list, container, cta, onOpen){
     container.innerHTML = '';
-    list.forEach((p) => {
+    list.forEach((p)=>{
       const div = document.createElement('div');
       div.className = 'card';
-
       const cover = p.cover_image_url || '';
       const desc  = p.description || '';
-
       div.innerHTML = `
-        <img class="thumb" src="${cover}" alt="${p.name || ''}">
+        <img class="thumb" src="${cover}" alt="${p.name||''}">
         <div class="card-body">
-          <h3>${p.name || ''}</h3>
+          <h3>${p.name||''}</h3>
           <p>${desc}</p>
           <div class="row-btns">
             <button class="btn">${cta}</button>
           </div>
-        </div>
-      `;
-
-      const btn = div.querySelector('button.btn');
-      btn.addEventListener('click', () => onOpen(p));
-
+        </div>`;
+      div.querySelector('button.btn').addEventListener('click', ()=>onOpen(p));
       container.appendChild(div);
     });
   }
 
   async function loadMyProducts(){
-    const email = requireLogin(); 
-    if (!email) return;
-
+    const email = requireLogin(); if (!email) return;
     try{
-      const resp = await fetch('/api/my-products', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ email })
+      const resp = await fetch('/api/my-products',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ email })
       });
-
       const data = await resp.json();
-
-      if (!resp.ok || !data.success) {
-        throw new Error(data.error || data.message || 'Erro ao carregar.');
-      }
-
+      if (!resp.ok || !data.success) throw new Error(data.error||data.message||'Erro');
       const items = Array.isArray(data.items) ? data.items : [];
+      const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
+      const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
-      const vids = items.filter(p => (p.type || '').toLowerCase().includes('video'));
-      const ebooks = items.filter(p => (p.type || '').toLowerCase().includes('ebook'));
+      renderCards(vids,   el('gridVideos'), 'Assistir', p=>openVideo(p));
+      renderCards(ebooks, el('gridEbooks'), 'Abrir',    p=>openEbook(p));
 
-      renderCards(
-        vids,
-        el('gridVideos'),
-        'Assistir',
-        (p) => openVideo(p)
-      );
-
-      renderCards(
-        ebooks,
-        el('gridEbooks'),
-        'Abrir',
-        (p) => openEbook(p)
-      );
-
-      if (vids.length === 0) {
-        el('msgVideos').style.display = '';
-        el('msgVideos').textContent = 'Você ainda não tem vídeo aulas liberadas.';
-      } else {
-        el('msgVideos').style.display = 'none';
-      }
-
-      if (ebooks.length === 0) {
-        el('msgEbooks').style.display = '';
-        el('msgEbooks').textContent = 'Você ainda não tem e-books liberados.';
-      } else {
-        el('msgEbooks').style.display = 'none';
-      }
-    } catch (e){
+      el('msgVideos').style.display = vids.length   ? 'none' : '';
+      el('msgVideos').textContent   = vids.length   ? '' : 'Você ainda não tem vídeo aulas liberadas.';
+      el('msgEbooks').style.display = ebooks.length ? 'none' : '';
+      el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e-books liberados.';
+    }catch(e){
       console.error(e);
-      el('msgVideos').style.display = '';
-      el('msgVideos').textContent = 'Erro ao carregar seus vídeos.';
-      el('msgEbooks').style.display = '';
-      el('msgEbooks').textContent = 'Erro ao carregar seus e-books.';
+      el('msgVideos').style.display=''; el('msgVideos').textContent='Erro ao carregar seus vídeos.';
+      el('msgEbooks').style.display=''; el('msgEbooks').textContent='Erro ao carregar seus e-books.';
     }
   }
 
   async function loadRecs(){
-    const email = requireLogin(); 
-    if (!email) return;
-
+    const email = requireLogin(); if (!email) return;
     try{
       const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
       const data = await r.json();
-      if(!r.ok || !data.success) throw new Error(data.error || 'Erro');
-
+      if (!r.ok || !data.success) throw new Error(data.error||'Erro');
       const list = Array.isArray(data.items) ? data.items : [];
-
       const cont = el('gridRecs');
-      cont.innerHTML = '';
+      cont.innerHTML='';
       list.forEach(p=>{
         const div = document.createElement('div');
-        div.className = 'card';
+        div.className='card';
         div.innerHTML = `
           <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
           <div class="card-body">
@@ -499,59 +510,36 @@
           </div>`;
         cont.appendChild(div);
       });
-
-      if(list.length===0){
-        el('msgRecs').style.display='';
-        el('msgRecs').textContent='Nada sugerido no momento.';
-      } else {
-        el('msgRecs').style.display='none';
-      }
+      el('msgRecs').style.display = list.length ? 'none' : '';
+      el('msgRecs').textContent   = list.length ? '' : 'Nada sugerido no momento.';
     }catch(e){
       console.error(e);
-      el('msgRecs').style.display=''; 
-      el('msgRecs').textContent='Falha ao carregar recomendações.';
+      el('msgRecs').style.display=''; el('msgRecs').textContent='Falha ao carregar recomendações.';
     }
   }
 
   async function doSearch(){
-    const qVal = el('q').value.trim();
-    if(!qVal) return;
-
-    const email = requireLogin(); 
-    if (!email) return;
-
+    const qVal = el('q').value.trim(); if (!qVal) return;
+    const email = requireLogin(); if (!email) return;
     try{
-      const res = await fetch('/api/search?q=' + encodeURIComponent(qVal) + '&email=' + encodeURIComponent(email));
+      const res = await fetch('/api/search?q='+encodeURIComponent(qVal)+'&email='+encodeURIComponent(email));
       const data = await res.json();
-      if(!res.ok || !data.success) throw new Error(data.error || 'Erro');
-
+      if (!res.ok || !data.success) throw new Error(data.error||'Erro');
       const items = Array.isArray(data.items) ? data.items : [];
-
-      const owned = items.filter(x => x.owned);
-      const notOwned = items.filter(x => !x.owned);
-
+      const owned    = items.filter(x=>x.owned);
+      const notOwned = items.filter(x=>!x.owned);
       const ownedVideos = owned.filter(p => (p.type||'').toLowerCase().includes('video'));
       const ownedEbooks = owned.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
-      renderCards(
-        ownedVideos,
-        el('gridVideos'),
-        'Assistir',
-        (p)=>openVideo(p)
-      );
-      renderCards(
-        ownedEbooks,
-        el('gridEbooks'),
-        'Abrir',
-        (p)=>openEbook(p)
-      );
+      renderCards(ownedVideos, el('gridVideos'), 'Assistir', p=>openVideo(p));
+      renderCards(ownedEbooks, el('gridEbooks'), 'Abrir', p=>openEbook(p));
 
       const cont = el('gridRecs');
-      cont.innerHTML = '';
+      cont.innerHTML='';
       notOwned.forEach(p=>{
         const div = document.createElement('div');
         div.className='card';
-        div.innerHTML = `
+        div.innerHTML=`
           <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
           <div class="card-body">
             <h3>${p.name||''}</h3>
@@ -572,17 +560,14 @@
   }
 
   const menuToggle = el('menuToggle');
-  const menuNav = el('menuNav');
+  const menuNav    = el('menuNav');
 
-  function closeMenuMobile(){
-    menuNav.classList.remove('open');
-  }
+  function closeMenuMobile(){ menuNav.classList.remove('open'); }
 
   menuToggle.addEventListener('click', (e)=>{
     e.stopPropagation();
     menuNav.classList.toggle('open');
   });
-
   document.addEventListener('click', (e)=>{
     if (!menuNav.contains(e.target) && e.target !== menuToggle){
       closeMenuMobile();
@@ -590,7 +575,7 @@
   });
 
   el('enterBtn').addEventListener('click', ()=>{
-    if(!requireLogin()) return;
+    if (!requireLogin()) return;
     showApp();
     showSection('all');
     loadMyProducts();
@@ -598,36 +583,23 @@
   });
 
   el('menuInicio').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('all');
-    closeMenuMobile();
+    e.preventDefault(); showSection('all'); closeMenuMobile();
   });
-
   el('menuVideos').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('videos');
-    closeMenuMobile();
+    e.preventDefault(); showSection('videos'); closeMenuMobile();
   });
-
   el('menuEbooks').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('ebooks');
-    closeMenuMobile();
+    e.preventDefault(); showSection('ebooks'); closeMenuMobile();
   });
-
   el('menuRecs').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('recs');
-    closeMenuMobile();
+    e.preventDefault(); showSection('recs'); closeMenuMobile();
   });
-
   el('goHome').addEventListener('click', ()=>{
-    showSection('all');
-    closeMenuMobile();
+    showSection('all'); closeMenuMobile();
   });
 
   el('btnSearch').addEventListener('click', doSearch);
-  el('q').addEventListener('keydown', (e)=> (e.key==='Enter') && doSearch());
+  el('q').addEventListener('keydown', e=>{ if (e.key==='Enter') doSearch(); });
 
   el('logoutBtn').addEventListener('click', ()=>{
     localStorage.removeItem('chef_user_email');
@@ -637,4 +609,5 @@
 </script>
 </body>
 </html>
+
 
