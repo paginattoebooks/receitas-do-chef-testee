@@ -463,6 +463,8 @@ function renderReceitas(container, state, ctx) {
 
 /* ====== FUNÇÃO PRINCIPAL CHAMADA PELO INDEX ====== */
 export function mount(container, ctx) {
+  console.log('🧩 deliverableKey:', ctx.deliverableKey);
+  console.log('📦 produtos disponíveis:', ctx.products);
   // garante que o usuário realmente tem esse combo
   const possuiCombo = ctx.products.some(
     (p) => (p.deliverable_key || p.deliverableKey) === ctx.deliverableKey
@@ -571,3 +573,4 @@ function renderEbooks(container, ebooks, ctx){
     container.appendChild(div);
   });
 }
+
