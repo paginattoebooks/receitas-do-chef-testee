@@ -367,10 +367,10 @@
 <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
 <script type="module">
-  const $  = (sel) => document.querySelector(sel);
-  const el = (id)  => document.getElementById(id);
+  console.log('📦 Produtos recebidos do backend:', items);
+  console.log('🔑 Chaves de deliverable_key encontradas:', [...new Set(items.map(p => p.deliverable_key))]);
 
-  // Mapeamento deliverable_key -> arquivo de módulo
+// Mapeamento deliverable_key -> arquivo de módulo
   const MODULES_BY_KEY = {
     // cada pasta de site entra aqui:
     'super_combo_100_videos': './super_combo_100_videos/module.js',
