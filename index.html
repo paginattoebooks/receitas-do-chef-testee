@@ -746,12 +746,14 @@
   });
 
   // se já estiver logado e cair direto no index, você pode opcionalmente já abrir a área:
-  (function boot(){
-    if (requireLogin()){
-      // mantive o comportamento de só abrir ao clicar em "Acessar".
-      // Se quiser abrir direto: showApp(); showSection('all'); loadMyProducts(); loadRecs();
-    }
-  })();
+ (function boot(){
+  if (requireLogin()){
+    showApp();               // Mostra a área interna
+    showSection('all');      // Exibe todos os conteúdos (vídeos, ebooks, recs)
+    loadMyProducts();        // Carrega os produtos liberados
+    loadRecs();              // Carrega as recomendações
+  }
+})();
 </script>
 </body>
 </html>
