@@ -446,47 +446,69 @@
     });
   }
 
-  const MODULES_BY_KEY = {
-    'super_combo_100_videos': './super_combo_100_videos/module.js',
+const MODULES_BY_KEY = {
+  super_combo_100_videos: './super_combo_100_videos/module.js',
+};
+
+async function loadExtraModules(items, email) {
+  const section   = el('modulesSection');     // <section id="modulesSection">
+  const container = el('modulesContainer');   // <div id="modulesContainer"></div>
+
+  if (!section || !container) return;
+
+  container.innerHTML      = '';
+  section.style.display    = 'none';
+  section.dataset.hasModules = 'false';
+
+  // pega os deliverable_key únicos
+  const keysSet    = new Set(
+    items
+      .map(p => p.deliverable_key || p.deliverableKey || null)
+      .filter(Boolean)
+  );
+  const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
+
+  if (keysToLoad.length === 0) return;
+
+  const contextBase = {
+    email,
+    products: items,
+    openDriveModal,  // mesma função que você usa pro player dos outros vídeos
+    toDrivePreview,  // se estiver usando essa helper
   };
 
-  async function loadExtraModules(items, email){
-    const section   = el('modulesSection');
-    const container = el('modulesContainer');
-    container.innerHTML = '';
-    section.style.display = 'none';
-    section.dataset.hasModules = 'false';
+  for (const key of keysToLoad) {
+    const modulePath = MODULES_BY_KEY[key];
 
-    const keysSet = new Set(items.map(p => p.deliverable_key || p.deliverableKey || null).filter(Boolean));
-    const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
+    try {
+      const mod = await import(modulePath);
 
-    if (keysToLoad.length === 0) return;
-
-    const contextBase = { email, products: items, openDriveModal, toDrivePreview };
-
-    for (const key of keysToLoad){
-      const modulePath = MODULES_BY_KEY[key];
-      const block = document.createElement('div');
-      block.className = 'module-block';
-      container.appendChild(block);
-      try{
-        const mod = await import(modulePath);
-        if (typeof mod.mount === 'function'){
-          await mod.mount(block, { ...contextBase, deliverableKey: key });
-          section.dataset.hasModules = 'true';
-        } else {
-          block.innerHTML = `<p class="msg">Módulo para ${key} não possui função mount().</p>`;
-        }
-      } catch(err){
-        console.error('Erro ao carregar módulo', key, err);
-        block.innerHTML = `<p class="msg">Erro ao carregar conteúdo especial (${key}).</p>`;
+      if (!mod || typeof mod.mount !== 'function') {
+        console.warn('Módulo sem mount():', key);
+        continue;
       }
-    }
 
-    if (section.dataset.hasModules === 'true'){
-      section.style.display = '';
+      // cria um container por módulo (se quiser mais de um no futuro)
+      const modBox = document.createElement('div');
+      modBox.className = 'module-wrapper';
+      container.appendChild(modBox);
+
+      await mod.mount(modBox, {
+        ...contextBase,
+        deliverableKey: key,
+      });
+
+      section.dataset.hasModules = 'true';
+    } catch (err) {
+      console.error('Erro ao carregar módulo', key, err);
     }
   }
+
+  if (section.dataset.hasModules === 'true') {
+    section.style.display = '';
+  }
+}
+
 
   async function loadMyProducts(){
     const email = requireLogin(); if (!email) return;
