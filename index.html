@@ -560,15 +560,146 @@
       const vids   = standalones.filter(p => (p.type||'').toLowerCase().includes('video'));
       const ebooks = standalones.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
-      renderCards(vids, el('gridVideos'), 'Assistir', (p)=>{
-        const url = p.drive_link || p.checkout_link;
-        if (url) openDriveModal(url, p.name);
-      });
+      // =========================================
+// 🔥 NOVO SISTEMA: MISTURA VIDEOS + MODULOS
+// =========================================
 
-      renderCards(ebooks, el('gridEbooks'), 'Abrir', (p)=>{
-        const url = p.drive_link || p.checkout_link;
-        if (url) openDriveModal(url, p.name);
-      });
+// filtra somente os produtos de vídeo "normais"
+const videosNormais = standalones.filter(p => 
+  (p.type || '').toLowerCase().includes('video')
+);
+
+// pega módulos (combos ou especiais)
+const modulosCombo = products.filter(p => 
+  p.deliverable_key && p.deliverable_key.trim() !== ''
+);
+
+// grid onde vamos mostrar TUDO JUNTO
+const grid = el('gridVideos');
+grid.innerHTML = '';
+
+// ---- 1) Renderiza vídeos normais ----
+videosNormais.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <img class="thumb" src="${p.thumbnail || '/img/default.jpg'}">
+    <div class="card-body">
+      <h3>${p.name}</h3>
+      <p style="font-size:14px;color:#0d5f70;">Vídeo liberado</p>
+      <button class="btn">Assistir</button>
+    </div>
+  `;
+
+  card.querySelector('.btn').onclick = () => {
+    const url = p.drive_link || p.checkout_link;
+    if (url) openDriveModal(url, p.name);
+  };
+
+  grid.appendChild(card);
+});
+
+// ---- 2) Renderiza módulos do combo (JS internos) ----
+modulosCombo.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <img class="thumb" src="/img/combo.jpg">
+    <div class="card-body">
+      <h3>${p.name}</h3>
+      <p style="font-size:14px;color:#c8a96a;font-weight:600;">
+        Conteúdo especial do combo
+      </p>
+      <button class="btn">Acessar módulo</button>
+    </div>
+  `;
+
+  card.querySelector('.btn').onclick = () => {
+    // abre o módulo JS correspondente
+    openModule(p.deliverable_key);
+  };
+
+  grid.appendChild(card);
+});
+
+// ---- mensagem quando vazio ----
+el('msgVideos').style.display = (videosNormais.length + modulosCombo.length) ? 'none' : '';
+el('msgVideos').textContent = (videosNormais.length + modulosCombo.length)
+  ? ''
+  : 'Você ainda não tem vídeo aulas liberadas.';
+
+
+      // =========================================
+// 🔥 NOVO SISTEMA: MISTURA EBOOKS + MODULOS
+// =========================================
+
+// e-books normais (produtos comuns)
+const ebooksNormais = standalones.filter(p =>
+  (p.type || '').toLowerCase().includes('ebook')
+);
+
+// módulos (produtos com deliverable_key)
+const modulosComboEbooks = products.filter(p =>
+  p.deliverable_key && p.deliverable_key.trim() !== ''
+);
+
+// grid de e-books (onde tudo será exibido)
+const gridE = el('gridEbooks');
+gridE.innerHTML = '';
+
+// ---- 1) Renderiza e-books normais ----
+ebooksNormais.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <img class="thumb" src="${p.thumbnail || '/img/default.jpg'}">
+    <div class="card-body">
+      <h3>${p.name}</h3>
+      <p style="font-size:14px;color:#0d5f70;">E-book liberado</p>
+      <button class="btn">Abrir</button>
+    </div>
+  `;
+
+  card.querySelector('.btn').onclick = () => {
+    const url = p.drive_link || p.checkout_link;
+    if (url) openDriveModal(url, p.name);
+  };
+
+  gridE.appendChild(card);
+});
+
+// ---- 2) Renderiza módulos do combo como "E-books especiais" ----
+modulosComboEbooks.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <img class="thumb" src="/img/combo.jpg">
+    <div class="card-body">
+      <h3>${p.name}</h3>
+      <p style="font-size:14px;color:#c8a96a;font-weight:600;">
+        Conteúdo especial do combo
+      </p>
+      <button class="btn">Acessar módulo</button>
+    </div>
+  `;
+
+  card.querySelector('.btn').onclick = () => {
+    openModule(p.deliverable_key);
+  };
+
+  gridE.appendChild(card);
+});
+
+// ---- mensagem quando vazio ----
+el('msgEbooks').style.display = (ebooksNormais.length + modulosComboEbooks.length) ? 'none' : '';
+el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
+  ? ''
+  : 'Você ainda não tem e-books liberados.';
+
 
       el('msgVideos').style.display = vids.length ? 'none' : '';
       el('msgVideos').textContent   = vids.length ? '' : 'Você ainda não tem vídeo aulas liberadas.';
