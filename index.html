@@ -511,41 +511,52 @@ async function loadExtraModules(items, email) {
 
 
   async function loadMyProducts(){
-    const email = requireLogin(); if (!email) return;
-    try{
-      const resp = await fetch('/api/my-products',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email })
-      });
-      const data = await resp.json();
-      if (!resp.ok || !data.success) throw new Error(data.error || data.message || 'Erro ao carregar produtos.');
+  const email = requireLogin(); 
+  if (!email) return;
 
-      const items = Array.isArray(data.products) ? data.products : [];
-      const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
-      const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+  try{
+    const resp = await fetch('/api/my-products', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
 
-      renderCards(vids,   el('gridVideos'), 'Assistir', p=>{
-        const url = p.drive_link || p.checkout_link;
-        openDriveModal(url, p.name);
-      });
-      renderCards(ebooks, el('gridEbooks'), 'Abrir', p=>{
-        const url = p.drive_link || p.deliverable_url || p.checkout_link;
-        openDriveModal(url, p.name);
-      });
+    const data = await resp.json();
+    if (!resp.ok || !data.success) throw new Error(data.message || 'Erro ao carregar produtos');
 
-      el('msgVideos').style.display = vids.length   ? 'none' : '';
-      el('msgVideos').textContent   = vids.length   ? '' : 'Você ainda não tem vídeo aulas liberadas.';
-      el('msgEbooks').style.display = ebooks.length ? 'none' : '';
-      el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e‑books liberados.';
+    // CORREÇÃO REAL E DEFINITIVA
+    const items = Array.isArray(data.products) ? data.products : [];
 
-      await loadExtraModules(items, email);
-    } catch(e){
-      console.error(e);
-      el('msgVideos').style.display=''; el('msgVideos').textContent='Erro ao carregar seus vídeos.';
-      el('msgEbooks').style.display=''; el('msgEbooks').textContent='Erro ao carregar seus e‑books.';
-    }
+    const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
+    const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+
+    renderCards(vids, el('gridVideos'), 'Assistir', p=>{
+      const url = p.drive_link || p.deliverable_url || p.checkout_link;
+      openDriveModal(url, p.name);
+    });
+
+    renderCards(ebooks, el('gridEbooks'), 'Abrir', p=>{
+      const url = p.drive_link || p.deliverable_url || p.checkout_link;
+      openDriveModal(url, p.name);
+    });
+
+    el('msgVideos').style.display = vids.length ? 'none' : '';
+    el('msgVideos').textContent   = vids.length ? '' : 'Você ainda não tem vídeo aulas liberadas.';
+
+    el('msgEbooks').style.display = ebooks.length ? 'none' : '';
+    el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e-books liberados.';
+
+    // Finalmente carrega os módulos
+    await loadExtraModules(items, email);
+
+  } catch(e){
+    console.error(e);
+    el('msgVideos').style.display=''; 
+    el('msgVideos').textContent='Erro ao carregar seus vídeos.';
+    el('msgEbooks').style.display=''; 
+    el('msgEbooks').textContent='Erro ao carregar seus e-books.';
   }
+}
 
   async function loadRecs(){
     const email = requireLogin(); if (!email) return;
