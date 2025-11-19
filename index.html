@@ -362,396 +362,376 @@
 </main>
 
 <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
+<script>
+/* ===============================
+   HELPERS ÚTEIS
+================================*/
+const el = (s) => document.querySelector(s);
+const create = (tag) => document.createElement(tag);
 
-<script type="module">
-  const el = (id) => document.getElementById(id);
+/* ===============================
+   MODAL DE VIDEO / EBOOK / MÓDULO
+================================*/
+function closeOverlay(){
+  const o = el('#overlay');
+  if (o) o.remove();
+}
 
-  // estado global simples
-  const appState = {
-    email: null,
-    products: []
-  };
+function openDriveModal(url, title){
+  closeOverlay();
+  const o = create('div');
+  o.id = "overlay";
+  o.className = "overlay";
 
-  /* ========= Helpers de Login ========= */
-  function getStoredEmail(){
-    const email = localStorage.getItem('chef_user_email');
-    if (!email) return null;
-    return email.toLowerCase().trim();
+  const p = create('div');
+  p.className = "player";
+
+  const c = create('button');
+  c.className = "close";
+  c.textContent = "Fechar";
+  c.onclick = closeOverlay;
+
+  const iframe = create('iframe');
+  iframe.src = url;
+  iframe.allowFullscreen = true;
+
+  p.appendChild(c);
+  p.appendChild(iframe);
+  o.appendChild(p);
+  document.body.appendChild(o);
+}
+
+/* ===============================
+   ABRIR MÓDULO (COMBO)
+================================*/
+async function openModule(key){
+  closeOverlay();
+
+  try{
+    const modulePath = `/${key}/module.js`;
+    const mod = await import(modulePath);
+
+    const o = create('div');
+    o.id = "overlay";
+    o.className = "overlay";
+
+    const p = create('div');
+    p.className = "player";
+
+    const c = create('button');
+    c.className = "close";
+    c.textContent = "Fechar";
+    c.onclick = closeOverlay;
+
+    // container interno do módulo
+    const inner = create('div');
+    inner.className = "player-inner";
+
+    // título
+    const h = create('h2');
+    h.textContent = mod.titulo || "Conteúdo do Combo";
+
+    inner.appendChild(h);
+
+    // renderizar cada item
+    mod.itens.forEach(item => {
+      const box = create('div');
+      box.style.marginBottom = "22px";
+
+      const h3 = create('h3');
+      h3.textContent = item.nome;
+      box.appendChild(h3);
+
+      const desc = create('p');
+      desc.textContent = item.descricao || "";
+      box.appendChild(desc);
+
+      // Se tiver vídeo → botão ver vídeo
+      if (item.video){
+        const b = create('button');
+        b.className = "btn";
+        b.textContent = "Assistir Vídeo";
+        b.onclick = () => openDriveModal(item.video, item.nome);
+        box.appendChild(b);
+      }
+
+      // Se tiver link → botão abrir ebook
+      if (item.link){
+        const b2 = create('button');
+        b2.className = "btn buy";
+        b2.textContent = "Abrir E-book";
+        b2.onclick = () => openDriveModal(item.link, item.nome);
+        box.appendChild(b2);
+      }
+
+      inner.appendChild(box);
+    });
+
+    p.appendChild(c);
+    p.appendChild(inner);
+    o.appendChild(p);
+    document.body.appendChild(o);
+
+  }catch(e){
+    alert("Erro ao carregar módulo: " + key + "\n" + e.message);
+    console.error(e);
   }
+}
 
-  function requireLogin(){
-    const email = getStoredEmail();
+/* ===============================
+   CRIAÇÃO DE CARDS
+================================*/
+function createCard(item, actionText, actionFn){
+  const card = create('div');
+  card.className = "card";
+
+  const img = create('img');
+  img.className = "thumb";
+  img.src = item.thumbnail || item.imagem || item.capa || "";
+  card.appendChild(img);
+
+  const body = create('div');
+  body.className = "card-body";
+
+  const h = create('h3');
+  h.textContent = item.name || item.nome;
+  body.appendChild(h);
+
+  const p = create('p');
+  p.textContent = item.descricao || item.description || "";
+  body.appendChild(p);
+
+  const row = create('div');
+  row.className = "row-btns";
+
+  const btn = create('button');
+  btn.className = "btn buy";
+  btn.textContent = actionText;
+  btn.onclick = actionFn;
+
+  row.appendChild(btn);
+  body.appendChild(row);
+  card.appendChild(body);
+
+  return card;
+}
+
+function createModuleCard(item, text){
+  return createCard(item, text, () => openModule(item.deliverable_key));
+}
+
+/* ===============================
+   NAVEGAÇÃO
+================================*/
+function showSection(id){
+  el('#videos').style.display = "none";
+  el('#ebooks').style.display = "none";
+  el('#recs').style.display = "none";
+
+  el('#videos').style.opacity = 0;
+  el('#ebooks').style.opacity = 0;
+  el('#recs').style.opacity = 0;
+
+  requestAnimationFrame(() => {
+    el('#' + id).style.display = "block";
+    el('#' + id).style.opacity = 1;
+  });
+}
+
+/* toggle menu mobile */
+el('#menuToggle').onclick = () => {
+  el('#menuNav').classList.toggle('open');
+};
+
+el('#menuInicio').onclick = () => showSection('videos');
+el('#menuVideos').onclick = () => showSection('videos');
+el('#menuEbooks').onclick = () => showSection('ebooks');
+el('#menuRecs').onclick = () => showSection('recs');
+
+</script>
+<script>
+/* ======================================================
+   CLASSIFICAÇÃO OFICIAL (REGRAS PAGINATTO)
+======================================================*/
+/*
+ PRIORIDADE ABSOLUTA:
+ 1) Se tiver item.video → É VÍDEO (mesmo tendo ebook)
+ 2) Se NÃO tiver video e tiver tipo:'ebook' → É EBOOK
+ 3) Se não tiver nada → EBOOK (fallback)
+*/
+
+function classificar(item){
+  if (item.video) return "video";
+  if (item.tipo === "ebook") return "ebook";
+  return "ebook";
+}
+
+/* ======================================================
+   CARREGAR /API/MY-PRODUCTS
+======================================================*/
+async function loadMyProducts(){
+  try {
+    const email = localStorage.getItem("chef_user_email");
     if (!email){
-      window.location.href = 'login.html';
-      return null;
-    }
-    return email;
-  }
-
-  /* ===== Helpers Drive / Modal ===== */
-  function toDrivePreview(url){
-    if (!url) return null;
-    try{
-      const u = new URL(url);
-      if (!u.hostname.includes('drive.google.com')) return url;
-      let id = null;
-      const m1 = url.match(/\/file\/d\/([^/]+)/);
-      if (m1) id = m1[1];
-      if (!id && u.searchParams.get('id')) id = u.searchParams.get('id');
-      if (!id) return url;
-      return `https://drive.google.com/file/d/${id}/preview`;
-    }catch(e){
-      return url;
-    }
-  }
-
-  function openPlayer(url, title){
-    const wrap = document.createElement('div');
-    wrap.className = 'overlay';
-    wrap.innerHTML = `
-      <div class="player">
-        <button class="close">← Voltar</button>
-        <iframe src="${url}" allow="autoplay; encrypted-media" allowfullscreen title="${title||''}"></iframe>
-      </div>`;
-    wrap.querySelector('.close').onclick = () => wrap.remove();
-    document.body.appendChild(wrap);
-  }
-
-  function openDriveModal(rawUrl, title){
-    const url = toDrivePreview(rawUrl) || rawUrl;
-    openPlayer(url, title);
-  }
-
-  /* ========= MODULOS ESPECIAIS ========= */
-  const MODULES_BY_KEY = {
-    super_combo_100_videos: './super_combo_100_videos/module.js',
-    // adicionar outros combos aqui
-    // outro_combo: './outro_combo/module.js',
-  };
-
-  async function openModule(deliverableKey){
-    const path = MODULES_BY_KEY[deliverableKey];
-    if (!path){
-      console.warn('Módulo não mapeado:', deliverableKey);
-      return;
+      return location.href = "login.html";
     }
 
-    const wrap = document.createElement('div');
-    wrap.className = 'overlay';
-    wrap.innerHTML = `
-      <div class="player">
-        <button class="close">← Voltar</button>
-        <div class="player-inner" id="moduleRoot"></div>
-      </div>`;
-    wrap.querySelector('.close').onclick = () => wrap.remove();
-    document.body.appendChild(wrap);
+    const r = await fetch("/api/my-products", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ email })
+    });
 
-    const container = wrap.querySelector('#moduleRoot');
+    const data = await r.json();
+    if (!data.success){
+      throw new Error("Falha ao carregar produtos");
+    }
 
-    try{
-      const mod = await import(path);
-      if (!mod || typeof mod.mount !== 'function'){
-        container.innerHTML = '<p>Falha ao carregar este módulo.</p>';
+    const produtos = data.products || [];
+
+    /* ===============================
+       LISTAS FINAIS
+    ================================*/
+    const listaVideos = [];
+    const listaEbooks = [];
+    const listaModulos = [];
+
+    produtos.forEach(p => {
+      // é combo?
+      if (p.deliverable_key){
+        listaModulos.push(p);
         return;
       }
-      await mod.mount(container, {
-        email: appState.email,
-        products: appState.products,
-        deliverableKey,
-        openDriveModal,
-        toDrivePreview
-      });
-    }catch(err){
-      console.error('Erro ao abrir módulo', deliverableKey, err);
-      container.innerHTML = '<p>Não foi possível abrir este módulo agora.</p>';
-    }
-  }
 
-  /* ========= UI Básica ========= */
-  function showApp(){
-    el('landing').style.display   = 'none';
-    el('appHeader').style.display = '';
-    el('appMain').style.display   = '';
-    window.scrollTo({ top:0, behavior:'instant' });
-  }
-
-  function showSection(mode){
-    const secVideos  = el('videos');
-    const secEbooks  = el('ebooks');
-    const secRecs    = el('recs');
-
-    if (mode === 'all'){
-      secVideos.style.display  = '';
-      secEbooks.style.display  = '';
-      secRecs.style.display    = '';
-    } else {
-      secVideos.style.display  = mode === 'videos' ? '' : 'none';
-      secEbooks.style.display  = mode === 'ebooks' ? '' : 'none';
-      secRecs.style.display    = mode === 'recs'   ? '' : 'none';
-    }
-    window.scrollTo({ top:0, behavior:'smooth' });
-  }
-
-  function renderRecsCards(list){
-    const cont = el('gridRecs');
-    cont.innerHTML = '';
-    list.forEach(p=>{
-      const div = document.createElement('div');
-      div.className='card';
-      div.innerHTML = `
-        <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
-        <div class="card-body">
-          <h3>${p.name||''}</h3>
-          <p>${p.description||''}</p>
-          <div class="row-btns">
-            ${p.checkout_link
-              ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>`
-              : `<button class="btn" disabled>Indisponível</button>`}
-          </div>
-        </div>`;
-      cont.appendChild(div);
-    });
-  }
-
-  /* ========= RENDER VIDEOS / EBOOKS (MISTURANDO MÓDULOS) ========= */
-  function renderVideos(videosNormais, modulos){
-    const grid = el('gridVideos');
-    grid.innerHTML = '';
-
-    videosNormais.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="thumb" src="${p.thumbnail || p.cover_image_url || '/img/default.jpg'}">
-        <div class="card-body">
-          <h3>${p.name}</h3>
-          <p style="font-size:14px;color:#0d5f70;">Vídeo liberado</p>
-          <div class="row-btns">
-            <button class="btn">Assistir</button>
-          </div>
-        </div>
-      `;
-      card.querySelector('.btn').onclick = () => {
-        const url = p.drive_link || p.checkout_link;
-        if (url) openDriveModal(url, p.name);
-      };
-      grid.appendChild(card);
-    });
-
-    modulos.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="thumb" src="${p.thumbnail || '/img/combo.jpg'}">
-        <div class="card-body">
-          <h3>${p.name}</h3>
-          <p style="font-size:14px;color:#c8a96a;font-weight:600;">
-            Conteúdo especial do combo
-          </p>
-          <div class="row-btns">
-            <button class="btn">Acessar módulo</button>
-          </div>
-        </div>
-      `;
-      card.querySelector('.btn').onclick = () => openModule(p.deliverable_key || p.deliverableKey);
-      grid.appendChild(card);
-    });
-
-    const total = videosNormais.length + modulos.length;
-    el('msgVideos').style.display = total ? 'none' : '';
-    el('msgVideos').textContent   = total ? '' : 'Você ainda não tem vídeo aulas liberadas.';
-  }
-
-  function renderEbooks(ebooksNormais, modulos){
-    const grid = el('gridEbooks');
-    grid.innerHTML = '';
-
-    ebooksNormais.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="thumb" src="${p.thumbnail || p.cover_image_url || '/img/default.jpg'}">
-        <div class="card-body">
-          <h3>${p.name}</h3>
-          <p style="font-size:14px;color:#0d5f70;">E-book liberado</p>
-          <div class="row-btns">
-            <button class="btn">Abrir</button>
-          </div>
-        </div>
-      `;
-      card.querySelector('.btn').onclick = () => {
-        const url = p.drive_link || p.checkout_link;
-        if (url) openDriveModal(url, p.name);
-      };
-      grid.appendChild(card);
-    });
-
-    modulos.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="thumb" src="${p.thumbnail || '/img/combo.jpg'}">
-        <div class="card-body">
-          <h3>${p.name}</h3>
-          <p style="font-size:14px;color:#c8a96a;font-weight:600;">
-            Conteúdo especial do combo
-          </p>
-          <div class="row-btns">
-            <button class="btn">Acessar módulo</button>
-          </div>
-        </div>
-      `;
-      card.querySelector('.btn').onclick = () => openModule(p.deliverable_key || p.deliverableKey);
-      grid.appendChild(card);
-    });
-
-    const total = ebooksNormais.length + modulos.length;
-    el('msgEbooks').style.display = total ? 'none' : '';
-    el('msgEbooks').textContent   = total ? '' : 'Você ainda não tem e-books liberados.';
-  }
-
-  /* ========= /api/my-products ========= */
-  async function loadMyProducts(emailParam){
-    const email = emailParam || requireLogin();
-    if (!email) return;
-
-    try{
-      const resp = await fetch('/api/my-products', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await resp.json();
-      if (!resp.ok || !data.success){
-        throw new Error(data.message || 'Erro ao carregar produtos.');
+      // classificar os normais
+      const tipo = classificar(p);
+      if (tipo === "video"){
+        listaVideos.push(p);
+      } else {
+        listaEbooks.push(p);
       }
+    });
 
-      const items = Array.isArray(data.products) ? data.products : [];
-      appState.email = email;
-      appState.products = items;
+    /* ===============================
+       RENDERIZAR VÍDEOS
+    ================================*/
+    const gridV = document.querySelector("#gridVideos");
+    gridV.innerHTML = "";
 
-      const combos = items.filter(
-        p => (p.deliverable_key || p.deliverableKey) &&
-             MODULES_BY_KEY[p.deliverable_key || p.deliverableKey]
+    listaVideos.forEach(p => {
+      const card = createCard(
+        p,
+        "Assistir",
+        () => openDriveModal(p.video, p.nome)
       );
+      gridV.appendChild(card);
+    });
 
-      const standalones = items.filter(
-        p => !(p.deliverable_key || p.deliverableKey) ||
-             !MODULES_BY_KEY[p.deliverable_key || p.deliverableKey]
+    // módulos também aparecem como "vídeos" (porque têm aulas)
+    listaModulos.forEach(p => {
+      const card = createModuleCard(p, "Acessar Conteúdo");
+      gridV.appendChild(card);
+    });
+
+    document.querySelector("#msgVideos").style.display =
+      gridV.children.length ? "none" : "block";
+
+    /* ===============================
+       RENDERIZAR E-BOOKS
+    ================================*/
+    const gridE = document.querySelector("#gridEbooks");
+    gridE.innerHTML = "";
+
+    // Apenas ebooks puros (sem video)
+    listaEbooks.forEach(p => {
+      const link = p.link || p.ebook;
+      const card = createCard(
+        p,
+        "Abrir E-book",
+        () => openDriveModal(link, p.nome)
       );
+      gridE.appendChild(card);
+    });
 
-      const videosNormais = standalones.filter(p => (p.type||'').toLowerCase().includes('video'));
-      const ebooksNormais = standalones.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+    // módulos também aparecem em ebooks (porque podem ter pdfs)
+    listaModulos.forEach(p => {
+      const card = createModuleCard(p, "Acessar Conteúdo");
+      gridE.appendChild(card);
+    });
 
-      renderVideos(videosNormais, combos);
-      renderEbooks(ebooksNormais, combos);
+    document.querySelector("#msgEbooks").style.display =
+      gridE.children.length ? "none" : "block";
 
-    }catch(e){
-      console.error('loadMyProducts error', e);
-      el('msgVideos').style.display='';
-      el('msgVideos').textContent='Erro ao carregar seus vídeos.';
-      el('msgEbooks').style.display='';
-      el('msgEbooks').textContent='Erro ao carregar seus e-books.';
-    }
+  } catch (err){
+    console.error(err);
+    alert("Erro ao carregar seus produtos.");
+  }
+}
+
+/* ======================================================
+   RECOMENDAÇÕES
+======================================================*/
+async function loadRecs(){
+  try {
+    const email = localStorage.getItem("chef_user_email");
+    if (!email) return;
+
+    const r = await fetch("/api/recommendations?email=" + encodeURIComponent(email));
+    const data = await r.json();
+
+    const lista = data.items || data.products || [];
+    const grid = document.querySelector("#gridRecs");
+    grid.innerHTML = "";
+
+    lista.forEach(p => {
+      const card = createCard(
+        p,
+        "Comprar",
+        () => window.open(p.checkout_link, "_blank")
+      );
+      grid.appendChild(card);
+    });
+
+    document.querySelector("#msgRecs").style.display =
+      grid.children.length ? "none" : "block";
+
+  } catch(e){
+    console.error(e);
+    alert("Erro ao carregar recomendações.");
+  }
+}
+
+/* ======================================================
+   BOOT AUTOMÁTICO
+======================================================*/
+async function boot(){
+  const email = localStorage.getItem("chef_user_email");
+  if (!email){
+    return; // mostra landing
   }
 
-  /* ========= /api/recommendations ========= */
-  async function loadRecs(emailParam){
-    const email = emailParam || requireLogin();
-    if (!email) return;
+  // já logado → abre direto a área
+  document.querySelector("#landing").style.display = "none";
+  document.querySelector("#appHeader").style.display = "block";
+  document.querySelector("#appMain").style.display = "block";
 
-    try{
-      const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
-      const data = await r.json();
-      if (!r.ok || !data.success){
-        throw new Error(data.message || 'Erro ao carregar recomendações.');
-      }
+  showSection("videos");
+  await loadMyProducts();
+  await loadRecs();
+}
 
-      let list = Array.isArray(data.items)
-        ? data.items
-        : (Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []));
+/* botão entrar */
+document.querySelector("#enterBtn").onclick = () => boot();
 
-      const seen = new Set();
-      list = list.filter(p=>{
-        const key = p.deliverable_key || p.deliverableKey || p.id;
-        if (!key) return true;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+/* logout */
+document.querySelector("#logoutBtn").onclick = () => {
+  localStorage.removeItem("chef_user_email");
+  location.href = "login.html";
+};
 
-      renderRecsCards(list);
-      el('msgRecs').style.display = list.length ? 'none' : '';
-      el('msgRecs').textContent   = list.length ? '' : 'Nada sugerido no momento.';
-    }catch(e){
-      console.error('loadRecs error', e);
-      el('msgRecs').style.display='';
-      el('msgRecs').textContent='Falha ao carregar recomendações.';
-    }
-  }
+/* iniciar */
+boot();
 
-  /* ========= Eventos de UI ========= */
-  el('enterBtn').addEventListener('click', async ()=>{
-    const email = requireLogin();
-    if (!email) return;
-    showApp();
-    showSection('all');
-    await loadMyProducts(email);
-    loadRecs(email);
-  });
-
-  el('menuInicio').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('all');
-  });
-  el('menuVideos').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('videos');
-  });
-  el('menuEbooks').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('ebooks');
-  });
-  el('menuRecs').addEventListener('click', (e)=>{
-    e.preventDefault();
-    showSection('recs');
-  });
-  el('goHome').addEventListener('click', ()=>{
-    showSection('all');
-  });
-
-  // menu mobile
-  el('menuToggle').addEventListener('click', ()=>{
-    el('menuNav').classList.toggle('open');
-  });
-
-  // logout
-  el('logoutBtn').addEventListener('click', ()=>{
-    localStorage.removeItem('chef_user_email');
-    location.href = 'login.html';
-  });
-
-  // busca (placeholder pra implementar depois)
-  el('btnSearch').addEventListener('click', ()=>{
-    // implementar depois se quiser
-  });
-  el('q').addEventListener('keydown', (e)=>{
-    if (e.key === 'Enter'){
-      // implementar depois se quiser
-    }
-  });
-
-  /* ========= Boot automático se já estiver logado ========= */
-  (async function boot(){
-    const email = getStoredEmail();
-    if (!email) return;
-    showApp();
-    showSection('all');
-    await loadMyProducts(email);
-    loadRecs(email);
-  })();
 </script>
 
-</body>
-</html>
+
