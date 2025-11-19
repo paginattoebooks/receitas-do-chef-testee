@@ -485,7 +485,7 @@
     // pega os deliverable_key únicos
     const keysSet = new Set(
       items
-        .map(p => p.deliverable_key || p.deliverableKey || null)
+        .map(p => p.deliverable_key ?? p.deliverableKey ?? null)
         .filter(Boolean)
     );
     const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
