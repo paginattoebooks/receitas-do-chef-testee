@@ -601,14 +601,18 @@ async function loadExtraModules(items, email) {
     }
   }
 
-  el('enterBtn').addEventListener('click', ()=>{
-    if (!requireLogin()) return;
-    showApp();
-    showSection('all');
-    await loadMyProducts();
-    showSection('all'); // re-renderizando agora que tem modules
-    loadRecs();
-  });
+ el('enterBtn').addEventListener('click', async ()=>{
+  if (!requireLogin()) return;
+
+  showApp();
+  showSection('all');
+
+  await loadMyProducts();   // agora é permitido
+
+  showSection('all'); // re-renderiza sabendo dos módulos
+  loadRecs();
+});
+
 
   el('menuInicio').addEventListener('click', (e)=>{
     e.preventDefault(); showSection('all');
@@ -641,14 +645,14 @@ async function loadExtraModules(items, email) {
     location.href = 'login.html';
   });
 
-  (function boot(){
-    if (requireLogin()){
-      showApp();
-      showSection('all');
-      loadMyProducts();
-      loadRecs();
-    }
-  })();
+  (async function boot(){
+  if (requireLogin()){
+    showApp();
+    showSection('all');
+    await loadMyProducts();
+    loadRecs();
+  }
+})();
 </script>
 
 </body>
