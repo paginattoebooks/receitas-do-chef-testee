@@ -482,37 +482,10 @@ export function mount(container, ctx) {
   renderCategorias(container, state, ctx);
 }
 // === BLOCO DE E-BOOKS DESTACADOS ===
-  const ebooksTitle = document.createElement('h2');
-  ebooksTitle.className = 'h2';
-  ebooksTitle.style.marginTop = '28px';
-  ebooksTitle.textContent = 'E-books Especiais do Combo';
-  el.appendChild(ebooksTitle);
-
   const ebookGrid = document.createElement('div');
   ebookGrid.className = 'grid';
   renderEbooks(ebookGrid, ebooksDestacados, ctx);
   el.appendChild(ebookGrid);
-
-function renderReceitas(container, receitas, ctx){
-  receitas.forEach((item) => {
-    const hasVideo = !!item.link;
-    const hasEbook = !!item.ebook;
-
-    const tipoLabel = hasVideo && hasEbook
-      ? 'Vídeo + E-book'
-      : hasVideo ? 'Somente vídeo' : 'Somente e-book';
-
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <img class="thumb" src="${item.capa}" alt="${item.nome}">
-      <div class="card-body">
-        <h3>${item.nome}</h3>
-        <p>${item.descricao || ''}</p>
-        <p class="sub" style="margin-bottom:10px">${tipoLabel}</p>
-        <div class="row-btns"></div>
-      </div>
-    `;
 
     const btnRow = div.querySelector('.row-btns');
 
@@ -559,5 +532,6 @@ function renderEbooks(container, ebooks, ctx){
     container.appendChild(div);
   });
 }
+
 
 
