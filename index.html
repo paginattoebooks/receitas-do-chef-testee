@@ -226,7 +226,7 @@
 
     .msg{ color:#d12f2f; font-size:14px; }
 
-    /* ====== MODAL VIDEO / EBOOK ====== */
+    /* ====== MODAL VIDEO / EBOOK / MÓDULO ====== */
     .overlay{
       position:fixed; inset:0; background:rgba(0,0,0,.85);
       display:flex; align-items:center; justify-content:center;
@@ -234,15 +234,31 @@
       animation: fade .15s ease;
     }
     .player{
-      width:min(960px, 100%); background:#000; border-radius:16px; overflow:hidden; position:relative;
+      width:min(960px, 100%);
+      background:#000;
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
     }
-    .player iframe{ width:100%; height:min(70dvh, 520px); border:0; display:block }
+    .player iframe{
+      width:100%;
+      height:min(70dvh, 520px);
+      border:0;
+      display:block;
+    }
+    .player-inner{
+      background:#f6fbfc;
+      color:#0f2024;
+      max-height:70dvh;
+      overflow:auto;
+      padding:16px;
+    }
     .close{
       position:absolute; top:10px; left:10px;
-      background:rgba(0,0,0,.6); border:0; color:#fff; padding:8px 12px; border-radius:999px; cursor:pointer;
+      background:rgba(0,0,0,.6); border:0; color:#fff;
+      padding:8px 12px; border-radius:999px; cursor:pointer;
     }
 
-    /* FOOTER */
     footer{
       text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
       font-size:12px; letter-spacing:.2px;
@@ -278,10 +294,6 @@
       to{ opacity:1; transform:none }
     }
     @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
-
-    .module-wrapper{
-      margin-top:24px;
-    }
   </style>
 </head>
 <body>
@@ -341,12 +353,6 @@
     <p id="msgEbooks" class="msg" style="display:none"></p>
   </section>
 
-  <section class="section" id="modulesSection" style="display:none" data-has-modules="false">
-    <h2 class="h2">Conteúdos especiais</h2>
-    <p class="sub">Áreas extras liberadas pelos seus combos e cursos especiais.</p>
-    <div id="modulesContainer"></div>
-  </section>
-
   <section class="section" id="recs">
     <h2 class="h2">Outros produtos pra você</h2>
     <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
@@ -359,6 +365,12 @@
 
 <script type="module">
   const el = (id) => document.getElementById(id);
+
+  // estado global simples
+  const appState = {
+    email: null,
+    products: []
+  };
 
   /* ========= Helpers de Login ========= */
   function getStoredEmail(){
@@ -398,15 +410,61 @@
     wrap.className = 'overlay';
     wrap.innerHTML = `
       <div class="player">
-        <button class="close" onclick="this.closest('.overlay').remove()">← Voltar</button>
+        <button class="close">← Voltar</button>
         <iframe src="${url}" allow="autoplay; encrypted-media" allowfullscreen title="${title||''}"></iframe>
       </div>`;
+    wrap.querySelector('.close').onclick = () => wrap.remove();
     document.body.appendChild(wrap);
   }
 
   function openDriveModal(rawUrl, title){
     const url = toDrivePreview(rawUrl) || rawUrl;
     openPlayer(url, title);
+  }
+
+  /* ========= MODULOS ESPECIAIS ========= */
+  const MODULES_BY_KEY = {
+    super_combo_100_videos: './super_combo_100_videos/module.js',
+    // adicionar outros combos aqui
+    // outro_combo: './outro_combo/module.js',
+  };
+
+  async function openModule(deliverableKey){
+    const path = MODULES_BY_KEY[deliverableKey];
+    if (!path){
+      console.warn('Módulo não mapeado:', deliverableKey);
+      return;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'overlay';
+    wrap.innerHTML = `
+      <div class="player">
+        <button class="close">← Voltar</button>
+        <div class="player-inner" id="moduleRoot"></div>
+      </div>`;
+    wrap.querySelector('.close').onclick = () => wrap.remove();
+    document.body.appendChild(wrap);
+
+    const container = wrap.querySelector('#moduleRoot');
+
+    try{
+      const mod = await import(path);
+      if (!mod || typeof mod.mount !== 'function'){
+        container.innerHTML = '<p>Falha ao carregar este módulo.</p>';
+        return;
+      }
+      await mod.mount(container, {
+        email: appState.email,
+        products: appState.products,
+        deliverableKey,
+        openDriveModal,
+        toDrivePreview
+      });
+    }catch(err){
+      console.error('Erro ao abrir módulo', deliverableKey, err);
+      container.innerHTML = '<p>Não foi possível abrir este módulo agora.</p>';
+    }
   }
 
   /* ========= UI Básica ========= */
@@ -421,111 +479,135 @@
     const secVideos  = el('videos');
     const secEbooks  = el('ebooks');
     const secRecs    = el('recs');
-    const secModules = el('modulesSection');
 
     if (mode === 'all'){
       secVideos.style.display  = '';
       secEbooks.style.display  = '';
       secRecs.style.display    = '';
-      if (secModules.dataset.hasModules === 'true'){
-        secModules.style.display = '';
-      }else{
-        secModules.style.display = 'none';
-      }
     } else {
       secVideos.style.display  = mode === 'videos' ? '' : 'none';
       secEbooks.style.display  = mode === 'ebooks' ? '' : 'none';
       secRecs.style.display    = mode === 'recs'   ? '' : 'none';
-      secModules.style.display = (mode === 'special' && secModules.dataset.hasModules === 'true') ? '' : 'none';
     }
     window.scrollTo({ top:0, behavior:'smooth' });
   }
 
-  function renderCards(list, container, cta, onOpen){
-    container.innerHTML = '';
-    if (!Array.isArray(list) || !list.length){
-      return;
-    }
-    list.forEach((p)=>{
+  function renderRecsCards(list){
+    const cont = el('gridRecs');
+    cont.innerHTML = '';
+    list.forEach(p=>{
       const div = document.createElement('div');
-      div.className = 'card';
-      const cover = p.cover_image_url || '';
-      const desc  = p.description || '';
+      div.className='card';
       div.innerHTML = `
-        <img class="thumb" src="${cover}" alt="${p.name||''}">
+        <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
         <div class="card-body">
           <h3>${p.name||''}</h3>
-          <p>${desc}</p>
+          <p>${p.description||''}</p>
           <div class="row-btns">
-            <button class="btn">${cta}</button>
+            ${p.checkout_link
+              ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>`
+              : `<button class="btn" disabled>Indisponível</button>`}
           </div>
         </div>`;
-      div.querySelector('button.btn').addEventListener('click', ()=>onOpen(p));
-      container.appendChild(div);
+      cont.appendChild(div);
     });
   }
 
-  /* ========= Mapeamento de módulos por deliverable_key ========= */
-  const MODULES_BY_KEY = {
-    super_combo_100_videos: './super_combo_100_videos/module.js',
-    // se criar outros combos, só adicionar aqui
-    // ex: outro_combo: './outro_combo/module.js',
-  };
+  /* ========= RENDER VIDEOS / EBOOKS (MISTURANDO MÓDULOS) ========= */
+  function renderVideos(videosNormais, modulos){
+    const grid = el('gridVideos');
+    grid.innerHTML = '';
 
-  /* ========= Loader de Módulos Extras ========= */
-  async function loadExtraModules(items, email){
-    const section   = el('modulesSection');
-    const container = el('modulesContainer');
-    if (!section || !container) return;
+    videosNormais.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="thumb" src="${p.thumbnail || p.cover_image_url || '/img/default.jpg'}">
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <p style="font-size:14px;color:#0d5f70;">Vídeo liberado</p>
+          <div class="row-btns">
+            <button class="btn">Assistir</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('.btn').onclick = () => {
+        const url = p.drive_link || p.checkout_link;
+        if (url) openDriveModal(url, p.name);
+      };
+      grid.appendChild(card);
+    });
 
-    container.innerHTML          = '';
-    section.style.display        = 'none';
-    section.dataset.hasModules   = 'false';
+    modulos.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="thumb" src="${p.thumbnail || '/img/combo.jpg'}">
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <p style="font-size:14px;color:#c8a96a;font-weight:600;">
+            Conteúdo especial do combo
+          </p>
+          <div class="row-btns">
+            <button class="btn">Acessar módulo</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('.btn').onclick = () => openModule(p.deliverable_key || p.deliverableKey);
+      grid.appendChild(card);
+    });
 
-    // pega os deliverable_key únicos
-    const keysSet = new Set(
-      items
-        .map(p => p.deliverable_key ?? p.deliverableKey ?? null)
-        .filter(Boolean)
-    );
-    const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
+    const total = videosNormais.length + modulos.length;
+    el('msgVideos').style.display = total ? 'none' : '';
+    el('msgVideos').textContent   = total ? '' : 'Você ainda não tem vídeo aulas liberadas.';
+  }
 
-    if (!keysToLoad.length) return;
+  function renderEbooks(ebooksNormais, modulos){
+    const grid = el('gridEbooks');
+    grid.innerHTML = '';
 
-    const contextBase = {
-      email,
-      products: items,      // todos os produtos, pra verificação dentro do módulo
-      openDriveModal,
-      toDrivePreview,
-    };
+    ebooksNormais.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="thumb" src="${p.thumbnail || p.cover_image_url || '/img/default.jpg'}">
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <p style="font-size:14px;color:#0d5f70;">E-book liberado</p>
+          <div class="row-btns">
+            <button class="btn">Abrir</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('.btn').onclick = () => {
+        const url = p.drive_link || p.checkout_link;
+        if (url) openDriveModal(url, p.name);
+      };
+      grid.appendChild(card);
+    });
 
-    for (const key of keysToLoad){
-      const modulePath = MODULES_BY_KEY[key];
-      try{
-        const mod = await import(modulePath);
-        if (!mod || typeof mod.mount !== 'function'){
-          console.warn('Módulo sem mount():', key);
-          continue;
-        }
+    modulos.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="thumb" src="${p.thumbnail || '/img/combo.jpg'}">
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <p style="font-size:14px;color:#c8a96a;font-weight:600;">
+            Conteúdo especial do combo
+          </p>
+          <div class="row-btns">
+            <button class="btn">Acessar módulo</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('.btn').onclick = () => openModule(p.deliverable_key || p.deliverableKey);
+      grid.appendChild(card);
+    });
 
-        const modBox = document.createElement('div');
-        modBox.className = 'module-wrapper';
-        container.appendChild(modBox);
-
-        await mod.mount(modBox, {
-          ...contextBase,
-          deliverableKey: key,
-        });
-
-        section.dataset.hasModules = 'true';
-      }catch(err){
-        console.error('Erro ao carregar módulo', key, err);
-      }
-    }
-
-    if (section.dataset.hasModules === 'true'){
-      section.style.display = '';
-    }
+    const total = ebooksNormais.length + modulos.length;
+    el('msgEbooks').style.display = total ? 'none' : '';
+    el('msgEbooks').textContent   = total ? '' : 'Você ainda não tem e-books liberados.';
   }
 
   /* ========= /api/my-products ========= */
@@ -546,174 +628,30 @@
       }
 
       const items = Array.isArray(data.products) ? data.products : [];
+      appState.email = email;
+      appState.products = items;
 
-      // Combos = produtos com deliverable_key mapeado
       const combos = items.filter(
-        p => p.deliverable_key && MODULES_BY_KEY[p.deliverable_key]
+        p => (p.deliverable_key || p.deliverableKey) &&
+             MODULES_BY_KEY[p.deliverable_key || p.deliverableKey]
       );
 
-      // Standalones = o resto (vai pra vídeos / ebooks)
       const standalones = items.filter(
-        p => !p.deliverable_key || !MODULES_BY_KEY[p.deliverable_key]
+        p => !(p.deliverable_key || p.deliverableKey) ||
+             !MODULES_BY_KEY[p.deliverable_key || p.deliverableKey]
       );
 
-      const vids   = standalones.filter(p => (p.type||'').toLowerCase().includes('video'));
-      const ebooks = standalones.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+      const videosNormais = standalones.filter(p => (p.type||'').toLowerCase().includes('video'));
+      const ebooksNormais = standalones.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
-      // =========================================
-// 🔥 NOVO SISTEMA: MISTURA VIDEOS + MODULOS
-// =========================================
-
-// filtra somente os produtos de vídeo "normais"
-const videosNormais = standalones.filter(p => 
-  (p.type || '').toLowerCase().includes('video')
-);
-
-// pega módulos (combos ou especiais)
-const modulosCombo = products.filter(p => 
-  p.deliverable_key && p.deliverable_key.trim() !== ''
-);
-
-// grid onde vamos mostrar TUDO JUNTO
-const grid = el('gridVideos');
-grid.innerHTML = '';
-
-// ---- 1) Renderiza vídeos normais ----
-videosNormais.forEach(p => {
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  card.innerHTML = `
-    <img class="thumb" src="${p.thumbnail || '/img/default.jpg'}">
-    <div class="card-body">
-      <h3>${p.name}</h3>
-      <p style="font-size:14px;color:#0d5f70;">Vídeo liberado</p>
-      <button class="btn">Assistir</button>
-    </div>
-  `;
-
-  card.querySelector('.btn').onclick = () => {
-    const url = p.drive_link || p.checkout_link;
-    if (url) openDriveModal(url, p.name);
-  };
-
-  grid.appendChild(card);
-});
-
-// ---- 2) Renderiza módulos do combo (JS internos) ----
-modulosCombo.forEach(p => {
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  card.innerHTML = `
-    <img class="thumb" src="/img/combo.jpg">
-    <div class="card-body">
-      <h3>${p.name}</h3>
-      <p style="font-size:14px;color:#c8a96a;font-weight:600;">
-        Conteúdo especial do combo
-      </p>
-      <button class="btn">Acessar módulo</button>
-    </div>
-  `;
-
-  card.querySelector('.btn').onclick = () => {
-    // abre o módulo JS correspondente
-    openModule(p.deliverable_key);
-  };
-
-  grid.appendChild(card);
-});
-
-// ---- mensagem quando vazio ----
-el('msgVideos').style.display = (videosNormais.length + modulosCombo.length) ? 'none' : '';
-el('msgVideos').textContent = (videosNormais.length + modulosCombo.length)
-  ? ''
-  : 'Você ainda não tem vídeo aulas liberadas.';
-
-
-      // =========================================
-// 🔥 NOVO SISTEMA: MISTURA EBOOKS + MODULOS
-// =========================================
-
-// e-books normais (produtos comuns)
-const ebooksNormais = standalones.filter(p =>
-  (p.type || '').toLowerCase().includes('ebook')
-);
-
-// módulos (produtos com deliverable_key)
-const modulosComboEbooks = products.filter(p =>
-  p.deliverable_key && p.deliverable_key.trim() !== ''
-);
-
-// grid de e-books (onde tudo será exibido)
-const gridE = el('gridEbooks');
-gridE.innerHTML = '';
-
-// ---- 1) Renderiza e-books normais ----
-ebooksNormais.forEach(p => {
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  card.innerHTML = `
-    <img class="thumb" src="${p.thumbnail || '/img/default.jpg'}">
-    <div class="card-body">
-      <h3>${p.name}</h3>
-      <p style="font-size:14px;color:#0d5f70;">E-book liberado</p>
-      <button class="btn">Abrir</button>
-    </div>
-  `;
-
-  card.querySelector('.btn').onclick = () => {
-    const url = p.drive_link || p.checkout_link;
-    if (url) openDriveModal(url, p.name);
-  };
-
-  gridE.appendChild(card);
-});
-
-// ---- 2) Renderiza módulos do combo como "E-books especiais" ----
-modulosComboEbooks.forEach(p => {
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  card.innerHTML = `
-    <img class="thumb" src="/img/combo.jpg">
-    <div class="card-body">
-      <h3>${p.name}</h3>
-      <p style="font-size:14px;color:#c8a96a;font-weight:600;">
-        Conteúdo especial do combo
-      </p>
-      <button class="btn">Acessar módulo</button>
-    </div>
-  `;
-
-  card.querySelector('.btn').onclick = () => {
-    openModule(p.deliverable_key);
-  };
-
-  gridE.appendChild(card);
-});
-
-// ---- mensagem quando vazio ----
-el('msgEbooks').style.display = (ebooksNormais.length + modulosComboEbooks.length) ? 'none' : '';
-el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
-  ? ''
-  : 'Você ainda não tem e-books liberados.';
-
-
-      el('msgVideos').style.display = vids.length ? 'none' : '';
-      el('msgVideos').textContent   = vids.length ? '' : 'Você ainda não tem vídeo aulas liberadas.';
-      el('msgEbooks').style.display = ebooks.length ? 'none' : '';
-      el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e-books liberados.';
-
-      // carrega módulos (usa lista completa, inclusive combos)
-      await loadExtraModules(items, email);
+      renderVideos(videosNormais, combos);
+      renderEbooks(ebooksNormais, combos);
 
     }catch(e){
       console.error('loadMyProducts error', e);
-      el('msgVideos').style.display=''; 
+      el('msgVideos').style.display='';
       el('msgVideos').textContent='Erro ao carregar seus vídeos.';
-      el('msgEbooks').style.display=''; 
+      el('msgEbooks').style.display='';
       el('msgEbooks').textContent='Erro ao carregar seus e-books.';
     }
   }
@@ -743,30 +681,12 @@ el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
         return true;
       });
 
-      const cont = el('gridRecs');
-      cont.innerHTML = '';
-      list.forEach(p=>{
-        const div = document.createElement('div');
-        div.className='card';
-        div.innerHTML = `
-          <img class="thumb" src="${p.cover_image_url||''}" alt="${p.name||''}">
-          <div class="card-body">
-            <h3>${p.name||''}</h3>
-            <p>${p.description||''}</p>
-            <div class="row-btns">
-              ${p.checkout_link
-                ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>`
-                : `<button class="btn" disabled>Indisponível</button>`}
-            </div>
-          </div>`;
-        cont.appendChild(div);
-      });
-
+      renderRecsCards(list);
       el('msgRecs').style.display = list.length ? 'none' : '';
       el('msgRecs').textContent   = list.length ? '' : 'Nada sugerido no momento.';
     }catch(e){
       console.error('loadRecs error', e);
-      el('msgRecs').style.display=''; 
+      el('msgRecs').style.display='';
       el('msgRecs').textContent='Falha ao carregar recomendações.';
     }
   }
@@ -775,7 +695,6 @@ el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
   el('enterBtn').addEventListener('click', async ()=>{
     const email = requireLogin();
     if (!email) return;
-
     showApp();
     showSection('all');
     await loadMyProducts(email);
@@ -813,7 +732,7 @@ el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
     location.href = 'login.html';
   });
 
-  // (opcional) gancho da busca – ainda sem implementação
+  // busca (placeholder pra implementar depois)
   el('btnSearch').addEventListener('click', ()=>{
     // implementar depois se quiser
   });
@@ -826,8 +745,7 @@ el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
   /* ========= Boot automático se já estiver logado ========= */
   (async function boot(){
     const email = getStoredEmail();
-    if (!email) return; // fica só na landing
-
+    if (!email) return;
     showApp();
     showSection('all');
     await loadMyProducts(email);
@@ -837,7 +755,3 @@ el('msgEbooks').textContent = (ebooksNormais.length + modulosComboEbooks.length)
 
 </body>
 </html>
-
-
-
-
