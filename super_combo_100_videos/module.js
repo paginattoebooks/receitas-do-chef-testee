@@ -31,6 +31,12 @@ function toDriveImage(url) {
     return url;
   }
 }
+// Fallback local só para este módulo não quebrar.
+// Aqui a gente NÃO depende da função global do index.
+function toDrivePreview(url) {
+  return url;
+}
+
 
 /* ====== DEFINIÇÃO DAS CATEGORIAS (10) ====== */
 const categorias = [
@@ -501,5 +507,6 @@ export function mount(container, ctx) {
 
   renderCategorias(container, state, ctx);
 }
+
 
 
