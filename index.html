@@ -526,7 +526,7 @@ async function loadExtraModules(items, email) {
       const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
       renderCards(vids,   el('gridVideos'), 'Assistir', p=>{
-        const url = p.drive_link || p.deliverable_url || p.checkout_link;
+        const url = p.drive_link || p.checkout_link;
         openDriveModal(url, p.name);
       });
       renderCards(ebooks, el('gridEbooks'), 'Abrir', p=>{
