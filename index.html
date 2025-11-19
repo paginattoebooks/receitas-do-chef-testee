@@ -26,6 +26,7 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
       line-height: 1.55;
     }
+
     /* ====== TELA 1 (LANDING) ====== */
     #landing{
       min-height: 100vh;
@@ -278,7 +279,7 @@
     }
     @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
 
-    .module-block + .module-block{
+    .module-wrapper{
       margin-top:24px;
     }
   </style>
@@ -294,8 +295,8 @@
       </div>
     </header>
     <div class="hero">
-      <h1>As melhores receitas e e‑books num só lugar</h1>
-      <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e‑mail.</p>
+      <h1>As melhores receitas e e-books num só lugar</h1>
+      <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
       <button class="btn-primary" id="enterBtn">Acessar</button>
     </div>
   </div>
@@ -312,14 +313,14 @@
     <nav class="menu" id="menuNav">
       <a href="#" id="menuInicio">Início</a>
       <a href="#" id="menuVideos">Meus Vídeos</a>
-      <a href="#" id="menuEbooks">Meus E‑books</a>
+      <a href="#" id="menuEbooks">Meus E-books</a>
       <a href="#" id="menuRecs">Recomendações</a>
       <button id="logoutBtn">Sair</button>
     </nav>
   </div>
   <div class="search-bar">
     <div class="search">
-      <input id="q" placeholder="Buscar receitas, e‑books, vídeos… (ex.: dor, bolo, airfryer)">
+      <input id="q" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)">
       <button class="icon-btn" id="btnSearch">🔎</button>
     </div>
   </div>
@@ -328,19 +329,19 @@
 <main id="appMain" style="display:none">
   <section class="section" id="videos">
     <h2 class="h2">Suas Vídeo Aulas</h2>
-    <p class="sub">Cursos em vídeo liberados para o seu e‑mail.</p>
+    <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
     <div id="gridVideos" class="grid"></div>
     <p id="msgVideos" class="msg" style="display:none"></p>
   </section>
 
   <section class="section" id="ebooks">
-    <h2 class="h2">Seus E‑books</h2>
-    <p class="sub">E‑books liberados para o seu e‑mail.</p>
+    <h2 class="h2">Seus E-books</h2>
+    <p class="sub">E-books liberados para o seu e-mail.</p>
     <div id="gridEbooks" class="grid"></div>
     <p id="msgEbooks" class="msg" style="display:none"></p>
   </section>
 
-  <section class="section" id="modulesSection" style="display:none">
+  <section class="section" id="modulesSection" style="display:none" data-has-modules="false">
     <h2 class="h2">Conteúdos especiais</h2>
     <p class="sub">Áreas extras liberadas pelos seus combos e cursos especiais.</p>
     <div id="modulesContainer"></div>
@@ -357,7 +358,23 @@
 <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
 <script type="module">
-  function el(id){ return document.getElementById(id); }
+  const el = (id) => document.getElementById(id);
+
+  /* ========= Helpers de Login ========= */
+  function getStoredEmail(){
+    const email = localStorage.getItem('chef_user_email');
+    if (!email) return null;
+    return email.toLowerCase().trim();
+  }
+
+  function requireLogin(){
+    const email = getStoredEmail();
+    if (!email){
+      window.location.href = 'login.html';
+      return null;
+    }
+    return email;
+  }
 
   /* ===== Helpers Drive / Modal ===== */
   function toDrivePreview(url){
@@ -375,6 +392,7 @@
       return url;
     }
   }
+
   function openPlayer(url, title){
     const wrap = document.createElement('div');
     wrap.className = 'overlay';
@@ -385,28 +403,34 @@
       </div>`;
     document.body.appendChild(wrap);
   }
+
   function openDriveModal(rawUrl, title){
     const url = toDrivePreview(rawUrl) || rawUrl;
     openPlayer(url, title);
   }
 
+  /* ========= UI Básica ========= */
   function showApp(){
     el('landing').style.display   = 'none';
     el('appHeader').style.display = '';
     el('appMain').style.display   = '';
     window.scrollTo({ top:0, behavior:'instant' });
   }
+
   function showSection(mode){
     const secVideos  = el('videos');
     const secEbooks  = el('ebooks');
     const secRecs    = el('recs');
     const secModules = el('modulesSection');
+
     if (mode === 'all'){
       secVideos.style.display  = '';
       secEbooks.style.display  = '';
       secRecs.style.display    = '';
       if (secModules.dataset.hasModules === 'true'){
         secModules.style.display = '';
+      }else{
+        secModules.style.display = 'none';
       }
     } else {
       secVideos.style.display  = mode === 'videos' ? '' : 'none';
@@ -416,17 +440,12 @@
     }
     window.scrollTo({ top:0, behavior:'smooth' });
   }
-  function requireLogin(){
-    const email = localStorage.getItem('chef_user_email');
-    if (!email){
-      window.location.href = 'login.html';
-      return null;
-    }
-    return email.toLowerCase().trim();
-  }
 
   function renderCards(list, container, cta, onOpen){
     container.innerHTML = '';
+    if (!Array.isArray(list) || !list.length){
+      return;
+    }
     list.forEach((p)=>{
       const div = document.createElement('div');
       div.className = 'card';
@@ -446,126 +465,143 @@
     });
   }
 
-const MODULES_BY_KEY = {
-  super_combo_100_videos: './super_combo_100_videos/module.js',
-};
-
-async function loadExtraModules(items, email) {
-  const section   = el('modulesSection');     // <section id="modulesSection">
-  const container = el('modulesContainer');   // <div id="modulesContainer"></div>
-
-  if (!section || !container) return;
-
-  container.innerHTML      = '';
-  section.style.display    = 'none';
-  section.dataset.hasModules = 'false';
-
-  // pega os deliverable_key únicos
-  const keysSet    = new Set(
-    items
-      .map(p => p.deliverable_key || p.deliverableKey || null)
-      .filter(Boolean)
-  );
-  const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
-
-  if (keysToLoad.length === 0) return;
-
-  const contextBase = {
-    email,
-    products: items,
-    openDriveModal,  // mesma função que você usa pro player dos outros vídeos
-    toDrivePreview,  // se estiver usando essa helper
+  /* ========= Mapeamento de módulos por deliverable_key ========= */
+  const MODULES_BY_KEY = {
+    super_combo_100_videos: './super_combo_100_videos/module.js',
+    // se criar outros combos, só adicionar aqui
+    // ex: outro_combo: './outro_combo/module.js',
   };
 
-  for (const key of keysToLoad) {
-    const modulePath = MODULES_BY_KEY[key];
+  /* ========= Loader de Módulos Extras ========= */
+  async function loadExtraModules(items, email){
+    const section   = el('modulesSection');
+    const container = el('modulesContainer');
+    if (!section || !container) return;
 
-    try {
-      const mod = await import(modulePath);
+    container.innerHTML          = '';
+    section.style.display        = 'none';
+    section.dataset.hasModules   = 'false';
 
-      if (!mod || typeof mod.mount !== 'function') {
-        console.warn('Módulo sem mount():', key);
-        continue;
+    // pega os deliverable_key únicos
+    const keysSet = new Set(
+      items
+        .map(p => p.deliverable_key || p.deliverableKey || null)
+        .filter(Boolean)
+    );
+    const keysToLoad = [...keysSet].filter(k => MODULES_BY_KEY[k]);
+
+    if (!keysToLoad.length) return;
+
+    const contextBase = {
+      email,
+      products: items,      // todos os produtos, pra verificação dentro do módulo
+      openDriveModal,
+      toDrivePreview,
+    };
+
+    for (const key of keysToLoad){
+      const modulePath = MODULES_BY_KEY[key];
+      try{
+        const mod = await import(modulePath);
+        if (!mod || typeof mod.mount !== 'function'){
+          console.warn('Módulo sem mount():', key);
+          continue;
+        }
+
+        const modBox = document.createElement('div');
+        modBox.className = 'module-wrapper';
+        container.appendChild(modBox);
+
+        await mod.mount(modBox, {
+          ...contextBase,
+          deliverableKey: key,
+        });
+
+        section.dataset.hasModules = 'true';
+      }catch(err){
+        console.error('Erro ao carregar módulo', key, err);
       }
+    }
 
-      // cria um container por módulo (se quiser mais de um no futuro)
-      const modBox = document.createElement('div');
-      modBox.className = 'module-wrapper';
-      container.appendChild(modBox);
-
-      await mod.mount(modBox, {
-        ...contextBase,
-        deliverableKey: key,
-      });
-
-      section.dataset.hasModules = 'true';
-    } catch (err) {
-      console.error('Erro ao carregar módulo', key, err);
+    if (section.dataset.hasModules === 'true'){
+      section.style.display = '';
     }
   }
 
-  if (section.dataset.hasModules === 'true') {
-    section.style.display = '';
+  /* ========= /api/my-products ========= */
+  async function loadMyProducts(emailParam){
+    const email = emailParam || requireLogin();
+    if (!email) return;
+
+    try{
+      const resp = await fetch('/api/my-products', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await resp.json();
+      if (!resp.ok || !data.success){
+        throw new Error(data.message || 'Erro ao carregar produtos.');
+      }
+
+      const items = Array.isArray(data.products) ? data.products : [];
+
+      // Combos = produtos com deliverable_key mapeado
+      const combos = items.filter(
+        p => p.deliverable_key && MODULES_BY_KEY[p.deliverable_key]
+      );
+
+      // Standalones = o resto (vai pra vídeos / ebooks)
+      const standalones = items.filter(
+        p => !p.deliverable_key || !MODULES_BY_KEY[p.deliverable_key]
+      );
+
+      const vids   = standalones.filter(p => (p.type||'').toLowerCase().includes('video'));
+      const ebooks = standalones.filter(p => (p.type||'').toLowerCase().includes('ebook'));
+
+      renderCards(vids, el('gridVideos'), 'Assistir', (p)=>{
+        const url = p.drive_link || p.checkout_link;
+        if (url) openDriveModal(url, p.name);
+      });
+
+      renderCards(ebooks, el('gridEbooks'), 'Abrir', (p)=>{
+        const url = p.drive_link || p.checkout_link;
+        if (url) openDriveModal(url, p.name);
+      });
+
+      el('msgVideos').style.display = vids.length ? 'none' : '';
+      el('msgVideos').textContent   = vids.length ? '' : 'Você ainda não tem vídeo aulas liberadas.';
+      el('msgEbooks').style.display = ebooks.length ? 'none' : '';
+      el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e-books liberados.';
+
+      // carrega módulos (usa lista completa, inclusive combos)
+      await loadExtraModules(items, email);
+
+    }catch(e){
+      console.error('loadMyProducts error', e);
+      el('msgVideos').style.display=''; 
+      el('msgVideos').textContent='Erro ao carregar seus vídeos.';
+      el('msgEbooks').style.display=''; 
+      el('msgEbooks').textContent='Erro ao carregar seus e-books.';
+    }
   }
-}
 
+  /* ========= /api/recommendations ========= */
+  async function loadRecs(emailParam){
+    const email = emailParam || requireLogin();
+    if (!email) return;
 
-  async function loadMyProducts(){
-  const email = requireLogin(); 
-  if (!email) return;
-
-  try{
-    const resp = await fetch('/api/my-products', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email })
-    });
-
-    const data = await resp.json();
-    if (!resp.ok || !data.success) throw new Error(data.message || 'Erro ao carregar produtos');
-
-    // CORREÇÃO REAL E DEFINITIVA
-    const items = Array.isArray(data.products) ? data.products : [];
-
-    const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
-    const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
-
-    renderCards(vids, el('gridVideos'), 'Assistir', p=>{
-      const url = p.drive_link || p.deliverable_url || p.checkout_link;
-      openDriveModal(url, p.name);
-    });
-
-    renderCards(ebooks, el('gridEbooks'), 'Abrir', p=>{
-      const url = p.drive_link || p.deliverable_url || p.checkout_link;
-      openDriveModal(url, p.name);
-    });
-
-    el('msgVideos').style.display = vids.length ? 'none' : '';
-    el('msgVideos').textContent   = vids.length ? '' : 'Você ainda não tem vídeo aulas liberadas.';
-
-    el('msgEbooks').style.display = ebooks.length ? 'none' : '';
-    el('msgEbooks').textContent   = ebooks.length ? '' : 'Você ainda não tem e-books liberados.';
-
-    // Finalmente carrega os módulos
-    await loadExtraModules(items, email);
-
-  } catch(e){
-    console.error(e);
-    el('msgVideos').style.display=''; 
-    el('msgVideos').textContent='Erro ao carregar seus vídeos.';
-    el('msgEbooks').style.display=''; 
-    el('msgEbooks').textContent='Erro ao carregar seus e-books.';
-  }
-}
-
-  async function loadRecs(){
-    const email = requireLogin(); if (!email) return;
     try{
       const r = await fetch('/api/recommendations?email='+encodeURIComponent(email));
       const data = await r.json();
-      if (!r.ok || !data.success) throw new Error(data.error || data.message || 'Erro ao carregar recomendações.');
+      if (!r.ok || !data.success){
+        throw new Error(data.message || 'Erro ao carregar recomendações.');
+      }
 
-      let list = Array.isArray(data.items) ? data.items : (Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []));
+      let list = Array.isArray(data.items)
+        ? data.items
+        : (Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []));
 
       const seen = new Set();
       list = list.filter(p=>{
@@ -587,7 +623,9 @@ async function loadExtraModules(items, email) {
             <h3>${p.name||''}</h3>
             <p>${p.description||''}</p>
             <div class="row-btns">
-              ${p.checkout_link ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>` : `<button class="btn" disabled>Indisponível</button>`}
+              ${p.checkout_link
+                ? `<a class="btn buy" href="${p.checkout_link}" target="_blank" rel="noopener">Comprar</a>`
+                : `<button class="btn" disabled>Indisponível</button>`}
             </div>
           </div>`;
         cont.appendChild(div);
@@ -595,64 +633,75 @@ async function loadExtraModules(items, email) {
 
       el('msgRecs').style.display = list.length ? 'none' : '';
       el('msgRecs').textContent   = list.length ? '' : 'Nada sugerido no momento.';
-    } catch(e){
-      console.error(e);
-      el('msgRecs').style.display=''; el('msgRecs').textContent='Falha ao carregar recomendações.';
+    }catch(e){
+      console.error('loadRecs error', e);
+      el('msgRecs').style.display=''; 
+      el('msgRecs').textContent='Falha ao carregar recomendações.';
     }
   }
 
- el('enterBtn').addEventListener('click', async ()=>{
-  if (!requireLogin()) return;
+  /* ========= Eventos de UI ========= */
+  el('enterBtn').addEventListener('click', async ()=>{
+    const email = requireLogin();
+    if (!email) return;
 
-  showApp();
-  showSection('all');
-
-  await loadMyProducts();   // agora é permitido
-
-  showSection('all'); // re-renderiza sabendo dos módulos
-  loadRecs();
-});
-
+    showApp();
+    showSection('all');
+    await loadMyProducts(email);
+    loadRecs(email);
+  });
 
   el('menuInicio').addEventListener('click', (e)=>{
-    e.preventDefault(); showSection('all');
+    e.preventDefault();
+    showSection('all');
   });
   el('menuVideos').addEventListener('click', (e)=>{
-    e.preventDefault(); showSection('videos');
+    e.preventDefault();
+    showSection('videos');
   });
   el('menuEbooks').addEventListener('click', (e)=>{
-    e.preventDefault(); showSection('ebooks');
+    e.preventDefault();
+    showSection('ebooks');
   });
   el('menuRecs').addEventListener('click', (e)=>{
-    e.preventDefault(); showSection('recs');
+    e.preventDefault();
+    showSection('recs');
   });
   el('goHome').addEventListener('click', ()=>{
     showSection('all');
   });
 
-  el('btnSearch').addEventListener('click', ()=>{
-    // assume doSearch is defined above...
-    // you can call doSearch();
-  });
-  el('q').addEventListener('keydown', (e)=>{
-    if (e.key==='Enter') {
-      // call doSearch();
-    }
+  // menu mobile
+  el('menuToggle').addEventListener('click', ()=>{
+    el('menuNav').classList.toggle('open');
   });
 
+  // logout
   el('logoutBtn').addEventListener('click', ()=>{
     localStorage.removeItem('chef_user_email');
     location.href = 'login.html';
   });
 
+  // (opcional) gancho da busca – ainda sem implementação
+  el('btnSearch').addEventListener('click', ()=>{
+    // implementar depois se quiser
+  });
+  el('q').addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter'){
+      // implementar depois se quiser
+    }
+  });
+
+  /* ========= Boot automático se já estiver logado ========= */
   (async function boot(){
-  if (requireLogin()){
+    const email = getStoredEmail();
+    if (!email) return; // fica só na landing
+
     showApp();
     showSection('all');
-    await loadMyProducts();
-    loadRecs();
-  }
-})();
+    await loadMyProducts(email);
+    loadRecs(email);
+  })();
 </script>
 
 </body>
