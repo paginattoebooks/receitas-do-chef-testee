@@ -543,7 +543,10 @@ el('#menuToggle').onclick = () => {
   el('#menuNav').classList.toggle('open');
 };
 
-el('#menuInicio').onclick = () => showSection('videos');
+el('#menuInicio').onclick = () => // mostrar todas as seções na entrada
+document.querySelector("#videos").style.display = "";
+document.querySelector("#ebooks").style.display = "";
+document.querySelector("#recs").style.display = "";
 el('#menuVideos').onclick = () => showSection('videos');
 el('#menuEbooks').onclick = () => showSection('ebooks');
 el('#menuRecs').onclick = () => showSection('recs');
