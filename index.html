@@ -411,58 +411,78 @@ async function openModule(key){
     const modulePath = `/${key}/module.js`;
     const mod = await import(modulePath);
 
-    const o = create('div');
+    if (typeof mod.mount === "function"){
+
+      const o = document.createElement('div');
+      o.id = "overlay";
+      o.className = "overlay";
+
+      const p = document.createElement('div');
+      p.className = "player";
+
+      const c = document.createElement('button');
+      c.className = "close";
+      c.textContent = "Fechar";
+      c.onclick = closeOverlay;
+
+      const inner = document.createElement('div');
+      inner.className = "player-inner";
+
+      p.appendChild(c);
+      p.appendChild(inner);
+      o.appendChild(p);
+      document.body.appendChild(o);
+
+      mod.mount(inner, {
+        email: window.userEmail || "",
+        deliverableKey: key,
+        openDriveModal,
+        toDrivePreview,
+        products: []
+      });
+
+      return;
+    }
+
+    const itens = Array.isArray(mod.itens) ? mod.itens : [];
+
+    const o = document.createElement('div');
     o.id = "overlay";
     o.className = "overlay";
 
-    const p = create('div');
+    const p = document.createElement('div');
     p.className = "player";
 
-    const c = create('button');
+    const c = document.createElement('button');
     c.className = "close";
     c.textContent = "Fechar";
     c.onclick = closeOverlay;
 
-    // container interno do módulo
-    const inner = create('div');
+    const inner = document.createElement('div');
     inner.className = "player-inner";
 
-    // título
-    const h = create('h2');
-    h.textContent = mod.titulo || "Conteúdo do Combo";
-
+    const h = document.createElement('h2');
+    h.textContent = mod.titulo || "E-books do Combo";
     inner.appendChild(h);
 
-    // renderizar cada item
-    mod.itens.forEach(item => {
-      const box = create('div');
+    itens.forEach(item => {
+
+      const box = document.createElement('div');
       box.style.marginBottom = "22px";
 
-      const h3 = create('h3');
+      const h3 = document.createElement('h3');
       h3.textContent = item.nome;
       box.appendChild(h3);
 
-      const desc = create('p');
-      desc.textContent = item.descricao || "";
+      const desc = document.createElement('p');
+      desc.textContent = item.descricao;
       box.appendChild(desc);
 
-      // Se tiver vídeo → botão ver vídeo
-      if (item.video){
-        const b = create('button');
-        b.className = "btn";
-        b.textContent = "Assistir Vídeo";
-        b.onclick = () => openDriveModal(item.video, item.nome);
-        box.appendChild(b);
-      }
-
-      // Se tiver link → botão abrir ebook
-      if (item.link){
-        const b2 = create('button');
-        b2.className = "btn buy";
-        b2.textContent = "Abrir E-book";
-        b2.onclick = () => openDriveModal(item.link, item.nome);
-        box.appendChild(b2);
-      }
+      const b = document.createElement('button');
+      b.className = "btn";
+      b.textContent = "Abrir E-book";
+      b.onclick = () => openDriveModal(item.link, item.nome);
+      box.appendChild(b);
 
       inner.appendChild(box);
     });
@@ -477,6 +497,7 @@ async function openModule(key){
     console.error(e);
   }
 }
+
 
 /* ===============================
    CRIAÇÃO DE CARDS
