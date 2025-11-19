@@ -17,36 +17,38 @@ export default async function handler(req, res) {
 
   try {
     const query = `
-  SELECT
-    p.id,
-    p.name,
-    p.type,
-    p.slug,
-    p.description,
-    p.cover_image_url,
-    p.tags,
-    up.deliverable_key,   -- PEGAR DA USER_PRODUCTS !!!
-    p.checkout_link,
-    p.drive_link,
-    p.deliverable_url
-  FROM users u
-  JOIN user_products up ON up.user_id = u.id
-  JOIN products p ON p.id = up.product_id
-  WHERE lower(u.email) = lower($1)
-    AND p.is_active = true
-  ORDER BY p.name;
-`;
+      SELECT
+        p.id,
+        p.name,
+        p.type,
+        p.description,
+        p.cover_image_url,
+        p.tags,
 
+        -- mover para user_products
+        up.deliverable_key,
+        up.drive_link,
+        up.deliverable_url,
+
+        -- opcional
+        p.checkout_link
+
+      FROM users u
+      JOIN user_products up ON up.user_id = u.id
+      JOIN products p ON p.id = up.product_id
+      WHERE lower(u.email) = lower($1)
+        AND p.is_active = true
+      ORDER BY p.name;
+    `;
 
     const { rows } = await pool.query(query, [email]);
 
-    // se quiser manter também videos/ebooks separados:
     const videos = rows.filter(r => (r.type || '').toLowerCase().includes('video'));
     const ebooks = rows.filter(r => (r.type || '').toLowerCase().includes('ebook'));
 
     return res.status(200).json({
       success: true,
-      products: rows,  // <<< AQUI É O PRINCIPAL QUE O FRONT VAI USAR
+      products: rows,
       videos,
       ebooks,
     });
