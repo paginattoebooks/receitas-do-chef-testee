@@ -521,7 +521,7 @@ async function loadExtraModules(items, email) {
       const data = await resp.json();
       if (!resp.ok || !data.success) throw new Error(data.error || data.message || 'Erro ao carregar produtos.');
 
-      const items = Array.isArray(data.items) ? data.items : (Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []));
+      const items = Array.isArray(data.products) ? data.products : [];
       const vids   = items.filter(p => (p.type||'').toLowerCase().includes('video'));
       const ebooks = items.filter(p => (p.type||'').toLowerCase().includes('ebook'));
 
@@ -594,7 +594,8 @@ async function loadExtraModules(items, email) {
     if (!requireLogin()) return;
     showApp();
     showSection('all');
-    loadMyProducts();
+    await loadMyProducts();
+    showSection('all'); // re-renderizando agora que tem modules
     loadRecs();
   });
 
