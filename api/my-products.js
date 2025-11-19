@@ -17,23 +17,23 @@ export default async function handler(req, res) {
 
   try {
    const query = `
-  SELECT
-    p.id,
-    p.name,
-    p.type,
-    p.description,
-    p.cover_image_url,
-    p.deliverable_key,
-    p.checkout_link,
-    p.drive_link,
-    p.deliverable_url
-  FROM users u
-  JOIN user_products up ON up.user_id = u.id
-  JOIN products p ON p.id = up.product_id
-  WHERE lower(u.email) = lower($1)
+    SELECT
+      p.id,
+      p.name,
+      p.type,
+      p.description,
+      p.cover_image_url,
+      p.deliverable_key,
+      p.checkout_link,
+      p.drive_link
+   FROM users u
+   JOIN user_products up ON up.user_id = u.id
+   JOIN products p ON p.id = up.product_id
+   WHERE lower(u.email) = lower($1)
     AND p.is_active = true
-  ORDER BY p.name;
+   ORDER BY p.name;
 `;
+
 
 
     const { rows } = await pool.query(query, [email]);
