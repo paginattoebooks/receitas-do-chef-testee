@@ -481,20 +481,6 @@ export function mount(container, ctx) {
 
   renderCategorias(container, state, ctx);
 }
- const categorias = Object.keys(receitasPorCategoria);
-  categorias.forEach((cat) => {
-    const receitas = receitasPorCategoria[cat];
-    const div = document.createElement('div');
-    div.className = 'module-block';
-    div.innerHTML = `<h2 class="h2">${cat}</h2>`;
-    
-    const grid = document.createElement('div');
-    grid.className = 'grid';
-    renderReceitas(grid, receitas, ctx);
-    
-    div.appendChild(grid);
-    el.appendChild(div);
-  });
 // === BLOCO DE E-BOOKS DESTACADOS ===
   const ebooksTitle = document.createElement('h2');
   ebooksTitle.className = 'h2';
@@ -573,4 +559,5 @@ function renderEbooks(container, ebooks, ctx){
     container.appendChild(div);
   });
 }
+
 
