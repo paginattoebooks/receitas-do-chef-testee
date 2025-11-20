@@ -309,6 +309,7 @@
     <div class="hero">
       <h1>As melhores receitas e e-books num só lugar</h1>
       <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
+      <!-- BOTÃO ORIGINAL: leva para login.html -->
       <button class="btn-primary" id="enterBtn" onclick="location.href='login.html'">
         Acessar
       </button>
@@ -364,15 +365,16 @@
 </main>
 
 <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
+
 <script>
 /* ===============================
-   HELPERS ÚTEIS
+   HELPERS
 ================================*/
 const el = (s) => document.querySelector(s);
 const create = (tag) => document.createElement(tag);
 
 /* ===============================
-   MODAL DE VIDEO / EBOOK / MÓDULO
+   MODAL / DRIVE
 ================================*/
 function closeOverlay(){
   const o = el('#overlay');
@@ -381,6 +383,10 @@ function closeOverlay(){
 
 function openDriveModal(url, title){
   closeOverlay();
+  if (!url) {
+    alert("Link não disponível para este conteúdo.");
+    return;
+  }
   const o = create('div');
   o.id = "overlay";
   o.className = "overlay";
@@ -403,6 +409,11 @@ function openDriveModal(url, title){
   document.body.appendChild(o);
 }
 
+// usado pelos módulos
+function toDrivePreview(url){
+  openDriveModal(url, "");
+}
+
 /* ===============================
    ABRIR MÓDULO (COMBO)
 ================================*/
@@ -413,8 +424,8 @@ async function openModule(key){
     const modulePath = `/${key}/module.js`;
     const mod = await import(modulePath);
 
+    // se o módulo tiver função mount()
     if (typeof mod.mount === "function"){
-
       const o = document.createElement('div');
       o.id = "overlay";
       o.className = "overlay";
@@ -446,6 +457,7 @@ async function openModule(key){
       return;
     }
 
+    // fallback para módulos que exportam lista de itens
     const itens = Array.isArray(mod.itens) ? mod.itens : [];
 
     const o = document.createElement('div');
@@ -468,7 +480,6 @@ async function openModule(key){
     inner.appendChild(h);
 
     itens.forEach(item => {
-
       const box = document.createElement('div');
       box.style.marginBottom = "22px";
 
@@ -500,9 +511,8 @@ async function openModule(key){
   }
 }
 
-
 /* ===============================
-   CRIAÇÃO DE CARDS
+   CARDS
 ================================*/
 function createCard(item, actionText, actionFn){
   const card = create('div');
@@ -510,14 +520,14 @@ function createCard(item, actionText, actionFn){
 
   const img = create('img');
   img.className = "thumb";
-  img.src = item.thumbnail || item.imagem || item.capa || "";
+  img.src = item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
   card.appendChild(img);
 
   const body = create('div');
   body.className = "card-body";
 
   const h = create('h3');
-  h.textContent = item.name || item.nome;
+  h.textContent = item.name || item.nome || "Produto sem nome";
   body.appendChild(h);
 
   const p = create('p');
@@ -544,63 +554,66 @@ function createModuleCard(item, text){
 }
 
 /* ===============================
-   NAVEGAÇÃO
+   NAVEGAÇÃO DAS SEÇÕES
 ================================*/
 function showSection(id){
-  el('#videos').style.display = "none";
-  el('#ebooks').style.display = "none";
-  el('#recs').style.display = "none";
+  const sections = ["videos","ebooks","recs"];
+  sections.forEach(sec => {
+    const s = document.getElementById(sec);
+    if (!s) return;
 
-  el('#videos').style.opacity = 0;
-  el('#ebooks').style.opacity = 0;
-  el('#recs').style.opacity = 0;
-
-  requestAnimationFrame(() => {
-    el('#' + id).style.display = "block";
-    el('#' + id).style.opacity = 1;
+    if (id === "all"){
+      s.style.display = "block";
+      s.style.opacity = 1;
+    } else {
+      if (sec === id){
+        s.style.display = "block";
+        s.style.opacity = 1;
+      } else {
+        s.style.display = "none";
+        s.style.opacity = 0;
+      }
+    }
   });
 }
 
-/* toggle menu mobile */
+// menu mobile
 el('#menuToggle').onclick = () => {
   el('#menuNav').classList.toggle('open');
 };
 
-el('#menuInicio').onclick = () => showSection('all') {
-  videos.style.display  = '';
-  ebooks.style.display  = '';
-  recs.style.display    = '';
-}
-el('#menuVideos').onclick = () => showSection('videos');
-el('#menuEbooks').onclick = () => showSection('ebooks');
-el('#menuRecs').onclick = () => showSection('recs');
+el('#menuInicio').onclick = (e) => {
+  e.preventDefault();
+  showSection('all');
+};
+el('#menuVideos').onclick = (e) => {
+  e.preventDefault();
+  showSection('videos');
+};
+el('#menuEbooks').onclick = (e) => {
+  e.preventDefault();
+  showSection('ebooks');
+};
+el('#menuRecs').onclick = (e) => {
+  e.preventDefault();
+  showSection('recs');
+};
 
+// clique no logo vai pra vídeos
+el('#goHome').onclick = () => showSection('videos');
 </script>
+
 <script>
 /* ======================================================
-   CLASSIFICAÇÃO OFICIAL (REGRAS PAGINATTO)
-======================================================*/
-/*
- PRIORIDADE ABSOLUTA:
- 1) Se tiver item.video → É VÍDEO (mesmo tendo ebook)
- 2) Se NÃO tiver video e tiver tipo:'ebook' → É EBOOK
- 3) Se não tiver nada → EBOOK (fallback)
-*/
-
-function classificar(item){
-  if (item.video) return "video";
-  if (item.tipo === "ebook") return "ebook";
-  return "ebook";
-}
-
-/* ======================================================
-   CARREGAR /API/MY-PRODUCTS
+   CARREGAR /API/MY-PRODUCTS E RENDERIZAR
 ======================================================*/
 async function loadMyProducts() {
   try {
-    const email = sessionStorage.getItem("chef_user_email");
+    const email = localStorage.getItem("chef_user_email");
     if (!email) {
-      return location.href = "login.html";
+      // se não tiver e-mail salvo, volta pro login
+      location.href = "login.html";
+      return;
     }
 
     const r = await fetch("/api/my-products", {
@@ -612,62 +625,35 @@ async function loadMyProducts() {
     const data = await r.json();
 
     if (!data.success) {
-      throw new Error("Falha ao carregar produtos");
+      console.error("Resposta da API:", data);
+      alert("Não encontramos produtos para este e-mail.");
+      return;
     }
 
     const produtos = data.products || [];
-    const videos = data.videos || [];
-    const ebooks = data.ebooks || [];
+    const videosApi = data.videos || [];
+    const ebooksApi = data.ebooks || [];
 
-    // retornamos tudo para usar no render
-    return { produtos, videos, ebooks };
+    // separação por tipo usando os campos do banco
+    const listaModulos = produtos.filter(p => p.deliverable_key);
+    const listaVideos  = videosApi.filter(p => !p.deliverable_key);
+    const listaEbooks  = ebooksApi.filter(p => !p.deliverable_key);
 
-  } catch (err) {
-    console.error("Erro em loadMyProducts:", err);
-    return { produtos: [], videos: [], ebooks: [] };
-  }
-}
-
-
-    /* ===============================
-       LISTAS FINAIS
-    ================================*/
-    const listaVideos = [];
-    const listaEbooks = [];
-    const listaModulos = [];
-
-    produtos.forEach(p => {
-      // é combo?
-      if (p.deliverable_key){
-        listaModulos.push(p);
-        return;
-      }
-
-      // classificar os normais
-      const tipo = classificar(p);
-      if (tipo === "video"){
-        listaVideos.push(p);
-      } else {
-        listaEbooks.push(p);
-      }
-    });
-
-    /* ===============================
-       RENDERIZAR VÍDEOS
-    ================================*/
+    /* ====== VÍDEOS ====== */
     const gridV = document.querySelector("#gridVideos");
     gridV.innerHTML = "";
 
     listaVideos.forEach(p => {
+      const link = p.drive_link || p.checkout_link || p.video || p.ebook || p.link;
       const card = createCard(
         p,
         "Assistir",
-        () => openDriveModal(p.video, p.nome)
+        () => openDriveModal(link, p.name)
       );
       gridV.appendChild(card);
     });
 
-    // módulos também aparecem como "vídeos" (porque têm aulas)
+    // módulos também aparecem como "vídeos"
     listaModulos.forEach(p => {
       const card = createModuleCard(p, "Acessar Conteúdo");
       gridV.appendChild(card);
@@ -675,25 +661,26 @@ async function loadMyProducts() {
 
     document.querySelector("#msgVideos").style.display =
       gridV.children.length ? "none" : "block";
+    if (!gridV.children.length){
+      document.querySelector("#msgVideos").textContent =
+        "Nenhuma vídeo aula liberada ainda para este e-mail.";
+    }
 
-    /* ===============================
-       RENDERIZAR E-BOOKS
-    ================================*/
+    /* ====== E-BOOKS ====== */
     const gridE = document.querySelector("#gridEbooks");
     gridE.innerHTML = "";
 
-    // Apenas ebooks puros (sem video)
     listaEbooks.forEach(p => {
-      const link = p.link || p.ebook;
+      const link = p.drive_link || p.checkout_link || p.ebook || p.video || p.link;
       const card = createCard(
         p,
         "Abrir E-book",
-        () => openDriveModal(link, p.nome)
+        () => openDriveModal(link, p.name)
       );
       gridE.appendChild(card);
     });
 
-    // módulos também aparecem em ebooks (porque podem ter pdfs)
+    // módulos também aparecem em ebooks
     listaModulos.forEach(p => {
       const card = createModuleCard(p, "Acessar Conteúdo");
       gridE.appendChild(card);
@@ -701,9 +688,13 @@ async function loadMyProducts() {
 
     document.querySelector("#msgEbooks").style.display =
       gridE.children.length ? "none" : "block";
+    if (!gridE.children.length){
+      document.querySelector("#msgEbooks").textContent =
+        "Nenhum e-book liberado ainda para este e-mail.";
+    }
 
   } catch (err){
-    console.error(err);
+    console.error("Erro em loadMyProducts:", err);
     alert("Erro ao carregar seus produtos.");
   }
 }
@@ -734,10 +725,14 @@ async function loadRecs(){
 
     document.querySelector("#msgRecs").style.display =
       grid.children.length ? "none" : "block";
+    if (!grid.children.length){
+      document.querySelector("#msgRecs").textContent =
+        "Nenhuma recomendação disponível no momento.";
+    }
 
   } catch(e){
-    console.error(e);
-    alert("Erro ao carregar recomendações.");
+    console.error("Erro em loadRecs:", e);
+    // aqui não dou alert pra não encher o saco, só loga
   }
 }
 
@@ -747,8 +742,11 @@ async function loadRecs(){
 async function boot(){
   const email = localStorage.getItem("chef_user_email");
   if (!email){
-    return; // mostra landing
+    // sem login → mostra só a landing e não entra na área
+    return;
   }
+
+  window.userEmail = email;
 
   // já logado → abre direto a área
   document.querySelector("#landing").style.display = "none";
@@ -760,18 +758,17 @@ async function boot(){
   await loadRecs();
 }
 
-/* botão entrar */
-document.querySelector("#enterBtn").onclick = () => boot();
-
 /* logout */
 document.querySelector("#logoutBtn").onclick = () => {
   localStorage.removeItem("chef_user_email");
   location.href = "login.html";
 };
 
-/* iniciar */
+/* iniciar (caso já esteja logado) */
 boot();
-
 </script>
+
+</body>
+</html>
 
 
