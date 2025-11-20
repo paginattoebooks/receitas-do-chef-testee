@@ -556,8 +556,14 @@ function createCard(item, actionText, actionFn){
 }
 
 function createModuleCard(item, text){
-  return createCard(item, text, () => openModule(item.deliverable_key));
-}
+  return createCard(item, text, () => {
+  if (classificar(item) !== "combo") {
+    alert("Este produto não é um combo.");
+    return;
+  }
+  openModule(item.deliverable_key);
+});
+
 
 /* ===============================
    NAVEGAÇÃO
@@ -646,14 +652,21 @@ async function carregarMeusProdutos(){
     const listaModulos = [];
 
     produtos.forEach(p => {
-      if (p.deliverable_key){
-        listaModulos.push(p);
-        return;
-      }
-      const tipo = classificar(p);
-      if (tipo === "video") listaVideos.push(p);
-      else listaEbooks.push(p);
-    });
+  const tipo = classificar(p);
+
+  if (tipo === "combo") {
+    listaModulos.push(p);
+    return;
+  }
+
+  if (tipo === "video") {
+    listaVideos.push(p);
+    return;
+  }
+
+  // tudo que sobrar é ebook
+  listaEbooks.push(p);
+});
 
     /* vídeos */
     const gridV = el("#gridVideos");
