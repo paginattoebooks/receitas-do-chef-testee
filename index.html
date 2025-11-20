@@ -594,25 +594,38 @@ function classificar(item){
 /* ======================================================
    CARREGAR /API/MY-PRODUCTS
 ======================================================*/
-async function loadMyProducts(){
+async function loadMyProducts() {
   try {
-    const email = localStorage.getItem("chef_user_email");
-    if (!email){
+    const email = sessionStorage.getItem("chef_user_email");
+    if (!email) {
       return location.href = "login.html";
     }
 
     const r = await fetch("/api/my-products", {
       method: "POST",
-      headers: { "Content-Type":"application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
     });
 
     const data = await r.json();
-    if (!data.success){
+
+    if (!data.success) {
       throw new Error("Falha ao carregar produtos");
     }
 
     const produtos = data.products || [];
+    const videos = data.videos || [];
+    const ebooks = data.ebooks || [];
+
+    // retornamos tudo para usar no render
+    return { produtos, videos, ebooks };
+
+  } catch (err) {
+    console.error("Erro em loadMyProducts:", err);
+    return { produtos: [], videos: [], ebooks: [] };
+  }
+}
+
 
     /* ===============================
        LISTAS FINAIS
