@@ -492,6 +492,11 @@ export function mount(container, ctx) {
   console.log('🧩 deliverableKey:', ctx.deliverableKey);
   console.log('📦 produtos disponíveis:', ctx.products);
 
+  // Garantir que o index tenha a função que ele espera
+  if (!ctx.toDrivePreview) {
+    ctx.toDrivePreview = (url) => url;
+  }
+
   const possuiCombo = ctx.products.some(
     (p) => (p.deliverable_key || p.deliverableKey) === ctx.deliverableKey
   );
@@ -507,6 +512,7 @@ export function mount(container, ctx) {
 
   renderCategorias(container, state, ctx);
 }
+
 
 
 
