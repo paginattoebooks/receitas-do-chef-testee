@@ -6,7 +6,7 @@
   <title>Paginatto — Área de Membros</title>
 
   <!-- =========================================================
-       ESTILO BASE (mantido no padrão antigo, grande e detalhado)
+       ESTILO BASE (mantido + novas seções de categorias)
   ========================================================== -->
   <style>
     :root{
@@ -36,7 +36,7 @@
     }
 
     /* =========================================================
-       TELA 1 — LANDING (você curte essa pegada, então ficou)
+       TELA 1 — LANDING
     ========================================================== */
     #landing{
       min-height: 100vh;
@@ -311,11 +311,115 @@
     @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
 
     /* =========================================================
-       ÁREA DE COMBOS (quando o módulo renderizar UI)
-       -> não é card especial, é só um bloco comum
+       ÁREA DE COMBOS (fallback UI do módulo)
     ========================================================== */
-    #comboArea{
-      display:none;
+    #comboArea{ display:none; }
+
+    /* =========================================================
+       NOVO — CATEGORIAS (tela estilo print)
+    ========================================================== */
+    #cats{ display:none; }
+
+    .cat-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    @media (min-width:540px){ .cat-grid{ grid-template-columns: repeat(2,1fr)} }
+    @media (min-width:920px){ .cat-grid{ grid-template-columns: repeat(3,1fr)} }
+
+    .cat-card{
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      cursor: pointer;
+      display:flex;
+      flex-direction:column;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .cat-card:hover{
+      transform: translateY(-2px);
+      filter: brightness(1.01);
+    }
+    .cat-thumb{
+      aspect-ratio: 16/10;
+      width:100%;
+      object-fit: cover;
+      background:#eaf1f3;
+    }
+    .cat-body{
+      padding:12px 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .cat-title{
+      display:grid; gap:4px;
+    }
+    .cat-title h3{
+      font-size:16px; font-weight:900; margin:0;
+    }
+    .cat-title p{
+      font-size:12px; color:var(--muted); margin:0;
+    }
+    .cat-arrow{
+      width:34px; height:34px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      background: #e9f6f8;
+      color:#0a5664;
+      font-weight:900;
+      flex:0 0 auto;
+    }
+
+    /* =========================================================
+       NOVO — VIEW DA CATEGORIA (lista interna)
+    ========================================================== */
+    #catView{ display:none; }
+
+    .back-row{
+      display:flex; align-items:center; gap:8px; margin: 4px 0 12px;
+    }
+    .back-btn{
+      border:0; cursor:pointer; font-weight:800;
+      background:#e9f6f8; color:#054957;
+      padding:8px 12px; border-radius:999px;
+    }
+
+    .recipe-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .recipe-item{
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding:10px;
+      display:grid;
+      grid-template-columns: 110px 1fr;
+      gap:12px;
+      align-items:center;
+    }
+    .recipe-item img{
+      width:110px; height:82px; object-fit:cover;
+      border-radius:12px; background:#eaf1f3;
+    }
+    .recipe-info h3{
+      font-size:15px; font-weight:900; margin-bottom:4px;
+    }
+    .recipe-info p{
+      font-size:12px; color:var(--muted);
+      margin-bottom:8px;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .recipe-actions{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .recipe-actions .btn{
+      flex: initial; min-width:140px;
     }
   </style>
 </head>
@@ -355,6 +459,7 @@
 
       <nav class="menu" id="menuNav">
         <a href="#" id="menuInicio">Início</a>
+        <a href="#" id="menuCats">Categorias</a>
         <a href="#" id="menuVideos">Meus Vídeos</a>
         <a href="#" id="menuEbooks">Meus E-books</a>
         <a href="#" id="menuRecs">Recomendações</a>
@@ -371,6 +476,32 @@
   </header>
 
   <main id="appMain">
+
+    <!-- =========================================================
+         NOVO — SEÇÃO CATEGORIAS
+    ========================================================== -->
+    <section class="section" id="cats">
+      <h2 class="h2">Categorias</h2>
+      <p class="sub">Escolha uma categoria para ver as receitas liberadas.</p>
+      <div id="gridCats" class="cat-grid"></div>
+      <p id="msgCats" class="msg" style="display:none">Nenhuma categoria liberada para este e-mail.</p>
+    </section>
+
+    <!-- =========================================================
+         NOVO — VIEW INTERNA DA CATEGORIA
+    ========================================================== -->
+    <section class="section" id="catView">
+      <div class="back-row">
+        <button class="back-btn" id="backCats">← Voltar</button>
+        <div>
+          <h2 class="h2" id="catTitle" style="margin:0;">Categoria</h2>
+          <p class="sub" id="catSub" style="margin:4px 0 0;">Receitas liberadas.</p>
+        </div>
+      </div>
+
+      <div id="listCat" class="recipe-list"></div>
+      <p id="msgCatEmpty" class="msg" style="display:none">Nenhuma receita nessa categoria ainda.</p>
+    </section>
 
     <!-- =========================================================
          SEÇÃO VÍDEOS
@@ -393,8 +524,7 @@
     </section>
 
     <!-- =========================================================
-         SEÇÃO COMBO (só aparece se precisar renderizar o módulo)
-         Observação: não é card, é uma seção comum.
+         SEÇÃO COMBO (fallback do mount)
     ========================================================== -->
     <section class="section" id="comboArea">
       <h2 class="h2">Conteúdo do seu Combo</h2>
@@ -420,7 +550,7 @@
   <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
   <!-- =========================================================
-       SCRIPT PRINCIPAL (grande, comentado e com fallback)
+       SCRIPT PRINCIPAL (com categorias)
   ========================================================== -->
   <script>
   /* ============================================================
@@ -433,17 +563,16 @@
     return (v || "").toString().toLowerCase();
   }
 
+  function safeText(v){
+    return (v || "").toString();
+  }
+
   // Converte drive /view para /preview
   function toDrivePreview(url){
     if (!url) return "";
     const u = url.toString();
-
-    // já é preview
     if (u.includes("/preview")) return u;
-
-    // arquivo
     if (u.includes("/view")) return u.replace("/view", "/preview");
-
     return u;
   }
 
@@ -457,10 +586,8 @@
 
   function openDriveModal(url, title){
     if (!url) return;
-
     const u = url.toString();
 
-    // Se for pasta do drive, abre nova aba (iframe não rola bem com folder)
     if (u.includes("drive.google.com/drive/folders")){
       window.open(u, "_blank");
       return;
@@ -490,31 +617,25 @@
   }
 
   /* ============================================================
-     REGRA DE CLASSIFICAÇÃO (SUA REGRA FINAL)
+     REGRA DE CLASSIFICAÇÃO
      - vídeo sempre ganha
   ============================================================ */
-
   function isCombo(item){
     const t = safeLower(item.type || item.tipo);
     return t === "combo";
   }
 
   function classifyItem(item){
-    // ✅ REGRA 1: se tem video => VÍDEO
     if (item && item.video) return "video";
-
-    // ✅ REGRA 2: se NÃO tem video, mas tem ebook/link/drive => EBOOK
     if (item && (item.ebook || item.link || item.drive_link)) return "ebook";
 
-    // fallback pelo type
     const t = safeLower(item.type || item.tipo);
     if (t.includes("video")) return "video";
-
     return "ebook";
   }
 
   /* ============================================================
-     CRIAÇÃO DE CARD (Padrão Único)
+     CRIAÇÃO DE CARD (padrão único)
   ============================================================ */
   function createCard(item, actionText, actionFn){
     const card = create('div');
@@ -522,7 +643,6 @@
 
     const img = create('img');
     img.className = "thumb";
-
     img.src = (
       item.thumbnail ||
       item.imagem ||
@@ -530,7 +650,6 @@
       item.cover_image_url ||
       ""
     );
-
     card.appendChild(img);
 
     const body = create('div');
@@ -584,11 +703,6 @@
 
   /* ============================================================
      IMPORTAÇÃO DE MÓDULO (COMBO)
-     Aqui tá o pulo do gato:
-
-     ✅ Tenta múltiplos caminhos.
-     ✅ Se módulo EXPORTA arrays -> explode itens internos.
-     ✅ Se módulo NÃO exporta -> renderiza o mount numa seção comum.
   ============================================================ */
   async function importComboModule(deliverableKey){
     const paths = [
@@ -615,9 +729,13 @@
 
   async function loadModuleItems(deliverableKey){
     const mod = await importComboModule(deliverableKey);
-    if (!mod) return { items: [], mod: null };
+    if (!mod) return { items: [], mod: null, categorias: [] };
 
     let items = [];
+    let categorias = [];
+
+    // ✅ categorias exportadas?
+    if (Array.isArray(mod.categorias)) categorias = mod.categorias.slice();
 
     // ✅ padrão 1: export const itens = [...]
     if (Array.isArray(mod.itens)) {
@@ -642,21 +760,20 @@
       });
     }
 
-    // normaliza
     const normalized = items.map((it, idx) => ({
       ...it,
       __fromModule: deliverableKey,
       __order: idx
     }));
 
-    return { items: normalized, mod };
+    return { items: normalized, mod, categorias };
   }
 
   /* ============================================================
      NAVEGAÇÃO
   ============================================================ */
   function showSection(id){
-    const ids = ['videos','ebooks','comboArea','recs'];
+    const ids = ['cats','catView','videos','ebooks','comboArea','recs'];
     ids.forEach(sec => {
       const node = el('#' + sec);
       if (!node) return;
@@ -664,19 +781,181 @@
     });
   }
 
-  // menu mobile
   el('#menuToggle').onclick = () => {
     el('#menuNav').classList.toggle('open');
   };
 
   el('#menuInicio').onclick = (ev) => { ev.preventDefault(); showSection('all'); };
+  el('#menuCats').onclick   = (ev) => { ev.preventDefault(); showSection('cats'); };
   el('#menuVideos').onclick = (ev) => { ev.preventDefault(); showSection('videos'); };
   el('#menuEbooks').onclick = (ev) => { ev.preventDefault(); showSection('ebooks'); };
   el('#menuRecs').onclick   = (ev) => { ev.preventDefault(); showSection('recs'); };
   el('#goHome').onclick = () => showSection('all');
 
+  el('#backCats').onclick = () => showSection('cats');
+
   /* ============================================================
-     CARREGAR /API/MY-PRODUCTS E EXPLODIR COMBOS
+     CATEGORIAS — RENDER
+  ============================================================ */
+  let __catsMap = new Map();
+  let __catItems = [];
+
+  function buildCatsFromModule(moduleItems, modCats){
+    // moduleItems vindos do buildComboData (tem categoria_id/nome/slug etc.)
+    const map = new Map();
+
+    // 1) se módulo exporta categorias, usa como base
+    if (Array.isArray(modCats) && modCats.length){
+      modCats.forEach(c => {
+        const id = c.id ?? c.categoria_id ?? c.categoriaId;
+        if (id == null) return;
+        map.set(String(id), {
+          id: String(id),
+          slug: c.slug || "",
+          titulo: c.titulo || c.nome || "Categoria",
+          descricaoCurta: c.descricaoCurta || c.description || "",
+          imagemCategoria: c.imagemCategoria || c.imagem || c.cover_image_url || "",
+          items: []
+        });
+      });
+    }
+
+    // 2) adiciona itens agrupados
+    moduleItems.forEach(it => {
+      const cid = (it.categoria_id != null) ? String(it.categoria_id) : (it.categoria ? safeText(it.categoria) : "");
+      if (!cid || cid === "-1") return;
+
+      if (!map.has(cid)){
+        map.set(cid, {
+          id: cid,
+          slug: it.categoria_slug || "",
+          titulo: it.categoria || "Categoria",
+          descricaoCurta: "",
+          imagemCategoria: "",
+          items: []
+        });
+      }
+      map.get(cid).items.push(it);
+    });
+
+    // 3) fallback de imagem: pega thumb do primeiro item
+    map.forEach(cat => {
+      if (!cat.imagemCategoria){
+        const first = cat.items[0];
+        cat.imagemCategoria = first?.thumbnail || first?.imagem || first?.capa || first?.cover_image_url || "";
+      }
+    });
+
+    return map;
+  }
+
+  function renderCats(){
+    const grid = el('#gridCats');
+    grid.innerHTML = "";
+    const catsArr = Array.from(__catsMap.values());
+
+    catsArr.forEach(cat => {
+      const card = create('div');
+      card.className = "cat-card";
+      card.onclick = () => openCategory(cat.id);
+
+      const img = create('img');
+      img.className = "cat-thumb";
+      img.src = cat.imagemCategoria || "";
+      card.appendChild(img);
+
+      const body = create('div');
+      body.className = "cat-body";
+
+      const left = create('div');
+      left.className = "cat-title";
+
+      const h3 = create('h3');
+      h3.textContent = cat.titulo;
+      const p = create('p');
+      p.textContent = cat.descricaoCurta || `${cat.items.length} receitas liberadas`;
+
+      left.appendChild(h3);
+      left.appendChild(p);
+
+      const arrow = create('div');
+      arrow.className = "cat-arrow";
+      arrow.textContent = "➜";
+
+      body.appendChild(left);
+      body.appendChild(arrow);
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+
+    el('#msgCats').style.display = catsArr.length ? "none" : "block";
+    el('#cats').style.display = catsArr.length ? "block" : "none";
+  }
+
+  function openCategory(catId){
+    const cat = __catsMap.get(String(catId));
+    if (!cat) return;
+
+    el('#catTitle').textContent = cat.titulo;
+    el('#catSub').textContent = cat.descricaoCurta || "Receitas liberadas.";
+
+    const list = el('#listCat');
+    list.innerHTML = "";
+
+    const items = (cat.items || []).slice().sort((a,b)=> (a.ordem||a.__order||0) - (b.ordem||b.__order||0));
+
+    items.forEach(it => {
+      const row = create('div');
+      row.className = "recipe-item";
+
+      const img = create('img');
+      img.src = it.thumbnail || it.imagem || it.capa || it.cover_image_url || "";
+      row.appendChild(img);
+
+      const info = create('div');
+      info.className = "recipe-info";
+
+      const h3 = create('h3');
+      h3.textContent = it.nome || it.name || "Receita";
+
+      const p = create('p');
+      p.textContent = it.descricao || it.description || "";
+
+      const actions = create('div');
+      actions.className = "recipe-actions";
+
+      if (it.video){
+        const bVideo = create('button');
+        bVideo.className = "btn buy";
+        bVideo.textContent = "Assistir vídeo";
+        bVideo.onclick = () => openDriveModal(it.video, it.nome || it.name);
+        actions.appendChild(bVideo);
+      }
+
+      if (it.ebook || it.link || it.drive_link){
+        const eb = it.ebook || it.link || it.drive_link;
+        const bEbook = create('button');
+        bEbook.className = "btn";
+        bEbook.textContent = "Baixar e-book";
+        bEbook.onclick = () => openDriveModal(eb, it.nome || it.name);
+        actions.appendChild(bEbook);
+      }
+
+      info.appendChild(h3);
+      info.appendChild(p);
+      info.appendChild(actions);
+
+      row.appendChild(info);
+      list.appendChild(row);
+    });
+
+    el('#msgCatEmpty').style.display = items.length ? "none" : "block";
+    showSection('catView');
+  }
+
+  /* ============================================================
+     CARREGAR /api/my-products e explodir combos
   ============================================================ */
   async function carregarMeusProdutos(){
     const email = localStorage.getItem("chef_user_email");
@@ -705,21 +984,33 @@
       const combos = produtosDB.filter(isCombo);
       const nonCombos = produtosDB.filter(p => !isCombo(p));
 
-      // 2) explode combos -> tenta puxar itens internos via exports
+      // 2) explode combos
       let moduleItems = [];
       let firstComboModule = null;
+      let modCatsMerged = [];
 
       for (const c of combos) {
         if (!c.deliverable_key) continue;
 
-        const { items, mod } = await loadModuleItems(c.deliverable_key);
+        const { items, mod, categorias } = await loadModuleItems(c.deliverable_key);
 
         if (!firstComboModule && mod) firstComboModule = { mod, deliverableKey: c.deliverable_key };
 
         if (items.length){
           moduleItems.push(...items);
         }
+
+        if (Array.isArray(categorias) && categorias.length){
+          modCatsMerged.push(...categorias);
+        }
       }
+
+      // 2.1) salva itens combo globais
+      __catItems = moduleItems.slice();
+
+      // 2.2) monta categorias globais
+      __catsMap = buildCatsFromModule(__catItems, modCatsMerged);
+      renderCats();
 
       // 3) junta tudo (itens do módulo primeiro, depois DB)
       let allOwnedItems = [...moduleItems, ...nonCombos];
@@ -774,9 +1065,7 @@
       el("#msgEbooks").style.display = gridE.children.length ? "none" : "block";
 
       /* ======================
-         FALLBACK DO COMBO:
-         se NÃO veio item interno, mas usuário tem combo,
-         renderiza o mount numa seção normal (sem card).
+         FALLBACK DO COMBO UI
       ====================== */
       const comboArea = el("#comboArea");
       const comboMount = el("#comboMount");
@@ -826,7 +1115,6 @@
       const grid = el("#gridRecs");
       grid.innerHTML = "";
 
-      // não mostra combos nas recomendações
       const listaSemCombos = lista.filter(p => !isCombo(p));
 
       listaSemCombos.forEach(p => {
@@ -845,18 +1133,36 @@
   }
 
   /* ============================================================
-     BUSCA LOCAL (sem quebrar nada)
+     BUSCA LOCAL
   ============================================================ */
   function filterLocal(q){
     const term = q.toLowerCase().trim();
     if (!term){
-      // se apagou busca, mostra tudo
-      document.querySelectorAll(".card").forEach(c => c.style.display="flex");
+      document.querySelectorAll(".card, .recipe-item, .cat-card").forEach(c => c.style.display="flex");
       return;
     }
 
+    // cards normais
     const cards = document.querySelectorAll(".card");
     cards.forEach(card=>{
+      const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
+      const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
+      const show = title.includes(term) || desc.includes(term);
+      card.style.display = show ? "flex" : "none";
+    });
+
+    // recipes
+    const recs = document.querySelectorAll(".recipe-item");
+    recs.forEach(row=>{
+      const title = (row.querySelector("h3")?.textContent || "").toLowerCase();
+      const desc  = (row.querySelector("p")?.textContent || "").toLowerCase();
+      const show = title.includes(term) || desc.includes(term);
+      row.style.display = show ? "grid" : "none";
+    });
+
+    // categorias
+    const cats = document.querySelectorAll(".cat-card");
+    cats.forEach(card=>{
       const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
       const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
       const show = title.includes(term) || desc.includes(term);
@@ -878,11 +1184,16 @@
     el("#searchBar").style.display = "block";
     el("#appMain").style.display = "block";
 
-    // começa mostrando vídeos
-    showSection("videos");
+    // começa mostrando categorias se existir
+    showSection("cats");
 
     await carregarMeusProdutos();
     await loadRecs();
+
+    // se não tiver categorias, cai pra vídeos
+    if (!__catsMap || __catsMap.size === 0){
+      showSection("videos");
+    }
   }
 
   /* ============================================================
@@ -904,13 +1215,10 @@
     localStorage.removeItem("chef_user_email");
     window.location.href = "login.html";
   };
-
   </script>
 
 </body>
 </html>
-
-
 
 
 
