@@ -16,7 +16,7 @@
  * - este módulo NÃO renderiza nada.
  * - este módulo APENAS preenche:
  *    ctx.comboVideos    -> itens com video (video sempre ganha)
- *    ctx.comboEbooks    -> itens sem video e com ebook/link
+ *    ctx.combo    -> itens sem video e com ebook/link
  *    ctx.comboFlattened -> união das duas listas
  *
  * O index pega esses arrays e joga em "Meus Vídeos" / "Meus E-books".
@@ -347,6 +347,29 @@ const ebooksDestacados = [
     link: 'https://drive.google.com/file/d/1_CwnFjHxMqlVPWJbVkizZxPphwsZPuql/view?usp=drive_link'
   }
 ];
+/* ====== EXPORTS DE DADOS PARA O INDEX (NOVO) ====== */
+
+// Junta todas as receitas de todas as categorias em um único array
+const receitasFlat = Object.values(receitasPorCategoria || {}).flat();
+
+// Array único que o index vai usar (mod.itens)
+export const itens = [
+  // todas as receitas (normalmente vão virar VÍDEOS, porque têm .video)
+  ...receitasFlat.map((rec, idx) => ({
+    ...rec,
+    id: rec.id || `rec_${idx}`,
+  })),
+
+    // todos os e-books destacados
+  ...ebooksDestacados.map((eb, idx) => ({
+    ...eb,
+    id: eb.id || `ebook_${idx}`,
+  })),
+];
+
+// Opcional: também exporta só os ebooks num array separado
+export const ebooks = ebooksDestacados;
+
 
 /* ===============================
    EXTRAÇÃO PARA A ÁREA DE MEMBROS
@@ -452,5 +475,6 @@ export function mount(container, ctx) {
   console.log("✅ comboVideos:", ctx.comboVideos.length);
   console.log("✅ comboEbooks:", ctx.comboEbooks.length);
 }
+
 
 
