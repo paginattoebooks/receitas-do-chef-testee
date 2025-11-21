@@ -34,7 +34,7 @@
       color:#ffffff;
       background-image: url('logo azul sem sombra.png');
       background-size: cover;
-      background-position: center center;
+      background-position: center;
       background-repeat: no-repeat;
     }
     #landing::before{
@@ -67,12 +67,6 @@
       justify-content:center;
       margin-top:6px;
     }
-    .landing-brand{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:8px;
-    }
     .landing-brand-name{
       font-weight:700;
       letter-spacing:.22em;
@@ -83,7 +77,6 @@
     .hero{
       width:100%;
       max-width:540px;
-      margin:0 auto;
       text-align:center;
       display:grid;
       gap:18px;
@@ -109,650 +102,476 @@
       background: linear-gradient(90deg, #18b0c8 0%, #22d1e2 100%);
       color:#00333d;
       font-weight: 800;
-      letter-spacing:.12em;
       text-transform:uppercase;
-      box-shadow: 0 14px 34px rgba(0,0,0,.55);
       cursor:pointer;
-      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      transition: .18s;
+      box-shadow: 0 14px 34px rgba(0,0,0,.55);
     }
     .btn-primary:hover{
       transform:translateY(-1px);
-      box-shadow:0 18px 40px rgba(0,0,0,.65);
-      filter:brightness(1.02);
-    }
-    .btn-primary:active{
-      transform:translateY(1px);
-      box-shadow:0 10px 22px rgba(0,0,0,.55);
-      filter:brightness(.98);
+      filter:brightness(1.05);
     }
 
-    /* ====== HEADER / NAV APP ====== */
+    /* HEADER */
     #appHeader{
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: linear-gradient(180deg, rgb(215, 217, 218) 0%, rgba(13,95,112,.92) 50%);
-      color:#141313;
-      box-shadow: var(--shadow);
+      position:sticky;
+      top:0;
+      background: linear-gradient(180deg, rgb(215,217,218) 0%, rgba(13,95,112,.92) 50%);
       display:none;
+      z-index:50;
     }
     .nav-wrap{
-      max-width: 980px; margin: 0 auto;
-      padding: 10px 14px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      position: relative;
-    }
-    .brand-mini{ display:flex; align-items:center; gap:10px; cursor:pointer }
-    .brand-mini img{ width:30px; height:30px; object-fit:contain }
-    .brand-mini span{ font-weight:800; letter-spacing:.4px }
-
-    .menu{
-      display:flex; align-items:center; gap:14px;
-      overflow-x:auto; scrollbar-width:none;
-    }
-    .menu a, .menu button{
-      color:#e8fdff; text-decoration:none; white-space:nowrap;
-      font-size:14px; font-weight:700; letter-spacing:.2px;
-      background:transparent; border:0; cursor:pointer; padding:8px 10px;
-      border-radius: 10px;
-    }
-    .menu a:hover, .menu button:hover{ background: rgba(255,255,255,.08) }
-
-    .menu-toggle{
-      display:none;
+      max-width:980px;
+      margin:auto;
+      padding:12px;
+      display:flex;
+      justify-content:space-between;
       align-items:center;
-      justify-content:center;
-      width:32px;
-      height:32px;
-      border-radius:999px;
-      border:0;
-      background:rgba(255,255,255,0.12);
-      color:#e8fdff;
-      cursor:pointer;
-      font-size:18px;
+    }
+    .menu{
+      display:flex;
+      gap:12px;
+    }
+    .menu a{
+      color:white;
+      text-decoration:none;
+      font-weight:700;
     }
 
-    /* ====== BUSCA ====== */
     .search-bar{
-      max-width:980px; margin: 14px auto 0; padding: 0 14px 12px;
       display:none;
+      max-width:980px;
+      margin:0 auto;
+      padding:15px;
     }
     .search{
-      display:flex; gap:8px; background:var(--card); border-radius:999px; padding:8px 8px 8px 14px;
-      box-shadow: var(--shadow);
+      background:white;
+      border-radius:99px;
+      padding:8px 15px;
+      display:flex;
+      gap:10px;
+      box-shadow:var(--shadow);
     }
     .search input{
-      border:0; outline:0; flex:1; font-size:14px; background:transparent; color:var(--ink);
-    }
-    .icon-btn{
-      width:38px; height:38px; border-radius:50%; border:0; cursor:pointer;
-      background:linear-gradient(120deg, var(--brand) 0%, var(--brand-2) 100%);
-      color:#00313a; font-weight:800;
+      border:0;
+      outline:none;
+      flex:1;
     }
 
-    /* ====== CONTEÚDO ====== */
+    /* APP MAIN */
     #appMain{ display:none; }
 
     .section{
-      max-width: 980px; margin: 12px auto 24px; padding: 0 14px;
+      max-width:980px;
+      margin:30px auto;
+      padding:0 15px;
     }
-    .h2{
-      font-size: clamp(22px, 3.8vw, 28px);
-      font-weight: 900; letter-spacing:.2px;
-      margin: 24px 0 8px;
-    }
-    .sub{ color: var(--muted); margin-bottom: 14px }
-
     .grid{
-      display:grid; grid-template-columns: 1fr; gap:14px;
+      display:grid;
+      gap:15px;
     }
-    @media (min-width:540px){ .grid{ grid-template-columns: repeat(2,1fr) } }
-    @media (min-width:920px){ .grid{ grid-template-columns: repeat(3,1fr) } }
+    @media(min-width:650px){
+      .grid{ grid-template-columns: repeat(2,1fr); }
+    }
+    @media(min-width:960px){
+      .grid{ grid-template-columns: repeat(3,1fr); }
+    }
 
     .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      overflow:hidden;
-      box-shadow: var(--shadow);
-      display:flex; flex-direction:column;
-    }
-    .thumb{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:#eaf1f3 }
-    .card-body{ padding:12px }
-    .card h3{ font-size:16px; font-weight:800; margin: 0 0 6px }
-    .card p{ color:var(--muted); font-size:13px; margin-bottom:10px }
-    .row-btns{ display:flex; gap:8px; }
-    .btn{
-      flex:1; padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:800; letter-spacing:.2px;
-      background: #e9f6f8; color:#054957;
-    }
-    .btn:hover{ filter:brightness(.98) }
-    .btn.buy{ background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%); color:#002e36 }
-
-    .msg{ color:#d12f2f; font-size:14px; }
-
-    /* ====== MODAL VIDEO / EBOOK ====== */
-    .overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.85);
-      display:flex; align-items:center; justify-content:center;
-      z-index:1000; padding:18px;
-      animation: fade .15s ease;
-    }
-    .player{
-      width:min(960px, 100%);
-      background:#000;
+      background:white;
       border-radius:16px;
       overflow:hidden;
-      position:relative;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
     }
-    .player iframe{
+    .thumb{
       width:100%;
-      height:min(70dvh, 520px);
+      aspect-ratio:16/9;
+      object-fit:cover;
+    }
+    .card-body{ padding:14px; }
+    .card h3{ font-size:16px; font-weight:800; margin-bottom:6px; }
+    .card p{ font-size:13px; color:#6a7a80; margin-bottom:12px; }
+
+    .btn{
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
       border:0;
-      display:block;
+      padding:10px 14px;
+      border-radius:12px;
+      color:white;
+      cursor:pointer;
+      font-weight:700;
     }
-    .player-inner{
-      background:#f6fbfc;
-      color:#0f2024;
-      max-height:70dvh;
-      overflow:auto;
-      padding:16px;
+
+    .msg{
+      color:#c92e2e;
+      font-size:14px;
+      margin-top:10px;
     }
+
+    .overlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.85);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      z-index:9999;
+    }
+    iframe{ width:100%; height:70vh; }
     .close{
-      position:absolute; top:10px; left:10px;
-      background:rgba(0,0,0,.6); border:0; color:#fff;
-      padding:8px 12px; border-radius:999px; cursor:pointer;
+      position:absolute; top:20px; left:20px;
+      background:black; color:white;
+      border:0; padding:10px 14px;
+      border-radius:10px; cursor:pointer;
     }
-
-    footer{
-      text-align:center; padding:28px 12px; color:#d6f7fc; background: var(--bg);
-      font-size:12px; letter-spacing:.2px;
-    }
-
-    /* ====== MOBILE NAV ====== */
-    @media (max-width: 720px){
-      .nav-wrap{ justify-content:space-between; }
-      .menu-toggle{ display:flex; }
-      .menu{
-        position:absolute;
-        top:100%;
-        right:14px;
-        margin-top:8px;
-        background:rgba(9, 113, 134, 0.98);
-        border-radius:12px;
-        padding:6px;
-        box-shadow:var(--shadow);
-        flex-direction:column;
-        align-items:flex-start;
-        display:none;
-      }
-      .menu.open{ display:flex; }
-      .menu a, .menu button{
-        width:100%;
-        text-align:left;
-        padding:8px 12px;
-      }
-    }
-
-    @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
   </style>
 </head>
 <body>
 
-<!-- ========= TELA 1 (LANDING) ========= -->
+<!-- LANDING -->
 <section id="landing">
   <div class="landing-inner">
-    <header class="landing-header">
-      <div class="landing-brand">
-        <div class="landing-brand-name">PAGINATTO</div>
-      </div>
-    </header>
+    <div class="landing-header">
+      <div class="landing-brand-name">PAGINATTO</div>
+    </div>
     <div class="hero">
       <h1>As melhores receitas e e-books num só lugar</h1>
-      <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
-      <button class="btn-primary" id="enterBtn">Acessar</button>
+      <p>Acesse agora todos os produtos liberados para o seu e-mail.</p>
+      <button id="enterBtn" class="btn-primary">Acessar</button>
     </div>
   </div>
 </section>
 
-<!-- ========= TELA 2 (APP) ========= -->
+<!-- HEADER -->
 <header id="appHeader">
   <div class="nav-wrap">
     <div class="brand-mini" id="goHome">
-      <img src="LOGO BRANCA COM SOMBRA.png" alt="Paginatto">
       <span>Paginatto</span>
     </div>
-    <button class="menu-toggle" id="menuToggle">⋮</button>
-    <nav class="menu" id="menuNav">
+
+    <nav class="menu">
       <a href="#" id="menuInicio">Início</a>
       <a href="#" id="menuVideos">Meus Vídeos</a>
       <a href="#" id="menuEbooks">Meus E-books</a>
       <a href="#" id="menuRecs">Recomendações</a>
-      <button id="logoutBtn">Sair</button>
+      <a href="#" id="logoutBtn">Sair</a>
     </nav>
   </div>
+
   <div class="search-bar" id="searchBar">
     <div class="search">
-      <input id="q" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)">
-      <button class="icon-btn" id="btnSearch">🔎</button>
+      <input id="q" placeholder="Buscar…">
+      <button id="btnSearch" class="btn">🔎</button>
     </div>
   </div>
 </header>
 
+<!-- MAIN -->
 <main id="appMain">
+
   <section class="section" id="videos">
-    <h2 class="h2">Suas Vídeo Aulas</h2>
-    <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
+    <h2>Suas Vídeo Aulas</h2>
+    <p class="sub">Cursos de vídeo liberados para o seu e-mail.</p>
     <div id="gridVideos" class="grid"></div>
-    <p id="msgVideos" class="msg" style="display:none">Nenhum vídeo liberado para este e-mail.</p>
+    <p id="msgVideos" class="msg" style="display:none">Nenhum vídeo liberado.</p>
   </section>
 
   <section class="section" id="ebooks">
-    <h2 class="h2">Seus E-books</h2>
+    <h2>Seus E-books</h2>
     <p class="sub">E-books liberados para o seu e-mail.</p>
     <div id="gridEbooks" class="grid"></div>
-    <p id="msgEbooks" class="msg" style="display:none">Nenhum e-book liberado para este e-mail.</p>
+    <p id="msgEbooks" class="msg" style="display:none">Nenhum e-book liberado.</p>
   </section>
 
   <section class="section" id="recs">
-    <h2 class="h2">Outros produtos pra você</h2>
-    <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
+    <h2>Outros produtos pra você</h2>
+    <p class="sub">Sugestões do catálogo.</p>
     <div id="gridRecs" class="grid"></div>
-    <p id="msgRecs" class="msg" style="display:none">Nenhuma recomendação neste momento.</p>
+    <p id="msgRecs" class="msg" style="display:none">Nenhuma recomendação.</p>
   </section>
+
 </main>
 
-<footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
+<!-- FOOTER -->
+<footer style="background:#0d5f70; color:white; text-align:center; padding:30px;">
+  © 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.
+</footer>
+
 
 <script>
-/* ===============================
-   HELPERS
-================================*/
-const el = (s) => document.querySelector(s);
-const create = (tag) => document.createElement(tag);
+/*======================================================
+    HELPERS
+======================================================*/
+const el = (s)=>document.querySelector(s);
+const create = (t)=>document.createElement(t);
 
-function toDrivePreview(url){
-  if (!url) return "";
-  if (url.includes("/preview")) return url;
-  if (url.includes("/view")) return url.replace("/view", "/preview");
+function toDrive(url){
+  if(!url) return "";
+  if(url.includes("/preview")) return url;
+  if(url.includes("/view")) return url.replace("/view","/preview");
   return url;
 }
 
-/* ===============================
-   MODAL / DRIVE
-================================*/
-function closeOverlay(){
-  const o = el('#overlay');
-  if (o) o.remove();
-}
-function openDriveModal(url, title){
-  closeOverlay();
-  const o = create('div');
+function openModal(url){
+  const old = el("#overlay");
+  if(old) old.remove();
+
+  const o = create("div");
   o.id = "overlay";
   o.className = "overlay";
 
-  const p = create('div');
-  p.className = "player";
+  const close = create("button");
+  close.className = "close";
+  close.textContent = "Fechar";
+  close.onclick = ()=>o.remove();
 
-  const c = create('button');
-  c.className = "close";
-  c.textContent = "Fechar";
-  c.onclick = closeOverlay;
-
-  const iframe = create('iframe');
-  iframe.src = toDrivePreview(url);
+  const iframe = create("iframe");
+  iframe.src = toDrive(url);
   iframe.allowFullscreen = true;
 
-  p.appendChild(c);
-  p.appendChild(iframe);
-  o.appendChild(p);
+  o.appendChild(close);
+  o.appendChild(iframe);
   document.body.appendChild(o);
 }
 
-/* ===============================
-   CLASSIFICAÇÃO FINAL (sua regra)
-   - AVISA: vídeo sempre ganha.
-   - DB ebooks não vêm com `video`, então caem pra ebook.
-================================*/
-function isCombo(item){
+/*======================================================
+    CLASSIFICAÇÃO — vídeo sempre ganha
+======================================================*/
+function classify(item){
+  if(item.video) return "video";
+  if(item.ebook || item.link || item.drive_link) return "ebook";
+
   const t = (item.type || item.tipo || "").toLowerCase();
-  return t === "combo";
-}
-
-function classifyItem(item){
-  // regra 1: se tem video => video
-  if (item.video) return "video";
-
-  // regra 2: se NÃO tem video, mas tem ebook/link/drive => ebook
-  if (item.ebook || item.link || item.drive_link) return "ebook";
-
-  // fallback: usa type se vier video/ebook (caso futuro)
-  const t = (item.type || item.tipo || "").toLowerCase();
-  if (t.includes("video")) return "video";
+  if(t.includes("video")) return "video";
   return "ebook";
 }
 
-/* ===============================
-   CARDS
-================================*/
-function createCard(item, actionText, actionFn){
-  const card = create('div');
-  card.className = "card";
+/*======================================================
+    LOAD MODULE ITEMS
+======================================================*/
+async function loadModuleItems(key){
+  try{
+    const mod = await import(`/${key}/module.js`);
 
-  const img = create('img');
-  img.className = "thumb";
-  img.src = item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
-  card.appendChild(img);
+    let arr = [];
 
-  const body = create('div');
-  body.className = "card-body";
+    const sets = [
+      mod.itens,
+      mod.videos,
+      mod.videoAulas,
+      mod.receitas,
+      mod.aulas,
+      mod.ebooks,
+      mod.ebooksDestacados,
+      mod.bonus
+    ];
 
-  const h = create('h3');
-  h.textContent = item.name || item.nome || "Produto";
-  body.appendChild(h);
+    sets.forEach(s=>{
+      if(Array.isArray(s)) arr.push(...s);
+    });
 
-  const p = create('p');
-  p.textContent = item.descricao || item.description || "";
-  body.appendChild(p);
-
-  const row = create('div');
-  row.className = "row-btns";
-
-  const btn = create('button');
-  btn.className = "btn buy";
-  btn.textContent = actionText;
-  btn.onclick = actionFn;
-
-  row.appendChild(btn);
-  body.appendChild(row);
-  card.appendChild(body);
-
-  return card;
-}
-
-/* ===============================
-   MÓDULOS (COMBOS)
-   - combo NÃO aparece na tela.
-   - combo só "explode" os itens internos.
-   - ordem dos itens internos = ordem do module.js (sua regra C)
-================================*/
-async function loadModuleItems(deliverableKey){
-  // tenta importar o module.js do combo
-  const modulePath = `/${deliverableKey}/module.js`;
-
-  try {
-    const mod = await import(modulePath);
-
-    // padrões aceitos:
-    // 1) mod.itens
-    // 2) mod.videos / mod.ebooks / arrays diversas
-    // 3) mod.mount (mas mount é só UI, não usamos)
-
-    let items = [];
-
-    if (Array.isArray(mod.itens)) {
-      items = mod.itens.slice();
-    } else {
-      // tenta juntar arrays conhecidas, preservando ordem de cada uma
-      const candidates = [
-        mod.videos,
-        mod.videoAulas,
-        mod.receitas,
-        mod.aulas,
-        mod.ebooks,
-        mod.ebooksDestacados,
-        mod.bonus,
-        mod.items,
-      ];
-
-      candidates.forEach(arr => {
-        if (Array.isArray(arr)) items.push(...arr);
-      });
-    }
-
-    // normaliza pra ter sempre campos iguais
-    return items.map((it, idx) => ({
-      ...it,
-      __fromModule: deliverableKey,
-      __order: idx, // mantém sua ordem
+    return arr.map((x,i)=>({
+      ...x,
+      __order: i,
+      __from: key
     }));
-  } catch (e) {
-    console.error("Falha ao importar módulo:", deliverableKey, e);
+  }catch(e){
+    console.error("Falha módulo",key,e);
     return [];
   }
 }
 
-/* ===============================
-   DEDUP inteligente
-================================*/
-function dedupBySignature(list){
-  const seen = new Set();
-  const out = [];
+/*======================================================
+    RENDER CARD
+======================================================*/
+function renderCard(item, label, action){
+  const c = create("div");
+  c.className = "card";
 
-  for (const it of list) {
-    const sig = [
-      it.id || "",
-      it.nome || it.name || "",
-      it.video || "",
-      it.ebook || it.link || it.drive_link || "",
-      it.__fromModule || ""
-    ].join("|");
+  const img = create("img");
+  img.className = "thumb";
+  img.src = item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
 
-    if (seen.has(sig)) continue;
-    seen.add(sig);
-    out.push(it);
-  }
-  return out;
+  const b = create("div");
+  b.className = "card-body";
+
+  const h = create("h3");
+  h.textContent = item.nome || item.name;
+
+  const p = create("p");
+  p.textContent = item.descricao || item.description || "";
+
+  const btn = create("button");
+  btn.className = "btn";
+  btn.textContent = label;
+  btn.onclick = action;
+
+  b.appendChild(h);
+  b.appendChild(p);
+  b.appendChild(btn);
+
+  c.appendChild(img);
+  c.appendChild(b);
+  return c;
 }
 
-/* ===============================
-   NAVEGAÇÃO
-================================*/
-function showSection(id){
-  const ids = ['videos','ebooks','recs'];
-  ids.forEach(sec => {
-    const node = el('#' + sec);
-    if (!node) return;
-    node.style.display = (id === 'all' || sec === id) ? "block" : "none";
-  });
-}
-
-/* menu mobile */
-el('#menuToggle').onclick = () => {
-  el('#menuNav').classList.toggle('open');
-};
-
-/* cliques de navegação */
-el('#menuInicio').onclick = (ev) => { ev.preventDefault(); showSection('all'); };
-el('#menuVideos').onclick = (ev) => { ev.preventDefault(); showSection('videos'); };
-el('#menuEbooks').onclick = (ev) => { ev.preventDefault(); showSection('ebooks'); };
-el('#menuRecs').onclick   = (ev) => { ev.preventDefault(); showSection('recs'); };
-el('#goHome').onclick = () => showSection('all');
-
-/* ===============================
-   /API/MY-PRODUCTS + EXPLOSÃO DE COMBOS
-================================*/
-async function carregarMeusProdutos(){
-  try {
+/*======================================================
+    LOAD USER PRODUCTS
+======================================================*/
+async function loadProducts(){
+  try{
     const email = localStorage.getItem("chef_user_email");
-    if (!email){
-      alert("Faça login para acessar seus produtos.");
-      return;
-    }
+    if(!email) return;
 
-    const r = await fetch("/api/my-products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+    const r = await fetch("/api/my-products",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ email })
     });
 
     const data = await r.json();
-    if (!data.success){
-      throw new Error(data.message || "Falha ao carregar produtos");
-    }
+    if(!data.success) return alert("Erro ao carregar produtos.");
 
-    const produtosDB = Array.isArray(data.products) ? data.products : [];
-    window.userEmail = email;
-    window.userProducts = produtosDB;
+    const dbProducts = data.products || [];
 
-    // 1) separa combos e não-combos
-    const combos = produtosDB.filter(isCombo);
-    const nonCombos = produtosDB.filter(p => !isCombo(p));
+    const combos = dbProducts.filter(p=>p.type==="combo");
+    const normal = dbProducts.filter(p=>p.type!=="combo");
 
-    // 2) explode combos em itens internos (sem mostrar combo no app)
     let moduleItems = [];
-    for (const c of combos) {
-      if (!c.deliverable_key) continue;
+    for(const c of combos){
       const items = await loadModuleItems(c.deliverable_key);
       moduleItems.push(...items);
     }
 
-    // 3) junta tudo: itens do módulo primeiro (na ordem do módulo),
-    // depois os produtos avulsos do DB (ordem do DB)
-    let allOwnedItems = [...moduleItems, ...nonCombos];
+    const normalizedDB = normal.map(p=>({
+      ...p,
+      nome: p.name,
+      descricao: p.description,
+      ebook: p.drive_link || null,
+      video: null,
+      imagem: p.cover_image_url
+    }));
 
-    // 4) dedup pra não repetir item
-    allOwnedItems = dedupBySignature(allOwnedItems);
+    let all = [...moduleItems, ...normalizedDB];
 
-    // 5) classifica
-    const listaVideos = [];
-    const listaEbooks = [];
+    const videos = [];
+    const ebooks = [];
 
-    allOwnedItems.forEach(p => {
-      const tipo = classifyItem(p);
-      if (tipo === "video") listaVideos.push(p);
-      else listaEbooks.push(p);
+    all.forEach(item=>{
+      const tipo = classify(item);
+      if(tipo==="video") videos.push(item);
+      else ebooks.push(item);
     });
 
-    /* ===== RENDER VÍDEOS ===== */
-    const gridV = el("#gridVideos");
-    gridV.innerHTML = "";
-
-    listaVideos.forEach(p => {
-      const link = p.video || p.drive_link || p.link || p.ebook;
-      const card = createCard(
-        p,
-        "Assistir",
-        () => openDriveModal(link, p.name || p.nome)
-      );
-      gridV.appendChild(card);
+    /* RENDER VIDEOS */
+    const V = el("#gridVideos");
+    V.innerHTML = "";
+    videos.forEach(v=>{
+      const url = v.video || v.drive_link || v.ebook || v.link;
+      V.appendChild(renderCard(v,"Assistir",()=>openModal(url)));
     });
+    el("#msgVideos").style.display = videos.length ? "none" : "block";
 
-    el("#msgVideos").style.display = gridV.children.length ? "none" : "block";
-
-    /* ===== RENDER E-BOOKS ===== */
-    const gridE = el("#gridEbooks");
-    gridE.innerHTML = "";
-
-    listaEbooks.forEach(p => {
-      const link = p.ebook || p.link || p.drive_link;
-      const card = createCard(
-        p,
-        "Abrir E-book",
-        () => openDriveModal(link, p.name || p.nome)
-      );
-      gridE.appendChild(card);
+    /* RENDER EBOOKS */
+    const E = el("#gridEbooks");
+    E.innerHTML = "";
+    ebooks.forEach(e=>{
+      const url = e.ebook || e.link || e.drive_link;
+      E.appendChild(renderCard(e,"Abrir E-book",()=>openModal(url)));
     });
+    el("#msgEbooks").style.display = ebooks.length ? "none" : "block";
 
-    el("#msgEbooks").style.display = gridE.children.length ? "none" : "block";
-
-  } catch (err){
-    console.error("Erro em carregarMeusProdutos:", err);
-    alert("Erro ao carregar seus produtos.");
+  }catch(e){
+    console.error("Erro loadProducts",e);
   }
 }
 
-/* ===============================
-   RECOMENDAÇÕES
-================================*/
+/*======================================================
+    RECS
+======================================================*/
 async function loadRecs(){
-  try {
+  try{
     const email = localStorage.getItem("chef_user_email");
-    if (!email) return;
-
-    const r = await fetch("/api/recommendations?email=" + encodeURIComponent(email));
+    if(!email) return;
+    const r = await fetch("/api/recommendations?email="+email);
     const data = await r.json();
 
-    const lista = data.items || data.products || [];
-    const grid = el("#gridRecs");
-    grid.innerHTML = "";
+    const list = (data.items || data.products || []).filter(p=>p.type!=="combo");
+    const R = el("#gridRecs");
+    R.innerHTML = "";
 
-    // não mostra combos nas recomendações (sua regra)
-    const listaSemCombos = lista.filter(p => !isCombo(p));
-
-    listaSemCombos.forEach(p => {
-      const card = createCard(
-        p,
-        "Comprar",
-        () => window.open(p.checkout_link, "_blank")
-      );
-      grid.appendChild(card);
+    list.forEach(p=>{
+      R.appendChild(renderCard(p,"Comprar",()=>window.open(p.checkout_link,"_blank")));
     });
 
-    el("#msgRecs").style.display = grid.children.length ? "none" : "block";
-
-  } catch(e){
-    console.error("Erro em loadRecs:", e);
+    el("#msgRecs").style.display = R.children.length ? "none" : "block";
+  }catch(e){
+    console.error("Erro loadRecs",e);
   }
 }
 
-/* ===============================
-   BUSCA (simples, sem quebrar nada)
-   - só filtra o que já está na tela
-================================*/
-function filterLocal(q){
-  const term = q.toLowerCase().trim();
-  if (!term) return;
-
-  const cards = document.querySelectorAll(".card");
-  cards.forEach(card=>{
-    const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
-    const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
-    const show = title.includes(term) || desc.includes(term);
-    card.style.display = show ? "flex" : "none";
+/*======================================================
+    SEARCH
+======================================================*/
+function searchLocal(q){
+  const term = q.toLowerCase();
+  document.querySelectorAll(".card").forEach(card=>{
+    const t = card.querySelector("h3")?.textContent.toLowerCase() || "";
+    const d = card.querySelector("p")?.textContent.toLowerCase() || "";
+    card.style.display = (t.includes(term) || d.includes(term)) ? "block" : "none";
   });
 }
-el("#btnSearch").onclick = () => filterLocal(el("#q").value);
-el("#q").addEventListener("keydown", (e)=>{
-  if (e.key === "Enter") filterLocal(el("#q").value);
-});
+el("#btnSearch").onclick = ()=>searchLocal(el("#q").value);
 
-/* ===============================
-   ABRIR ÁREA DE MEMBROS
-================================*/
-async function abrirAreaDeMembros(){
+/*======================================================
+    NAV
+======================================================*/
+function show(id){
+  ["videos","ebooks","recs"].forEach(sec=>{
+    el("#"+sec).style.display = (id==="all" || sec===id) ? "block" : "none";
+  });
+}
+el("#menuInicio").onclick = (e)=>{ e.preventDefault(); show("all"); };
+el("#menuVideos").onclick = (e)=>{ e.preventDefault(); show("videos"); };
+el("#menuEbooks").onclick = (e)=>{ e.preventDefault(); show("ebooks"); };
+el("#menuRecs").onclick   = (e)=>{ e.preventDefault(); show("recs"); };
+
+el("#goHome").onclick = ()=>show("all");
+
+/*======================================================
+    ENTRAR
+======================================================*/
+async function openApp(){
   el("#landing").style.display = "none";
   el("#appHeader").style.display = "block";
   el("#searchBar").style.display = "block";
   el("#appMain").style.display = "block";
 
-  showSection("videos");
-  await carregarMeusProdutos();
+  show("videos");
+  await loadProducts();
   await loadRecs();
 }
 
-/* ===============================
-   BOTÃO ACESSAR
-================================*/
-el("#enterBtn").onclick = () => {
+el("#enterBtn").onclick = ()=>{
   const email = localStorage.getItem("chef_user_email");
-  if (!email){
-    location.href = "login.html";
-  } else {
-    abrirAreaDeMembros();
-  }
+  if(!email) location.href = "login.html";
+  else openApp();
 };
 
-/* ===============================
-   LOGOUT
-================================*/
-el("#logoutBtn").onclick = () => {
+/*======================================================
+    LOGOUT
+======================================================*/
+el("#logoutBtn").onclick = ()=>{
   localStorage.removeItem("chef_user_email");
-  window.location.href = "login.html";
+  location.href = "login.html";
 };
 </script>
 
 </body>
 </html>
+
 
 
 
