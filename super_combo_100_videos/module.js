@@ -3,7 +3,7 @@
 /**
  * Módulo para o deliverable_key "super_combo_100_videos".
  *
- * Contrato com o index (já está pronto no index.html):
+ * Contrato com o index:
  * - exporta: function mount(container, ctx)
  * - ctx:
  *    - ctx.email
@@ -11,7 +11,20 @@
  *    - ctx.deliverableKey        -> "super_combo_100_videos"
  *    - ctx.openDriveModal(url, title)
  *    - ctx.toDrivePreview(url)
+ *
+ * NOVO (VERSÃO A):
+ * - este módulo preenche:
+ *    ctx.comboVideos   -> itens com video (video sempre ganha)
+ *    ctx.comboEbooks   -> itens sem video e com ebook/link
+ *    ctx.comboFlattened-> opcional, união das duas listas
+ *
+ * O index pega esses arrays e joga em "Meus Vídeos" / "Meus E-books".
+ * Aqui NÃO renderizamos cards fora do modal do combo.
  */
+
+/* ===============================
+   HELPERS
+================================*/
 
 /* Helper para imagem do Drive (se vier como /file/d/ID/view) */
 function toDriveImage(url) {
@@ -31,12 +44,42 @@ function toDriveImage(url) {
     return url;
   }
 }
-// Fallback local só para este módulo não quebrar.
-// Aqui a gente NÃO depende da função global do index.
-function toDrivePreview(url) {
+
+/* Preview do Drive (usa o ctx se existir) */
+function toDrivePreview(url, ctx) {
+  if (!url) return "";
+  if (ctx && typeof ctx.toDrivePreview === "function") return ctx.toDrivePreview(url);
+
+  // fallback simples
+  if (url.includes("/preview")) return url;
+  if (url.includes("/view")) return url.replace("/view", "/preview");
   return url;
 }
 
+/* Normaliza campos possíveis */
+function pickThumb(item){
+  return item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
+}
+
+function pickName(item){
+  return item.name || item.nome || "Produto";
+}
+
+function pickDesc(item){
+  return item.descricao || item.description || "";
+}
+
+function pickVideo(item){
+  return item.video || item.video_link || item.drive_video || "";
+}
+
+function pickEbook(item){
+  return item.ebook || item.link || item.drive_link || "";
+}
+
+/* ===============================
+   DADOS DO COMBO
+================================*/
 
 /* ====== DEFINIÇÃO DAS CATEGORIAS (10) ====== */
 const categorias = [
@@ -264,7 +307,7 @@ const ebooksDestacados = [
     id: 'ebook004',
     nome: 'AIR FRYER DO CHEF: AS TOP 10',
     tipo: 'ebook',
-    capa: 'https://drive.google.com/file/d/1ZyUt8N8DLNFF7f32DQQvYRIZufYRW7y2/view?usp=drive_link',
+    capa: 'https://drive.google.com/file/d/1ZyUt8N8DLNFF7f32DQQvRIZufYRW7y2/view?usp=drive_link',
     descricao: 'Receitas práticas e saudáveis para fazer na Airfryer.',
     link: 'https://drive.google.com/file/d/1Vso6lkQ8dHlU08ORLGmDjEktoNtaMEgm/view?usp=drive_link'
   },
@@ -309,6 +352,81 @@ const ebooksDestacados = [
     link: 'https://drive.google.com/file/d/1_CwnFjHxMqlVPWJbVkizZxPphwsZPuql/view?usp=drive_link'
   }
 ];
+
+/* ===============================
+   EXTRAÇÃO PARA A ÁREA DE MEMBROS
+================================*/
+
+/**
+ * Regra master:
+ * - tem video? => VÍDEO (mesmo se tiver ebook junto)
+ * - não tem video e tem ebook/link? => EBOOK
+ */
+function buildComboData() {
+  const comboVideos = [];
+  const comboEbooks = [];
+
+  // receitas por categoria
+  categorias.forEach(cat => {
+    const receitas = receitasPorCategoria[cat.id] || [];
+    receitas.forEach((rec, idx) => {
+      const video = pickVideo(rec);
+      const ebook = pickEbook(rec);
+      const thumb = pickThumb(rec);
+
+      const baseItem = {
+        source: "combo",
+        deliverable_key: "super_combo_100_videos",
+        categoria: cat.titulo,
+        categoria_id: cat.id,
+        categoria_slug: cat.slug,
+        ordem: idx + 1,
+        nome: pickName(rec),
+        descricao: pickDesc(rec),
+        thumb,
+        video: video || null,
+        ebook: ebook || null,
+      };
+
+      if (video) {
+        comboVideos.push({ ...baseItem, tipo: "video" });
+      } else if (ebook) {
+        comboEbooks.push({ ...baseItem, tipo: "ebook" });
+      }
+    });
+  });
+
+  // ebooks destacados (sempre ebook, pq não têm video)
+  ebooksDestacados.forEach((eb, idx) => {
+    const ebook = pickEbook(eb);
+    if (!ebook) return;
+
+    comboEbooks.push({
+      source: "combo",
+      deliverable_key: "super_combo_100_videos",
+      categoria: "E-books Especiais do Combo",
+      categoria_id: -1,
+      categoria_slug: "ebooks_especiais",
+      ordem: idx + 1,
+      tipo: "ebook",
+      nome: pickName(eb),
+      descricao: pickDesc(eb),
+      thumb: pickThumb(eb),
+      video: null,
+      ebook,
+    });
+  });
+
+  return {
+    comboVideos,
+    comboEbooks,
+    comboFlattened: [...comboVideos, ...comboEbooks],
+  };
+}
+
+/* ===============================
+   RENDER DO MODAL DO COMBO
+================================*/
 
 /* ====== RENDER CATEGORIAS (TELA 1) ====== */
 function renderCategorias(container, state, ctx) {
@@ -404,13 +522,13 @@ function renderReceitas(container, state, ctx) {
   });
 
   receitas.forEach((rec) => {
-    const hasVideo = !!rec.video;
-    const hasEbook = !!rec.ebook;
+    const hasVideo = !!pickVideo(rec);
+    const hasEbook = !!pickEbook(rec);
 
     const div = document.createElement('div');
     div.className = 'card';
 
-    const imgUrl = toDriveImage(rec.imagem);
+    const imgUrl = toDriveImage(pickThumb(rec));
 
     let tipoLabel = '';
     if (hasVideo && hasEbook) tipoLabel = 'Vídeo + E-book';
@@ -418,10 +536,10 @@ function renderReceitas(container, state, ctx) {
     else if (hasEbook)        tipoLabel = 'Somente e-book';
 
     div.innerHTML = `
-      <img class="thumb" src="${imgUrl}" alt="${rec.nome}">
+      <img class="thumb" src="${imgUrl}" alt="${pickName(rec)}">
       <div class="card-body">
-        <h3>${rec.nome}</h3>
-        <p>${rec.descricao || ''}</p>
+        <h3>${pickName(rec)}</h3>
+        <p>${pickDesc(rec)}</p>
         ${tipoLabel ? `<p style="font-size:12px;color:#0d5f70;font-weight:600;margin-bottom:8px;">${tipoLabel}</p>` : ''}
         <div class="row-btns"></div>
       </div>
@@ -434,7 +552,8 @@ function renderReceitas(container, state, ctx) {
       btnVideo.className = 'btn';
       btnVideo.textContent = 'Assistir vídeo';
       btnVideo.addEventListener('click', () => {
-        ctx.openDriveModal(rec.video, rec.nome);
+        const url = pickVideo(rec);
+        ctx.openDriveModal(toDrivePreview(url, ctx), pickName(rec));
       });
       btnRow.appendChild(btnVideo);
     }
@@ -444,7 +563,8 @@ function renderReceitas(container, state, ctx) {
       btnEbook.className = 'btn';
       btnEbook.textContent = 'Abrir e-book';
       btnEbook.addEventListener('click', () => {
-        ctx.openDriveModal(rec.ebook, rec.nome);
+        const url = pickEbook(rec);
+        ctx.openDriveModal(toDrivePreview(url, ctx), pickName(rec));
       });
       btnRow.appendChild(btnEbook);
     }
@@ -466,13 +586,13 @@ function renderEbooks(container, ebooks, ctx) {
   ebooks.forEach((item) => {
     const div = document.createElement('div');
     div.className = 'card';
-    const capaUrl = toDriveImage(item.capa);
+    const capaUrl = toDriveImage(pickThumb(item));
 
     div.innerHTML = `
-      <img class="thumb" src="${capaUrl}" alt="${item.nome}">
+      <img class="thumb" src="${capaUrl}" alt="${pickName(item)}">
       <div class="card-body">
-        <h3>${item.nome}</h3>
-        <p>${item.descricao || ''}</p>
+        <h3>${pickName(item)}</h3>
+        <p>${pickDesc(item)}</p>
         <div class="row-btns">
           <button class="btn">Abrir e-book</button>
         </div>
@@ -480,24 +600,23 @@ function renderEbooks(container, ebooks, ctx) {
     `;
 
     div.querySelector('.btn').addEventListener('click', () => {
-      ctx.openDriveModal(item.link, item.nome);
+      const url = pickEbook(item);
+      ctx.openDriveModal(toDrivePreview(url, ctx), pickName(item));
     });
 
     container.appendChild(div);
   });
 }
 
-/* ====== FUNÇÃO PRINCIPAL CHAMADA PELO INDEX ====== */
+/* ===============================
+   FUNÇÃO PRINCIPAL (CHAMADA PELO INDEX)
+================================*/
 export function mount(container, ctx) {
   console.log('🧩 deliverableKey:', ctx.deliverableKey);
   console.log('📦 produtos disponíveis:', ctx.products);
 
-  // Garantir que o index tenha a função que ele espera
-  if (!ctx.toDrivePreview) {
-    ctx.toDrivePreview = (url) => url;
-  }
-
-  const possuiCombo = ctx.products.some(
+  // valida acesso ao combo pelo deliverable_key
+  const possuiCombo = Array.isArray(ctx.products) && ctx.products.some(
     (p) => (p.deliverable_key || p.deliverableKey) === ctx.deliverableKey
   );
 
@@ -506,9 +625,16 @@ export function mount(container, ctx) {
     return;
   }
 
-  const state = {
-    categoriaSelecionada: null,
-  };
+  // === EXTRAÇÃO E ENTREGA PARA O INDEX (VERSÃO A) ===
+  const data = buildComboData();
+  ctx.comboVideos = data.comboVideos;
+  ctx.comboEbooks = data.comboEbooks;
+  ctx.comboFlattened = data.comboFlattened;
 
+  // fallback extra, caso você queira debugar no console
+  window.__comboData = window.__comboData || {};
+  window.__comboData[ctx.deliverableKey] = data;
+
+  const state = { categoriaSelecionada: null };
   renderCategorias(container, state, ctx);
 }
