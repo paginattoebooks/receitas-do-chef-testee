@@ -16,37 +16,34 @@ export default async function handler(req, res) {
   }
 
   try {
-   const query = `
-    SELECT
-      p.id,
-      p.name,
-      p.type,
-      p.description,
-      p.cover_image_url,
-      p.deliverable_key,
-      p.checkout_link,
-      p.drive_link
-   FROM users u
-   JOIN user_products up ON up.user_id = u.id
-   JOIN products p ON p.id = up.product_id
-   WHERE lower(u.email) = lower($1)
-    AND p.is_active = true
-   ORDER BY p.name;
-`;
-
-
+    const query = `
+      SELECT
+        p.id,
+        p.name,
+        p.type,
+        p.description,
+        p.cover_image_url,
+        p.deliverable_key,
+        p.checkout_link,
+        p.drive_link
+      FROM users u
+      JOIN user_products up ON up.user_id = u.id
+      JOIN products p ON p.id = up.product_id
+      WHERE lower(u.email) = lower($1)
+        AND p.is_active = true
+      ORDER BY p.name;
+    `;
 
     const { rows } = await pool.query(query, [email]);
 
-    const videos = rows.filter(r => (r.type || '').toLowerCase().includes('video'));
-    const ebooks = rows.filter(r => (r.type || '').toLowerCase().includes('ebook'));
+    // agora NÃO CLASSIFICAMOS NADA AQUI
+    // apenas devolvemos a lista pura
 
     return res.status(200).json({
       success: true,
       products: rows,
-      videos,
-      ebooks,
     });
+
   } catch (err) {
     console.error('Erro em /api/my-products', err);
     return res.status(500).json({
@@ -55,3 +52,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
