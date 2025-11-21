@@ -1,4 +1,4 @@
-// super_combo_100_videos/module.js
+// super_combo_100_videos/module.js  (VERSÃO A - SEM UI)
 
 /**
  * Módulo para o deliverable_key "super_combo_100_videos".
@@ -12,14 +12,14 @@
  *    - ctx.openDriveModal(url, title)
  *    - ctx.toDrivePreview(url)
  *
- * NOVO (VERSÃO A):
- * - este módulo preenche:
- *    ctx.comboVideos   -> itens com video (video sempre ganha)
- *    ctx.comboEbooks   -> itens sem video e com ebook/link
- *    ctx.comboFlattened-> opcional, união das duas listas
+ * VERSÃO A (SEM COMBO NA UI):
+ * - este módulo NÃO renderiza nada.
+ * - este módulo APENAS preenche:
+ *    ctx.comboVideos    -> itens com video (video sempre ganha)
+ *    ctx.comboEbooks    -> itens sem video e com ebook/link
+ *    ctx.comboFlattened -> união das duas listas
  *
  * O index pega esses arrays e joga em "Meus Vídeos" / "Meus E-books".
- * Aqui NÃO renderizamos cards fora do modal do combo.
  */
 
 /* ===============================
@@ -50,7 +50,6 @@ function toDrivePreview(url, ctx) {
   if (!url) return "";
   if (ctx && typeof ctx.toDrivePreview === "function") return ctx.toDrivePreview(url);
 
-  // fallback simples
   if (url.includes("/preview")) return url;
   if (url.includes("/view")) return url.replace("/view", "/preview");
   return url;
@@ -60,19 +59,15 @@ function toDrivePreview(url, ctx) {
 function pickThumb(item){
   return item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
 }
-
 function pickName(item){
   return item.name || item.nome || "Produto";
 }
-
 function pickDesc(item){
   return item.descricao || item.description || "";
 }
-
 function pickVideo(item){
   return item.video || item.video_link || item.drive_video || "";
 }
-
 function pickEbook(item){
   return item.ebook || item.link || item.drive_link || "";
 }
@@ -425,195 +420,12 @@ function buildComboData() {
 }
 
 /* ===============================
-   RENDER DO MODAL DO COMBO
-================================*/
-
-/* ====== RENDER CATEGORIAS (TELA 1) ====== */
-function renderCategorias(container, state, ctx) {
-  container.innerHTML = `
-    <section class="section">
-      <h2 class="h2">Super Combo Culinário</h2>
-      <p class="sub">
-        Categorias exclusivas liberadas pelo seu combo especial.
-      </p>
-      <div class="grid" id="comboCatsGrid"></div>
-    </section>
-  `;
-
-  const grid = container.querySelector('#comboCatsGrid');
-
-  categorias.forEach((cat) => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    const imgUrl = toDriveImage(cat.imagemCategoria);
-
-    div.innerHTML = `
-      <img class="thumb" src="${imgUrl}" alt="${cat.titulo}">
-      <div class="card-body">
-        <h3>${cat.titulo}</h3>
-        <p>${cat.descricaoCurta || ''}</p>
-        <div class="row-btns">
-          <button class="btn">Ver receitas</button>
-        </div>
-      </div>
-    `;
-
-    div.querySelector('button.btn').addEventListener('click', () => {
-      state.categoriaSelecionada = cat.id;
-      renderReceitas(container, state, ctx);
-    });
-
-    grid.appendChild(div);
-  });
-
-  // Bloco de e-books destacados abaixo das categorias
-  const ebooksSection = document.createElement('section');
-  ebooksSection.className = 'section';
-
-  const ebooksTitle = document.createElement('h2');
-  ebooksTitle.className = 'h2';
-  ebooksTitle.style.marginTop = '28px';
-  ebooksTitle.textContent = 'E-books Especiais do Combo';
-
-  const ebooksSub = document.createElement('p');
-  ebooksSub.className = 'sub';
-  ebooksSub.textContent = 'Conteúdos extras do seu combo.';
-
-  const ebookGrid = document.createElement('div');
-  ebookGrid.className = 'grid';
-
-  ebooksSection.appendChild(ebooksTitle);
-  ebooksSection.appendChild(ebooksSub);
-  ebooksSection.appendChild(ebookGrid);
-  container.appendChild(ebooksSection);
-
-  renderEbooks(ebookGrid, ebooksDestacados, ctx);
-}
-
-/* ====== RENDER RECEITAS (TELA 2: DENTRO DA CATEGORIA) ====== */
-function renderReceitas(container, state, ctx) {
-  const catId = state.categoriaSelecionada;
-  const categoria = categorias.find((c) => c.id === catId);
-  const receitas = receitasPorCategoria[catId] || [];
-
-  if (!categoria) {
-    state.categoriaSelecionada = null;
-    renderCategorias(container, state, ctx);
-    return;
-  }
-
-  container.innerHTML = `
-    <section class="section">
-      <button class="btn" id="btnVoltarCategorias" style="margin-bottom: 12px;">
-        ← Voltar para categorias
-      </button>
-      <h2 class="h2">${categoria.titulo}</h2>
-      <p class="sub">${categoria.descricaoCurta || ''}</p>
-      <div class="grid" id="comboReceitasGrid"></div>
-    </section>
-  `;
-
-  const grid = container.querySelector('#comboReceitasGrid');
-  const btnVoltar = container.querySelector('#btnVoltarCategorias');
-
-  btnVoltar.addEventListener('click', () => {
-    state.categoriaSelecionada = null;
-    renderCategorias(container, state, ctx);
-  });
-
-  receitas.forEach((rec) => {
-    const hasVideo = !!pickVideo(rec);
-    const hasEbook = !!pickEbook(rec);
-
-    const div = document.createElement('div');
-    div.className = 'card';
-
-    const imgUrl = toDriveImage(pickThumb(rec));
-
-    let tipoLabel = '';
-    if (hasVideo && hasEbook) tipoLabel = 'Vídeo + E-book';
-    else if (hasVideo)        tipoLabel = 'Conteúdo em vídeo';
-    else if (hasEbook)        tipoLabel = 'Somente e-book';
-
-    div.innerHTML = `
-      <img class="thumb" src="${imgUrl}" alt="${pickName(rec)}">
-      <div class="card-body">
-        <h3>${pickName(rec)}</h3>
-        <p>${pickDesc(rec)}</p>
-        ${tipoLabel ? `<p style="font-size:12px;color:#0d5f70;font-weight:600;margin-bottom:8px;">${tipoLabel}</p>` : ''}
-        <div class="row-btns"></div>
-      </div>
-    `;
-
-    const btnRow = div.querySelector('.row-btns');
-
-    if (hasVideo) {
-      const btnVideo = document.createElement('button');
-      btnVideo.className = 'btn';
-      btnVideo.textContent = 'Assistir vídeo';
-      btnVideo.addEventListener('click', () => {
-        const url = pickVideo(rec);
-        ctx.openDriveModal(toDrivePreview(url, ctx), pickName(rec));
-      });
-      btnRow.appendChild(btnVideo);
-    }
-
-    if (hasEbook) {
-      const btnEbook = document.createElement('button');
-      btnEbook.className = 'btn';
-      btnEbook.textContent = 'Abrir e-book';
-      btnEbook.addEventListener('click', () => {
-        const url = pickEbook(rec);
-        ctx.openDriveModal(toDrivePreview(url, ctx), pickName(rec));
-      });
-      btnRow.appendChild(btnEbook);
-    }
-
-    if (!hasVideo && !hasEbook) {
-      const btnDisabled = document.createElement('button');
-      btnDisabled.className = 'btn';
-      btnDisabled.disabled = true;
-      btnDisabled.textContent = 'Conteúdo indisponível';
-      btnRow.appendChild(btnDisabled);
-    }
-
-    grid.appendChild(div);
-  });
-}
-
-/* ====== RENDER E-BOOKS DESTACADOS ====== */
-function renderEbooks(container, ebooks, ctx) {
-  ebooks.forEach((item) => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    const capaUrl = toDriveImage(pickThumb(item));
-
-    div.innerHTML = `
-      <img class="thumb" src="${capaUrl}" alt="${pickName(item)}">
-      <div class="card-body">
-        <h3>${pickName(item)}</h3>
-        <p>${pickDesc(item)}</p>
-        <div class="row-btns">
-          <button class="btn">Abrir e-book</button>
-        </div>
-      </div>
-    `;
-
-    div.querySelector('.btn').addEventListener('click', () => {
-      const url = pickEbook(item);
-      ctx.openDriveModal(toDrivePreview(url, ctx), pickName(item));
-    });
-
-    container.appendChild(div);
-  });
-}
-
-/* ===============================
    FUNÇÃO PRINCIPAL (CHAMADA PELO INDEX)
+   - SEM UI
 ================================*/
 export function mount(container, ctx) {
-  console.log('🧩 deliverableKey:', ctx.deliverableKey);
-  console.log('📦 produtos disponíveis:', ctx.products);
+  // NÃO renderiza combo na UI
+  if (container) container.innerHTML = "";
 
   // valida acesso ao combo pelo deliverable_key
   const possuiCombo = Array.isArray(ctx.products) && ctx.products.some(
@@ -621,20 +433,24 @@ export function mount(container, ctx) {
   );
 
   if (!possuiCombo) {
-    container.innerHTML = '<p class="msg">Você ainda não tem acesso a este combo.</p>';
+    ctx.comboVideos = [];
+    ctx.comboEbooks = [];
+    ctx.comboFlattened = [];
     return;
   }
 
-  // === EXTRAÇÃO E ENTREGA PARA O INDEX (VERSÃO A) ===
+  // EXTRAÇÃO E ENTREGA PARA O INDEX
   const data = buildComboData();
   ctx.comboVideos = data.comboVideos;
   ctx.comboEbooks = data.comboEbooks;
   ctx.comboFlattened = data.comboFlattened;
 
-  // fallback extra, caso você queira debugar no console
+  // debug opcional
   window.__comboData = window.__comboData || {};
   window.__comboData[ctx.deliverableKey] = data;
 
-  const state = { categoriaSelecionada: null };
-  renderCategorias(container, state, ctx);
+  console.log("✅ comboVideos:", ctx.comboVideos.length);
+  console.log("✅ comboEbooks:", ctx.comboEbooks.length);
 }
+
+
