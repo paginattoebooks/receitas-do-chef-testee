@@ -191,9 +191,7 @@
     }
 
     /* ====== CONTEÚDO ====== */
-    #appMain{
-      display:none;
-    }
+    #appMain{ display:none; }
 
     .section{
       max-width: 980px; margin: 12px auto 24px; padding: 0 14px;
@@ -232,7 +230,7 @@
 
     .msg{ color:#d12f2f; font-size:14px; }
 
-    /* ====== MODAL VIDEO / EBOOK / MÓDULO ====== */
+    /* ====== MODAL VIDEO / EBOOK ====== */
     .overlay{
       position:fixed; inset:0; background:rgba(0,0,0,.85);
       display:flex; align-items:center; justify-content:center;
@@ -295,10 +293,6 @@
       }
     }
 
-    @keyframes fadeUp{
-      from{ opacity:0; transform: translateY(8px) }
-      to{ opacity:1; transform:none }
-    }
     @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
   </style>
 </head>
@@ -315,9 +309,7 @@
     <div class="hero">
       <h1>As melhores receitas e e-books num só lugar</h1>
       <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
-      <button class="btn-primary" id="enterBtn">
-        Acessar
-      </button>
+      <button class="btn-primary" id="enterBtn">Acessar</button>
     </div>
   </div>
 </section>
@@ -392,10 +384,8 @@ function closeOverlay(){
   const o = el('#overlay');
   if (o) o.remove();
 }
-
 function openDriveModal(url, title){
   closeOverlay();
-
   const o = create('div');
   o.id = "overlay";
   o.className = "overlay";
@@ -419,102 +409,26 @@ function openDriveModal(url, title){
 }
 
 /* ===============================
-   MÓDULO (COMBOS)
+   CLASSIFICAÇÃO FINAL (sua regra)
+   - AVISA: vídeo sempre ganha.
+   - DB ebooks não vêm com `video`, então caem pra ebook.
 ================================*/
-async function openModule(key){
-  closeOverlay();
+function isCombo(item){
+  const t = (item.type || item.tipo || "").toLowerCase();
+  return t === "combo";
+}
 
-  try{
-    const modulePath = `/${key}/module.js`;
-    const mod = await import(modulePath);
+function classifyItem(item){
+  // regra 1: se tem video => video
+  if (item.video) return "video";
 
-    const userProducts = Array.isArray(window.userProducts) ? window.userProducts : [];
-    const email = window.userEmail || "";
+  // regra 2: se NÃO tem video, mas tem ebook/link/drive => ebook
+  if (item.ebook || item.link || item.drive_link) return "ebook";
 
-    if (typeof mod.mount === "function"){
-      const o = create('div');
-      o.id = "overlay";
-      o.className = "overlay";
-
-      const p = create('div');
-      p.className = "player";
-
-      const c = create('button');
-      c.className = "close";
-      c.textContent = "Fechar";
-      c.onclick = closeOverlay;
-
-      const inner = create('div');
-      inner.className = "player-inner";
-
-      p.appendChild(c);
-      p.appendChild(inner);
-      o.appendChild(p);
-      document.body.appendChild(o);
-
-      mod.mount(inner, {
-        email,
-        deliverableKey: key,
-        openDriveModal,
-        toDrivePreview,
-        products: userProducts
-      });
-
-      return;
-    }
-
-    // fallback: lista simples
-    const itens = Array.isArray(mod.itens) ? mod.itens : [];
-
-    const o = create('div');
-    o.id = "overlay";
-    o.className = "overlay";
-
-    const p = create('div');
-    p.className = "player";
-
-    const c = create('button');
-    c.className = "close";
-    c.textContent = "Fechar";
-    c.onclick = closeOverlay;
-
-    const inner = create('div');
-    inner.className = "player-inner";
-
-    const h = create('h2');
-    h.textContent = mod.titulo || "Conteúdo do Combo";
-    inner.appendChild(h);
-
-    itens.forEach(item => {
-      const box = create('div');
-      box.style.marginBottom = "22px";
-
-      const h3 = create('h3');
-      h3.textContent = item.nome;
-      box.appendChild(h3);
-
-      const desc = create('p');
-      desc.textContent = item.descricao || "";
-      box.appendChild(desc);
-
-      const b = create('button');
-      b.className = "btn";
-      b.textContent = "Abrir";
-      b.onclick = () => openDriveModal(item.link, item.nome);
-      box.appendChild(b);
-
-      inner.appendChild(box);
-    });
-
-    p.appendChild(c);
-    p.appendChild(inner);
-    o.appendChild(p);
-    document.body.appendChild(o);
-
-  }catch(e){
-    alert("Erro ao carregar módulo: " + key);
-    console.error(e);
-  }
+  // fallback: usa type se vier video/ebook (caso futuro)
+  const t = (item.type || item.tipo || "").toLowerCase();
+  if (t.includes("video")) return "video";
+  return "ebook";
 }
 
 /* ===============================
@@ -555,15 +469,80 @@ function createCard(item, actionText, actionFn){
   return card;
 }
 
-function createModuleCard(item, text){
-  return createCard(item, text, () => {
-  if (classificar(item) !== "combo") {
-    alert("Este produto não é um combo.");
-    return;
-  }
-  openModule(item.deliverable_key);
-});
+/* ===============================
+   MÓDULOS (COMBOS)
+   - combo NÃO aparece na tela.
+   - combo só "explode" os itens internos.
+   - ordem dos itens internos = ordem do module.js (sua regra C)
+================================*/
+async function loadModuleItems(deliverableKey){
+  // tenta importar o module.js do combo
+  const modulePath = `/${deliverableKey}/module.js`;
 
+  try {
+    const mod = await import(modulePath);
+
+    // padrões aceitos:
+    // 1) mod.itens
+    // 2) mod.videos / mod.ebooks / arrays diversas
+    // 3) mod.mount (mas mount é só UI, não usamos)
+
+    let items = [];
+
+    if (Array.isArray(mod.itens)) {
+      items = mod.itens.slice();
+    } else {
+      // tenta juntar arrays conhecidas, preservando ordem de cada uma
+      const candidates = [
+        mod.videos,
+        mod.videoAulas,
+        mod.receitas,
+        mod.aulas,
+        mod.ebooks,
+        mod.ebooksDestacados,
+        mod.bonus,
+        mod.items,
+      ];
+
+      candidates.forEach(arr => {
+        if (Array.isArray(arr)) items.push(...arr);
+      });
+    }
+
+    // normaliza pra ter sempre campos iguais
+    return items.map((it, idx) => ({
+      ...it,
+      __fromModule: deliverableKey,
+      __order: idx, // mantém sua ordem
+    }));
+  } catch (e) {
+    console.error("Falha ao importar módulo:", deliverableKey, e);
+    return [];
+  }
+}
+
+/* ===============================
+   DEDUP inteligente
+================================*/
+function dedupBySignature(list){
+  const seen = new Set();
+  const out = [];
+
+  for (const it of list) {
+    const sig = [
+      it.id || "",
+      it.nome || it.name || "",
+      it.video || "",
+      it.ebook || it.link || it.drive_link || "",
+      it.__fromModule || ""
+    ].join("|");
+
+    if (seen.has(sig)) continue;
+    seen.add(sig);
+    out.push(it);
+  }
+  return out;
+}
 
 /* ===============================
    NAVEGAÇÃO
@@ -573,13 +552,7 @@ function showSection(id){
   ids.forEach(sec => {
     const node = el('#' + sec);
     if (!node) return;
-    if (id === 'all' || sec === id){
-      node.style.display = "block";
-      node.style.opacity = 1;
-    } else {
-      node.style.display = "none";
-      node.style.opacity = 0;
-    }
+    node.style.display = (id === 'all' || sec === id) ? "block" : "none";
   });
 }
 
@@ -589,40 +562,14 @@ el('#menuToggle').onclick = () => {
 };
 
 /* cliques de navegação */
-el('#menuInicio').onclick = (ev) => {
-  ev.preventDefault();
-  showSection('all');
-};
-
-el('#menuVideos').onclick = (ev) => {
-  ev.preventDefault();
-  showSection('videos');
-};
-
-el('#menuEbooks').onclick = (ev) => {
-  ev.preventDefault();
-  showSection('ebooks');
-};
-
-el('#menuRecs').onclick = (ev) => {
-  ev.preventDefault();
-  showSection('recs');
-};
-
+el('#menuInicio').onclick = (ev) => { ev.preventDefault(); showSection('all'); };
+el('#menuVideos').onclick = (ev) => { ev.preventDefault(); showSection('videos'); };
+el('#menuEbooks').onclick = (ev) => { ev.preventDefault(); showSection('ebooks'); };
+el('#menuRecs').onclick   = (ev) => { ev.preventDefault(); showSection('recs'); };
 el('#goHome').onclick = () => showSection('all');
 
 /* ===============================
-   CLASSIFICAÇÃO
-================================*/
-function classificar(item){
-  if (item.video) return "video";
-  const tipo = (item.type || item.tipo || "").toLowerCase();
-  if (tipo.includes("video")) return "video";
-  return "ebook";
-}
-
-/* ===============================
-   /API/MY-PRODUCTS + RENDER
+   /API/MY-PRODUCTS + EXPLOSÃO DE COMBOS
 ================================*/
 async function carregarMeusProdutos(){
   try {
@@ -643,37 +590,45 @@ async function carregarMeusProdutos(){
       throw new Error(data.message || "Falha ao carregar produtos");
     }
 
-    const produtos = data.products || [];
+    const produtosDB = Array.isArray(data.products) ? data.products : [];
     window.userEmail = email;
-    window.userProducts = produtos;
+    window.userProducts = produtosDB;
 
+    // 1) separa combos e não-combos
+    const combos = produtosDB.filter(isCombo);
+    const nonCombos = produtosDB.filter(p => !isCombo(p));
+
+    // 2) explode combos em itens internos (sem mostrar combo no app)
+    let moduleItems = [];
+    for (const c of combos) {
+      if (!c.deliverable_key) continue;
+      const items = await loadModuleItems(c.deliverable_key);
+      moduleItems.push(...items);
+    }
+
+    // 3) junta tudo: itens do módulo primeiro (na ordem do módulo),
+    // depois os produtos avulsos do DB (ordem do DB)
+    let allOwnedItems = [...moduleItems, ...nonCombos];
+
+    // 4) dedup pra não repetir item
+    allOwnedItems = dedupBySignature(allOwnedItems);
+
+    // 5) classifica
     const listaVideos = [];
     const listaEbooks = [];
-    const listaModulos = [];
 
-    produtos.forEach(p => {
-  const tipo = classificar(p);
+    allOwnedItems.forEach(p => {
+      const tipo = classifyItem(p);
+      if (tipo === "video") listaVideos.push(p);
+      else listaEbooks.push(p);
+    });
 
-  if (tipo === "combo") {
-    listaModulos.push(p);
-    return;
-  }
-
-  if (tipo === "video") {
-    listaVideos.push(p);
-    return;
-  }
-
-  // tudo que sobrar é ebook
-  listaEbooks.push(p);
-});
-
-    /* vídeos */
+    /* ===== RENDER VÍDEOS ===== */
     const gridV = el("#gridVideos");
     gridV.innerHTML = "";
 
     listaVideos.forEach(p => {
-      const link = p.drive_link || p.video;
+      const link = p.video || p.drive_link || p.link || p.ebook;
       const card = createCard(
         p,
         "Assistir",
@@ -682,31 +637,19 @@ async function carregarMeusProdutos(){
       gridV.appendChild(card);
     });
 
-    // módulos também aparecem em vídeos
-    listaModulos.forEach(p => {
-      const card = createModuleCard(p, "Acessar Conteúdo");
-      gridV.appendChild(card);
-    });
-
     el("#msgVideos").style.display = gridV.children.length ? "none" : "block";
 
-    /* e-books */
+    /* ===== RENDER E-BOOKS ===== */
     const gridE = el("#gridEbooks");
     gridE.innerHTML = "";
 
     listaEbooks.forEach(p => {
-      const link = p.drive_link || p.ebook || p.link;
+      const link = p.ebook || p.link || p.drive_link;
       const card = createCard(
         p,
         "Abrir E-book",
         () => openDriveModal(link, p.name || p.nome)
       );
-      gridE.appendChild(card);
-    });
-
-    // módulos também aparecem em e-books
-    listaModulos.forEach(p => {
-      const card = createModuleCard(p, "Acessar Conteúdo");
       gridE.appendChild(card);
     });
 
@@ -733,7 +676,10 @@ async function loadRecs(){
     const grid = el("#gridRecs");
     grid.innerHTML = "";
 
-    lista.forEach(p => {
+    // não mostra combos nas recomendações (sua regra)
+    const listaSemCombos = lista.filter(p => !isCombo(p));
+
+    listaSemCombos.forEach(p => {
       const card = createCard(
         p,
         "Comprar",
@@ -750,6 +696,27 @@ async function loadRecs(){
 }
 
 /* ===============================
+   BUSCA (simples, sem quebrar nada)
+   - só filtra o que já está na tela
+================================*/
+function filterLocal(q){
+  const term = q.toLowerCase().trim();
+  if (!term) return;
+
+  const cards = document.querySelectorAll(".card");
+  cards.forEach(card=>{
+    const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
+    const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
+    const show = title.includes(term) || desc.includes(term);
+    card.style.display = show ? "flex" : "none";
+  });
+}
+el("#btnSearch").onclick = () => filterLocal(el("#q").value);
+el("#q").addEventListener("keydown", (e)=>{
+  if (e.key === "Enter") filterLocal(el("#q").value);
+});
+
+/* ===============================
    ABRIR ÁREA DE MEMBROS
 ================================*/
 async function abrirAreaDeMembros(){
@@ -764,15 +731,13 @@ async function abrirAreaDeMembros(){
 }
 
 /* ===============================
-   BOTÃO ACESSAR (OPÇÃO B)
+   BOTÃO ACESSAR
 ================================*/
 el("#enterBtn").onclick = () => {
   const email = localStorage.getItem("chef_user_email");
   if (!email){
-    // ainda não logou → vai para login
     location.href = "login.html";
   } else {
-    // já logado → entra direto na área
     abrirAreaDeMembros();
   }
 };
@@ -784,9 +749,11 @@ el("#logoutBtn").onclick = () => {
   localStorage.removeItem("chef_user_email");
   window.location.href = "login.html";
 };
-</script> 
+</script>
+
 </body>
 </html>
+
 
 
 
