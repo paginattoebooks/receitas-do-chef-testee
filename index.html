@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Paginatto — Área de Membros</title>
 
+  <!-- =========================================================
+       ESTILO BASE (mantido no padrão antigo, grande e detalhado)
+  ========================================================== -->
   <style>
     :root{
       --bg: #0d5f70;
@@ -18,16 +21,23 @@
       --gold:#c8a96a;
       --shadow: 0 8px 24px rgba(3,41,48,.10);
       --radius: 16px;
+      --danger:#d12f2f;
+      --ok:#137a3a;
     }
+
     *{ box-sizing:border-box; margin:0; padding:0; }
+
     body{
       background: var(--page);
       color: var(--ink);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
       line-height: 1.55;
+      min-height:100vh;
     }
 
-    /* ====== TELA 1 (LANDING) ====== */
+    /* =========================================================
+       TELA 1 — LANDING (você curte essa pegada, então ficou)
+    ========================================================== */
     #landing{
       min-height: 100vh;
       position: relative;
@@ -126,7 +136,9 @@
       filter:brightness(.98);
     }
 
-    /* ====== HEADER / NAV APP ====== */
+    /* =========================================================
+       HEADER / NAV APP
+    ========================================================== */
     #appHeader{
       position: sticky;
       top: 0;
@@ -172,7 +184,9 @@
       font-size:18px;
     }
 
-    /* ====== BUSCA ====== */
+    /* =========================================================
+       BUSCA
+    ========================================================== */
     .search-bar{
       max-width:980px; margin: 14px auto 0; padding: 0 14px 12px;
       display:none;
@@ -190,7 +204,9 @@
       color:#00313a; font-weight:800;
     }
 
-    /* ====== CONTEÚDO ====== */
+    /* =========================================================
+       CONTEÚDO APP
+    ========================================================== */
     #appMain{ display:none; }
 
     .section{
@@ -228,9 +244,11 @@
     .btn:hover{ filter:brightness(.98) }
     .btn.buy{ background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%); color:#002e36 }
 
-    .msg{ color:#d12f2f; font-size:14px; }
+    .msg{ color:var(--danger); font-size:14px; margin-top:6px; }
 
-    /* ====== MODAL VIDEO / EBOOK ====== */
+    /* =========================================================
+       MODAL VIDEO / EBOOK
+    ========================================================== */
     .overlay{
       position:fixed; inset:0; background:rgba(0,0,0,.85);
       display:flex; align-items:center; justify-content:center;
@@ -249,18 +267,13 @@
       height:min(70dvh, 520px);
       border:0;
       display:block;
-    }
-    .player-inner{
-      background:#f6fbfc;
-      color:#0f2024;
-      max-height:70dvh;
-      overflow:auto;
-      padding:16px;
+      background:#000;
     }
     .close{
       position:absolute; top:10px; left:10px;
       background:rgba(0,0,0,.6); border:0; color:#fff;
       padding:8px 12px; border-radius:999px; cursor:pointer;
+      z-index:2;
     }
 
     footer{
@@ -268,7 +281,9 @@
       font-size:12px; letter-spacing:.2px;
     }
 
-    /* ====== MOBILE NAV ====== */
+    /* =========================================================
+       MOBILE NAV
+    ========================================================== */
     @media (max-width: 720px){
       .nav-wrap{ justify-content:space-between; }
       .menu-toggle{ display:flex; }
@@ -294,205 +309,323 @@
     }
 
     @keyframes fade{ from{ opacity:.6 } to{ opacity:1 } }
+
+    /* =========================================================
+       ÁREA DE COMBOS (quando o módulo renderizar UI)
+       -> não é card especial, é só um bloco comum
+    ========================================================== */
+    #comboArea{
+      display:none;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ========= TELA 1 (LANDING) ========= -->
-<section id="landing">
-  <div class="landing-inner">
-    <header class="landing-header">
-      <div class="landing-brand">
-        <div class="landing-brand-name">PAGINATTO</div>
+  <!-- =========================================================
+       TELA 1 (LANDING)
+  ========================================================== -->
+  <section id="landing">
+    <div class="landing-inner">
+      <header class="landing-header">
+        <div class="landing-brand">
+          <div class="landing-brand-name">PAGINATTO</div>
+        </div>
+      </header>
+
+      <div class="hero">
+        <h1>As melhores receitas e e-books num só lugar</h1>
+        <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
+        <button class="btn-primary" id="enterBtn">Acessar</button>
       </div>
-    </header>
-    <div class="hero">
-      <h1>As melhores receitas e e-books num só lugar</h1>
-      <p>Entre agora na sua área de membros e acesse tudo que já está liberado para o seu e-mail.</p>
-      <button class="btn-primary" id="enterBtn">Acessar</button>
     </div>
-  </div>
-</section>
-
-<!-- ========= TELA 2 (APP) ========= -->
-<header id="appHeader">
-  <div class="nav-wrap">
-    <div class="brand-mini" id="goHome">
-      <img src="LOGO BRANCA COM SOMBRA.png" alt="Paginatto">
-      <span>Paginatto</span>
-    </div>
-    <button class="menu-toggle" id="menuToggle">⋮</button>
-    <nav class="menu" id="menuNav">
-      <a href="#" id="menuInicio">Início</a>
-      <a href="#" id="menuVideos">Meus Vídeos</a>
-      <a href="#" id="menuEbooks">Meus E-books</a>
-      <a href="#" id="menuRecs">Recomendações</a>
-      <button id="logoutBtn">Sair</button>
-    </nav>
-  </div>
-  <div class="search-bar" id="searchBar">
-    <div class="search">
-      <input id="q" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)">
-      <button class="icon-btn" id="btnSearch">🔎</button>
-    </div>
-  </div>
-</header>
-
-<main id="appMain">
-  <section class="section" id="videos">
-    <h2 class="h2">Suas Vídeo Aulas</h2>
-    <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
-    <div id="gridVideos" class="grid"></div>
-    <p id="msgVideos" class="msg" style="display:none">Nenhum vídeo liberado para este e-mail.</p>
   </section>
 
-  <section class="section" id="ebooks">
-    <h2 class="h2">Seus E-books</h2>
-    <p class="sub">E-books liberados para o seu e-mail.</p>
-    <div id="gridEbooks" class="grid"></div>
-    <p id="msgEbooks" class="msg" style="display:none">Nenhum e-book liberado para este e-mail.</p>
-  </section>
+  <!-- =========================================================
+       TELA 2 (APP)
+  ========================================================== -->
+  <header id="appHeader">
+    <div class="nav-wrap">
+      <div class="brand-mini" id="goHome">
+        <img src="LOGO BRANCA COM SOMBRA.png" alt="Paginatto">
+        <span>Paginatto</span>
+      </div>
 
-  <section class="section" id="recs">
-    <h2 class="h2">Outros produtos pra você</h2>
-    <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
-    <div id="gridRecs" class="grid"></div>
-    <p id="msgRecs" class="msg" style="display:none">Nenhuma recomendação neste momento.</p>
-  </section>
-</main>
+      <button class="menu-toggle" id="menuToggle">⋮</button>
 
-<footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
+      <nav class="menu" id="menuNav">
+        <a href="#" id="menuInicio">Início</a>
+        <a href="#" id="menuVideos">Meus Vídeos</a>
+        <a href="#" id="menuEbooks">Meus E-books</a>
+        <a href="#" id="menuRecs">Recomendações</a>
+        <button id="logoutBtn">Sair</button>
+      </nav>
+    </div>
 
-<script>
-/* ===============================
-   HELPERS
-================================*/
-const el = (s) => document.querySelector(s);
-const create = (tag) => document.createElement(tag);
+    <div class="search-bar" id="searchBar">
+      <div class="search">
+        <input id="q" placeholder="Buscar receitas, e-books, vídeos… (ex.: dor, bolo, airfryer)">
+        <button class="icon-btn" id="btnSearch">🔎</button>
+      </div>
+    </div>
+  </header>
 
-function toDrivePreview(url){
-  if (!url) return "";
-  if (url.includes("/preview")) return url;
-  if (url.includes("/view")) return url.replace("/view", "/preview");
-  return url;
-}
+  <main id="appMain">
 
-/* ===============================
-   MODAL / DRIVE
-================================*/
-function closeOverlay(){
-  const o = el('#overlay');
-  if (o) o.remove();
-}
-function openDriveModal(url, title){
-  closeOverlay();
-  const o = create('div');
-  o.id = "overlay";
-  o.className = "overlay";
+    <!-- =========================================================
+         SEÇÃO VÍDEOS
+    ========================================================== -->
+    <section class="section" id="videos">
+      <h2 class="h2">Suas Vídeo Aulas</h2>
+      <p class="sub">Cursos em vídeo liberados para o seu e-mail.</p>
+      <div id="gridVideos" class="grid"></div>
+      <p id="msgVideos" class="msg" style="display:none">Nenhum vídeo liberado para este e-mail.</p>
+    </section>
 
-  const p = create('div');
-  p.className = "player";
+    <!-- =========================================================
+         SEÇÃO EBOOKS
+    ========================================================== -->
+    <section class="section" id="ebooks">
+      <h2 class="h2">Seus E-books</h2>
+      <p class="sub">E-books liberados para o seu e-mail.</p>
+      <div id="gridEbooks" class="grid"></div>
+      <p id="msgEbooks" class="msg" style="display:none">Nenhum e-book liberado para este e-mail.</p>
+    </section>
 
-  const c = create('button');
-  c.className = "close";
-  c.textContent = "Fechar";
-  c.onclick = closeOverlay;
+    <!-- =========================================================
+         SEÇÃO COMBO (só aparece se precisar renderizar o módulo)
+         Observação: não é card, é uma seção comum.
+    ========================================================== -->
+    <section class="section" id="comboArea">
+      <h2 class="h2">Conteúdo do seu Combo</h2>
+      <p class="sub">Aqui ficam os conteúdos internos do(s) combo(s).</p>
+      <div id="comboMount"></div>
+      <p id="msgCombo" class="msg" style="display:none">
+        Não conseguimos listar os itens internos do combo porque o módulo não exporta os dados.
+      </p>
+    </section>
 
-  const iframe = create('iframe');
-  iframe.src = toDrivePreview(url);
-  iframe.allowFullscreen = true;
+    <!-- =========================================================
+         SEÇÃO RECS
+    ========================================================== -->
+    <section class="section" id="recs">
+      <h2 class="h2">Outros produtos pra você</h2>
+      <p class="sub">Sugestões do nosso catálogo que ainda não estão liberadas pra você.</p>
+      <div id="gridRecs" class="grid"></div>
+      <p id="msgRecs" class="msg" style="display:none">Nenhuma recomendação neste momento.</p>
+    </section>
 
-  p.appendChild(c);
-  p.appendChild(iframe);
-  o.appendChild(p);
-  document.body.appendChild(o);
-}
+  </main>
 
-/* ===============================
-   CLASSIFICAÇÃO FINAL (sua regra)
-   - AVISA: vídeo sempre ganha.
-   - DB ebooks não vêm com `video`, então caem pra ebook.
-================================*/
-function isCombo(item){
-  const t = (item.type || item.tipo || "").toLowerCase();
-  return t === "combo";
-}
+  <footer>© 2025 PAGINATTO — TODOS OS DIREITOS RESERVADOS.</footer>
 
-function classifyItem(item){
-  // regra 1: se tem video => video
-  if (item.video) return "video";
+  <!-- =========================================================
+       SCRIPT PRINCIPAL (grande, comentado e com fallback)
+  ========================================================== -->
+  <script>
+  /* ============================================================
+     HELPERS
+  ============================================================ */
+  const el = (s) => document.querySelector(s);
+  const create = (tag) => document.createElement(tag);
 
-  // regra 2: se NÃO tem video, mas tem ebook/link/drive => ebook
-  if (item.ebook || item.link || item.drive_link) return "ebook";
+  function safeLower(v){
+    return (v || "").toString().toLowerCase();
+  }
 
-  // fallback: usa type se vier video/ebook (caso futuro)
-  const t = (item.type || item.tipo || "").toLowerCase();
-  if (t.includes("video")) return "video";
-  return "ebook";
-}
+  // Converte drive /view para /preview
+  function toDrivePreview(url){
+    if (!url) return "";
+    const u = url.toString();
 
-/* ===============================
-   CARDS
-================================*/
-function createCard(item, actionText, actionFn){
-  const card = create('div');
-  card.className = "card";
+    // já é preview
+    if (u.includes("/preview")) return u;
 
-  const img = create('img');
-  img.className = "thumb";
-  img.src = item.thumbnail || item.imagem || item.capa || item.cover_image_url || "";
-  card.appendChild(img);
+    // arquivo
+    if (u.includes("/view")) return u.replace("/view", "/preview");
 
-  const body = create('div');
-  body.className = "card-body";
+    return u;
+  }
 
-  const h = create('h3');
-  h.textContent = item.name || item.nome || "Produto";
-  body.appendChild(h);
+  /* ============================================================
+     MODAL / DRIVE
+  ============================================================ */
+  function closeOverlay(){
+    const o = el('#overlay');
+    if (o) o.remove();
+  }
 
-  const p = create('p');
-  p.textContent = item.descricao || item.description || "";
-  body.appendChild(p);
+  function openDriveModal(url, title){
+    if (!url) return;
 
-  const row = create('div');
-  row.className = "row-btns";
+    const u = url.toString();
 
-  const btn = create('button');
-  btn.className = "btn buy";
-  btn.textContent = actionText;
-  btn.onclick = actionFn;
+    // Se for pasta do drive, abre nova aba (iframe não rola bem com folder)
+    if (u.includes("drive.google.com/drive/folders")){
+      window.open(u, "_blank");
+      return;
+    }
 
-  row.appendChild(btn);
-  body.appendChild(row);
-  card.appendChild(body);
+    closeOverlay();
+    const o = create('div');
+    o.id = "overlay";
+    o.className = "overlay";
 
-  return card;
-}
+    const p = create('div');
+    p.className = "player";
 
-/* ===============================
-   MÓDULOS (COMBOS)
-   - combo NÃO aparece na tela.
-   - combo só "explode" os itens internos.
-   - ordem dos itens internos = ordem do module.js (sua regra C)
-================================*/
-async function loadModuleItems(deliverableKey){
-  // tenta importar o module.js do combo
-  const modulePath = `/${deliverableKey}/module.js`;
+    const c = create('button');
+    c.className = "close";
+    c.textContent = "Fechar";
+    c.onclick = closeOverlay;
 
-  try {
-    const mod = await import(modulePath);
+    const iframe = create('iframe');
+    iframe.src = toDrivePreview(u);
+    iframe.allowFullscreen = true;
 
-    // padrões aceitos:
-    // 1) mod.itens
-    // 2) mod.videos / mod.ebooks / arrays diversas
-    // 3) mod.mount (mas mount é só UI, não usamos)
+    p.appendChild(c);
+    p.appendChild(iframe);
+    o.appendChild(p);
+    document.body.appendChild(o);
+  }
+
+  /* ============================================================
+     REGRA DE CLASSIFICAÇÃO (SUA REGRA FINAL)
+     - vídeo sempre ganha
+  ============================================================ */
+
+  function isCombo(item){
+    const t = safeLower(item.type || item.tipo);
+    return t === "combo";
+  }
+
+  function classifyItem(item){
+    // ✅ REGRA 1: se tem video => VÍDEO
+    if (item && item.video) return "video";
+
+    // ✅ REGRA 2: se NÃO tem video, mas tem ebook/link/drive => EBOOK
+    if (item && (item.ebook || item.link || item.drive_link)) return "ebook";
+
+    // fallback pelo type
+    const t = safeLower(item.type || item.tipo);
+    if (t.includes("video")) return "video";
+
+    return "ebook";
+  }
+
+  /* ============================================================
+     CRIAÇÃO DE CARD (Padrão Único)
+  ============================================================ */
+  function createCard(item, actionText, actionFn){
+    const card = create('div');
+    card.className = "card";
+
+    const img = create('img');
+    img.className = "thumb";
+
+    img.src = (
+      item.thumbnail ||
+      item.imagem ||
+      item.capa ||
+      item.cover_image_url ||
+      ""
+    );
+
+    card.appendChild(img);
+
+    const body = create('div');
+    body.className = "card-body";
+
+    const h = create('h3');
+    h.textContent = item.name || item.nome || "Produto";
+    body.appendChild(h);
+
+    const p = create('p');
+    p.textContent = item.descricao || item.description || "";
+    body.appendChild(p);
+
+    const row = create('div');
+    row.className = "row-btns";
+
+    const btn = create('button');
+    btn.className = "btn buy";
+    btn.textContent = actionText;
+    btn.onclick = actionFn;
+
+    row.appendChild(btn);
+    body.appendChild(row);
+    card.appendChild(body);
+
+    return card;
+  }
+
+  /* ============================================================
+     DEDUP INTELIGENTE
+  ============================================================ */
+  function dedupBySignature(list){
+    const seen = new Set();
+    const out = [];
+
+    for (const it of list) {
+      const sig = [
+        it.id || "",
+        it.nome || it.name || "",
+        it.video || "",
+        it.ebook || it.link || it.drive_link || "",
+        it.__fromModule || ""
+      ].join("|");
+
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      out.push(it);
+    }
+    return out;
+  }
+
+  /* ============================================================
+     IMPORTAÇÃO DE MÓDULO (COMBO)
+     Aqui tá o pulo do gato:
+
+     ✅ Tenta múltiplos caminhos.
+     ✅ Se módulo EXPORTA arrays -> explode itens internos.
+     ✅ Se módulo NÃO exporta -> renderiza o mount numa seção comum.
+  ============================================================ */
+  async function importComboModule(deliverableKey){
+    const paths = [
+      `/${deliverableKey}/module.js`,
+      `./${deliverableKey}/module.js`,
+      `modules/${deliverableKey}/module.js`,
+      `./modules/${deliverableKey}/module.js`,
+    ];
+
+    let lastErr = null;
+
+    for (const p of paths){
+      try{
+        const mod = await import(p);
+        return mod;
+      }catch(e){
+        lastErr = e;
+      }
+    }
+
+    console.error("Não achei module.js do combo:", deliverableKey, lastErr);
+    return null;
+  }
+
+  async function loadModuleItems(deliverableKey){
+    const mod = await importComboModule(deliverableKey);
+    if (!mod) return { items: [], mod: null };
 
     let items = [];
 
+    // ✅ padrão 1: export const itens = [...]
     if (Array.isArray(mod.itens)) {
       items = mod.itens.slice();
-    } else {
-      // tenta juntar arrays conhecidas, preservando ordem de cada uma
+    }
+
+    // ✅ padrão 2: vários arrays conhecidos
+    if (items.length === 0){
       const candidates = [
         mod.videos,
         mod.videoAulas,
@@ -509,247 +642,270 @@ async function loadModuleItems(deliverableKey){
       });
     }
 
-    // normaliza pra ter sempre campos iguais
-    return items.map((it, idx) => ({
+    // normaliza
+    const normalized = items.map((it, idx) => ({
       ...it,
       __fromModule: deliverableKey,
-      __order: idx, // mantém sua ordem
+      __order: idx
     }));
-  } catch (e) {
-    console.error("Falha ao importar módulo:", deliverableKey, e);
-    return [];
+
+    return { items: normalized, mod };
   }
-}
 
-/* ===============================
-   DEDUP inteligente
-================================*/
-function dedupBySignature(list){
-  const seen = new Set();
-  const out = [];
-
-  for (const it of list) {
-    const sig = [
-      it.id || "",
-      it.nome || it.name || "",
-      it.video || "",
-      it.ebook || it.link || it.drive_link || "",
-      it.__fromModule || ""
-    ].join("|");
-
-    if (seen.has(sig)) continue;
-    seen.add(sig);
-    out.push(it);
+  /* ============================================================
+     NAVEGAÇÃO
+  ============================================================ */
+  function showSection(id){
+    const ids = ['videos','ebooks','comboArea','recs'];
+    ids.forEach(sec => {
+      const node = el('#' + sec);
+      if (!node) return;
+      node.style.display = (id === 'all' || sec === id) ? "block" : "none";
+    });
   }
-  return out;
-}
 
-/* ===============================
-   NAVEGAÇÃO
-================================*/
-function showSection(id){
-  const ids = ['videos','ebooks','recs'];
-  ids.forEach(sec => {
-    const node = el('#' + sec);
-    if (!node) return;
-    node.style.display = (id === 'all' || sec === id) ? "block" : "none";
-  });
-}
+  // menu mobile
+  el('#menuToggle').onclick = () => {
+    el('#menuNav').classList.toggle('open');
+  };
 
-/* menu mobile */
-el('#menuToggle').onclick = () => {
-  el('#menuNav').classList.toggle('open');
-};
+  el('#menuInicio').onclick = (ev) => { ev.preventDefault(); showSection('all'); };
+  el('#menuVideos').onclick = (ev) => { ev.preventDefault(); showSection('videos'); };
+  el('#menuEbooks').onclick = (ev) => { ev.preventDefault(); showSection('ebooks'); };
+  el('#menuRecs').onclick   = (ev) => { ev.preventDefault(); showSection('recs'); };
+  el('#goHome').onclick = () => showSection('all');
 
-/* cliques de navegação */
-el('#menuInicio').onclick = (ev) => { ev.preventDefault(); showSection('all'); };
-el('#menuVideos').onclick = (ev) => { ev.preventDefault(); showSection('videos'); };
-el('#menuEbooks').onclick = (ev) => { ev.preventDefault(); showSection('ebooks'); };
-el('#menuRecs').onclick   = (ev) => { ev.preventDefault(); showSection('recs'); };
-el('#goHome').onclick = () => showSection('all');
-
-/* ===============================
-   /API/MY-PRODUCTS + EXPLOSÃO DE COMBOS
-================================*/
-async function carregarMeusProdutos(){
-  try {
+  /* ============================================================
+     CARREGAR /API/MY-PRODUCTS E EXPLODIR COMBOS
+  ============================================================ */
+  async function carregarMeusProdutos(){
     const email = localStorage.getItem("chef_user_email");
     if (!email){
       alert("Faça login para acessar seus produtos.");
       return;
     }
 
-    const r = await fetch("/api/my-products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
+    try {
+      const r = await fetch("/api/my-products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
 
-    const data = await r.json();
-    if (!data.success){
-      throw new Error(data.message || "Falha ao carregar produtos");
+      const data = await r.json();
+      if (!data.success){
+        throw new Error(data.message || "Falha ao carregar produtos");
+      }
+
+      const produtosDB = Array.isArray(data.products) ? data.products : [];
+      window.userEmail = email;
+      window.userProducts = produtosDB;
+
+      // 1) separa combos e não-combos
+      const combos = produtosDB.filter(isCombo);
+      const nonCombos = produtosDB.filter(p => !isCombo(p));
+
+      // 2) explode combos -> tenta puxar itens internos via exports
+      let moduleItems = [];
+      let firstComboModule = null;
+
+      for (const c of combos) {
+        if (!c.deliverable_key) continue;
+
+        const { items, mod } = await loadModuleItems(c.deliverable_key);
+
+        if (!firstComboModule && mod) firstComboModule = { mod, deliverableKey: c.deliverable_key };
+
+        if (items.length){
+          moduleItems.push(...items);
+        }
+      }
+
+      // 3) junta tudo (itens do módulo primeiro, depois DB)
+      let allOwnedItems = [...moduleItems, ...nonCombos];
+
+      // 4) dedup
+      allOwnedItems = dedupBySignature(allOwnedItems);
+
+      // 5) classifica por regra final
+      const listaVideos = [];
+      const listaEbooks = [];
+
+      allOwnedItems.forEach(p => {
+        const tipo = classifyItem(p);
+        if (tipo === "video") listaVideos.push(p);
+        else listaEbooks.push(p);
+      });
+
+      /* ======================
+         RENDER VÍDEOS
+      ====================== */
+      const gridV = el("#gridVideos");
+      gridV.innerHTML = "";
+
+      listaVideos.forEach(p => {
+        const link = p.video || p.drive_link || p.link || p.ebook;
+        const card = createCard(
+          p,
+          "Assistir",
+          () => openDriveModal(link, p.name || p.nome)
+        );
+        gridV.appendChild(card);
+      });
+
+      el("#msgVideos").style.display = gridV.children.length ? "none" : "block";
+
+      /* ======================
+         RENDER EBOOKS
+      ====================== */
+      const gridE = el("#gridEbooks");
+      gridE.innerHTML = "";
+
+      listaEbooks.forEach(p => {
+        const link = p.ebook || p.link || p.drive_link;
+        const card = createCard(
+          p,
+          "Abrir E-book",
+          () => openDriveModal(link, p.name || p.nome)
+        );
+        gridE.appendChild(card);
+      });
+
+      el("#msgEbooks").style.display = gridE.children.length ? "none" : "block";
+
+      /* ======================
+         FALLBACK DO COMBO:
+         se NÃO veio item interno, mas usuário tem combo,
+         renderiza o mount numa seção normal (sem card).
+      ====================== */
+      const comboArea = el("#comboArea");
+      const comboMount = el("#comboMount");
+      const msgCombo = el("#msgCombo");
+
+      comboMount.innerHTML = "";
+      comboArea.style.display = "none";
+      msgCombo.style.display = "none";
+
+      if (combos.length && moduleItems.length === 0 && firstComboModule?.mod?.mount){
+        comboArea.style.display = "block";
+
+        try{
+          const ctx = {
+            email,
+            products: produtosDB,
+            deliverableKey: firstComboModule.deliverableKey,
+            openDriveModal,
+            toDrivePreview
+          };
+
+          firstComboModule.mod.mount(comboMount, ctx);
+        }catch(e){
+          console.error("Falha ao montar combo UI:", e);
+          msgCombo.style.display = "block";
+        }
+      }
+
+    } catch (err){
+      console.error("Erro em carregarMeusProdutos:", err);
+      alert("Erro ao carregar seus produtos.");
+    }
+  }
+
+  /* ============================================================
+     RECOMENDAÇÕES
+  ============================================================ */
+  async function loadRecs(){
+    try {
+      const email = localStorage.getItem("chef_user_email");
+      if (!email) return;
+
+      const r = await fetch("/api/recommendations?email=" + encodeURIComponent(email));
+      const data = await r.json();
+
+      const lista = data.items || data.products || [];
+      const grid = el("#gridRecs");
+      grid.innerHTML = "";
+
+      // não mostra combos nas recomendações
+      const listaSemCombos = lista.filter(p => !isCombo(p));
+
+      listaSemCombos.forEach(p => {
+        const card = createCard(
+          p,
+          "Comprar",
+          () => window.open(p.checkout_link, "_blank")
+        );
+        grid.appendChild(card);
+      });
+
+      el("#msgRecs").style.display = grid.children.length ? "none" : "block";
+    } catch(e){
+      console.error("Erro em loadRecs:", e);
+    }
+  }
+
+  /* ============================================================
+     BUSCA LOCAL (sem quebrar nada)
+  ============================================================ */
+  function filterLocal(q){
+    const term = q.toLowerCase().trim();
+    if (!term){
+      // se apagou busca, mostra tudo
+      document.querySelectorAll(".card").forEach(c => c.style.display="flex");
+      return;
     }
 
-    const produtosDB = Array.isArray(data.products) ? data.products : [];
-    window.userEmail = email;
-    window.userProducts = produtosDB;
-
-    // 1) separa combos e não-combos
-    const combos = produtosDB.filter(isCombo);
-    const nonCombos = produtosDB.filter(p => !isCombo(p));
-
-    // 2) explode combos em itens internos (sem mostrar combo no app)
-    let moduleItems = [];
-    for (const c of combos) {
-      if (!c.deliverable_key) continue;
-      const items = await loadModuleItems(c.deliverable_key);
-      moduleItems.push(...items);
-    }
-
-    // 3) junta tudo: itens do módulo primeiro (na ordem do módulo),
-    // depois os produtos avulsos do DB (ordem do DB)
-    let allOwnedItems = [...moduleItems, ...nonCombos];
-
-    // 4) dedup pra não repetir item
-    allOwnedItems = dedupBySignature(allOwnedItems);
-
-    // 5) classifica
-    const listaVideos = [];
-    const listaEbooks = [];
-
-    allOwnedItems.forEach(p => {
-      const tipo = classifyItem(p);
-      if (tipo === "video") listaVideos.push(p);
-      else listaEbooks.push(p);
+    const cards = document.querySelectorAll(".card");
+    cards.forEach(card=>{
+      const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
+      const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
+      const show = title.includes(term) || desc.includes(term);
+      card.style.display = show ? "flex" : "none";
     });
-
-    /* ===== RENDER VÍDEOS ===== */
-    const gridV = el("#gridVideos");
-    gridV.innerHTML = "";
-
-    listaVideos.forEach(p => {
-      const link = p.video || p.drive_link || p.link || p.ebook;
-      const card = createCard(
-        p,
-        "Assistir",
-        () => openDriveModal(link, p.name || p.nome)
-      );
-      gridV.appendChild(card);
-    });
-
-    el("#msgVideos").style.display = gridV.children.length ? "none" : "block";
-
-    /* ===== RENDER E-BOOKS ===== */
-    const gridE = el("#gridEbooks");
-    gridE.innerHTML = "";
-
-    listaEbooks.forEach(p => {
-      const link = p.ebook || p.link || p.drive_link;
-      const card = createCard(
-        p,
-        "Abrir E-book",
-        () => openDriveModal(link, p.name || p.nome)
-      );
-      gridE.appendChild(card);
-    });
-
-    el("#msgEbooks").style.display = gridE.children.length ? "none" : "block";
-
-  } catch (err){
-    console.error("Erro em carregarMeusProdutos:", err);
-    alert("Erro ao carregar seus produtos.");
   }
-}
 
-/* ===============================
-   RECOMENDAÇÕES
-================================*/
-async function loadRecs(){
-  try {
-    const email = localStorage.getItem("chef_user_email");
-    if (!email) return;
-
-    const r = await fetch("/api/recommendations?email=" + encodeURIComponent(email));
-    const data = await r.json();
-
-    const lista = data.items || data.products || [];
-    const grid = el("#gridRecs");
-    grid.innerHTML = "";
-
-    // não mostra combos nas recomendações (sua regra)
-    const listaSemCombos = lista.filter(p => !isCombo(p));
-
-    listaSemCombos.forEach(p => {
-      const card = createCard(
-        p,
-        "Comprar",
-        () => window.open(p.checkout_link, "_blank")
-      );
-      grid.appendChild(card);
-    });
-
-    el("#msgRecs").style.display = grid.children.length ? "none" : "block";
-
-  } catch(e){
-    console.error("Erro em loadRecs:", e);
-  }
-}
-
-/* ===============================
-   BUSCA (simples, sem quebrar nada)
-   - só filtra o que já está na tela
-================================*/
-function filterLocal(q){
-  const term = q.toLowerCase().trim();
-  if (!term) return;
-
-  const cards = document.querySelectorAll(".card");
-  cards.forEach(card=>{
-    const title = (card.querySelector("h3")?.textContent || "").toLowerCase();
-    const desc  = (card.querySelector("p")?.textContent || "").toLowerCase();
-    const show = title.includes(term) || desc.includes(term);
-    card.style.display = show ? "flex" : "none";
+  el("#btnSearch").onclick = () => filterLocal(el("#q").value);
+  el("#q").addEventListener("keydown", (e)=>{
+    if (e.key === "Enter") filterLocal(el("#q").value);
   });
-}
-el("#btnSearch").onclick = () => filterLocal(el("#q").value);
-el("#q").addEventListener("keydown", (e)=>{
-  if (e.key === "Enter") filterLocal(el("#q").value);
-});
 
-/* ===============================
-   ABRIR ÁREA DE MEMBROS
-================================*/
-async function abrirAreaDeMembros(){
-  el("#landing").style.display = "none";
-  el("#appHeader").style.display = "block";
-  el("#searchBar").style.display = "block";
-  el("#appMain").style.display = "block";
+  /* ============================================================
+     ABRIR ÁREA DE MEMBROS
+  ============================================================ */
+  async function abrirAreaDeMembros(){
+    el("#landing").style.display = "none";
+    el("#appHeader").style.display = "block";
+    el("#searchBar").style.display = "block";
+    el("#appMain").style.display = "block";
 
-  showSection("videos");
-  await carregarMeusProdutos();
-  await loadRecs();
-}
+    // começa mostrando vídeos
+    showSection("videos");
 
-/* ===============================
-   BOTÃO ACESSAR
-================================*/
-el("#enterBtn").onclick = () => {
-  const email = localStorage.getItem("chef_user_email");
-  if (!email){
-    location.href = "login.html";
-  } else {
-    abrirAreaDeMembros();
+    await carregarMeusProdutos();
+    await loadRecs();
   }
-};
 
-/* ===============================
-   LOGOUT
-================================*/
-el("#logoutBtn").onclick = () => {
-  localStorage.removeItem("chef_user_email");
-  window.location.href = "login.html";
-};
-</script>
+  /* ============================================================
+     BOTÃO ACESSAR
+  ============================================================ */
+  el("#enterBtn").onclick = () => {
+    const email = localStorage.getItem("chef_user_email");
+    if (!email){
+      location.href = "login.html";
+    } else {
+      abrirAreaDeMembros();
+    }
+  };
+
+  /* ============================================================
+     LOGOUT
+  ============================================================ */
+  el("#logoutBtn").onclick = () => {
+    localStorage.removeItem("chef_user_email");
+    window.location.href = "login.html";
+  };
+
+  </script>
 
 </body>
 </html>
